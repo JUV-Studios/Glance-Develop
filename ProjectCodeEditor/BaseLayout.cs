@@ -1,10 +1,7 @@
 ﻿using ProjectCodeEditor.Models;
+using ProjectCodeEditor.ViewModels;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
 
 namespace ProjectCodeEditor
@@ -19,31 +16,51 @@ namespace ProjectCodeEditor
 
         public abstract void OnSuspend();
 
-        public abstract void OnExit();
+        public abstract void OnResume();
 
         public abstract void Dispose();
 
         public BaseLayout()
         {
-            App.ShellViewModel.FrameCreated += ShellViewModel_FrameCreated;
-            App.ShellViewModel.FrameChanged += ShellViewModel_FrameChanged;
-            App.ShellViewModel.FrameClosedRequested += ShellViewModel_FrameClosed;
+            EditorShellViewModel.FrameCreated += ShellViewModel_FrameCreated;
+            EditorShellViewModel.FrameChanged += ShellViewModel_FrameChanged;
+            EditorShellViewModel.FrameNavigationCompleted += ShellViewModel_FrameNavigationCompleted;
+            EditorShellViewModel.FrameClosedRequested += ShellViewModel_FrameClosed;
         }
 
-        private void ShellViewModel_FrameClosed(object sender, ShellView e) => OnExit();
+        private void ShellViewModel_FrameNavigationCompleted(object sender, ShellView e)
+        {
+            if (ShellInstance == e)
+            {
+                Debug.WriteLine("Resuming");
+                OnResume();
+            }
+        }
 
-        private void ShellViewModel_FrameChanged(object sender, ShellView e) => OnSuspend();
+        private void ShellViewModel_FrameClosed(object sender, ShellView e)
+        {
+            Debug.WriteLine("Disposing");
+            EditorShellViewModel.FrameClosedRequested -= ShellViewModel_FrameClosed;
+            Dispose();
+        }
+
+        private void ShellViewModel_FrameChanged(object sender, ShellView e)
+        {
+            Debug.WriteLine("Suspending");
+            OnSuspend();
+        }
         
         private void ShellViewModel_FrameCreated(object sender, ShellView e)
         {
-            if (e != null)
+            if (ShellInstance != null)
             {
                 throw new InvalidOperationException("Incorrect usage");
             }
 
+            FrameID = Guid.NewGuid();
             ShellInstance = e;
             OnLoad();
-            App.ShellViewModel.FrameCreated -= ShellViewModel_FrameCreated;
+            EditorShellViewModel.FrameCreated -= ShellViewModel_FrameCreated;
         }
     }
 }

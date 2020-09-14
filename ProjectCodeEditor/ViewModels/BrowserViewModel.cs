@@ -12,6 +12,14 @@ namespace ProjectCodeEditor.ViewModels
             set => Set(ref _ProgressRingOn, value);
         }
 
+        private bool _ContentShown = false;
+
+        public bool ContentShown
+        {
+            get => _ContentShown;
+            set => Set(ref _ContentShown, value);
+        }
+
         private string _WorkString;
 
         public string WorkString

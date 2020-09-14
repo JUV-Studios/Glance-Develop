@@ -13,60 +13,42 @@ namespace ProjectCodeEditor.ViewModels
 {
     public sealed class EditorShellViewModel : Observable
     {
-        public event EventHandler<ShellView> FrameCreated;
+        public static event EventHandler<ShellView> FrameCreated;
 
-        public event EventHandler<ShellView> FrameChanged;
+        public static event EventHandler<ShellView> FrameChanged;
 
-        public event EventHandler FrameNavigationCompleted;
+        public static event EventHandler<ShellView> FrameNavigationCompleted;
 
-        public event EventHandler<ShellView> FrameClosedRequested;
+        public static event EventHandler<ShellView> FrameClosedRequested;
 
-        public void InvokeFrameNavigationCompleted(object sender)
+        public void InvokeFrameNavigationCompleted(object sender, ShellView e)
         {
-            FrameNavigationCompleted?.Invoke(sender, null);
+            FrameNavigationCompleted?.Invoke(sender, e);
         }
 
-        public void AddWebPage(string uriString = null)
+        public void AddLayout(ShellView view, bool multiple = false)
         {
-            bool contains = false;
-            int index = 0;
-            for (int i = 0; i < Instances.Count; i++)
+            FrameCreated?.Invoke(this, view);
+
+            Instances.Add(view);
+
+            if (!multiple) SelectedItem = Instances.Last();
+        }
+
+        public void AddWebPage(string uriString = "about:blank")
+        {
+            AddLayout(new ShellView()
             {
-                if (Instances[i].Title == "TabBrowserDisplayName".GetLocalized())
-                {
-                    contains = true;
-                    index = i;
-                    break;
-                }
-            }
-
-            if (contains)
-            {
-                var item = Instances[index];
-                item.Parameter = uriString;
-                SelectedItem = Instances[index];
-            }
-            else
-            {
-                var item = new ShellView()
-                {
-                    Title = "TabBrowserDisplayName".GetLocalized(),
-                    Caption = "TabBrowserCaption".GetLocalized(),
-                    Content = new BrowserPage(),
-                    Parameter = uriString
-                };
-
-                FrameCreated?.Invoke(null, item);
-
-                Instances.Add(item);
-
-                SelectedItem = Instances.Last();
-            }
+                Title = "TabBrowserDisplayName".GetLocalized(),
+                Caption = "TabBrowserCaption".GetLocalized(),
+                Content = new BrowserPage(),
+                Parameter = uriString
+            });
         }
 
         public void AddFile(StorageFile file, bool multiple = false)
         {
-            bool contains = false;
+            /* bool contains = false;
             int index = 0;
             for (int i = 0; i < Instances.Count; i++)
             {
@@ -111,7 +93,7 @@ namespace ProjectCodeEditor.ViewModels
                 {
                     SelectedItem = Instances.Last();
                 }
-            }
+            } */
         }
 
         public void RemoveSelectedItem()
@@ -125,7 +107,7 @@ namespace ProjectCodeEditor.ViewModels
         {
             get
             {
-                if (Instances.IndexOf(SelectedItem) == 0) return false;
+                if (SelectedItem.Caption == "HubCaption") return false;
                 else return true;
             }
             set
@@ -148,25 +130,23 @@ namespace ProjectCodeEditor.ViewModels
             }
         }
 
+
         public ObservableCollection<ShellView> Instances = new ObservableCollection<ShellView>();
 
-        public EditorShellViewModel()
+
+        private void Load()
         {
-            Frame frame = new Frame()
-            {
-                IsNavigationStackEnabled = false
-            };
-
-            frame.Navigate(typeof(MainPage));
-
-            Instances.Add(new ShellView()
+            AddLayout(new ShellView()
             {
                 Title = "HubTitle".GetLocalized(),
                 Caption = "HubCaption".GetLocalized(),
-                Content = frame
+                Content = new MainPage()
             });
+        }
 
-            SelectedItem = Instances.Last();
+        public EditorShellViewModel()
+        {
+            Load();
         }
     }
 }

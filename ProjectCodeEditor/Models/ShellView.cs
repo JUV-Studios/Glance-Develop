@@ -10,6 +10,6 @@ namespace ProjectCodeEditor.Models
 
         public object Parameter { get; set; }
 
-        public UIElement Content { get; set; }
+        public BaseLayout Content { get; set; }
     }
 }

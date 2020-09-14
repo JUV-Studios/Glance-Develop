@@ -18,27 +18,27 @@
     <Grid>
         <MenuBar HorizontalAlignment="Left" VerticalAlignment="Top">
             <MenuBarItem x:Uid="EditorEditMenu" AccessKey="F">
-                <MenuFlyoutItem x:Uid="EditMenuFindItem" Click="Find_Click">
+                <MenuFlyoutItem x:Uid="EditMenuFindItem">
                     <MenuFlyoutItem.Icon>
                         <SymbolIcon Symbol="Find" />
                     </MenuFlyoutItem.Icon>
                 </MenuFlyoutItem>
             </MenuBarItem>
         </MenuBar>
-        <RichEditBox x:Name="Editor" CornerRadius="0" DisabledFormattingAccelerators="All" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" IsSpellCheckEnabled="False" KeyDown="Editor_KeyDown" />
+        <RichEditBox x:Name="Editor" CornerRadius="0" DisabledFormattingAccelerators="All" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" IsSpellCheckEnabled="False" />
         <CommandBar DefaultLabelPosition="Right" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
             <CommandBar.Content>
                 <TextBlock Margin="{StaticResource SmallLeftTopMargin}" Text="{x:Bind ViewModel.WorkString, Mode=OneWay}" />
             </CommandBar.Content>
             <CommandBar.PrimaryCommands>
-                <AppBarButton x:Uid="EditorCommandBarSaveButton" Icon="Save" Click="{x:Bind SaveFile}">
+                <AppBarButton x:Uid="EditorCommandBarSaveButton" Icon="Save">
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Key="S" Modifiers="Control" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
             </CommandBar.PrimaryCommands>
             <CommandBar.SecondaryCommands>
-                <AppBarButton x:Uid="EditorCommandBarShareButton" Icon="Share" Click="Share_Click" />
+                <AppBarButton x:Uid="EditorCommandBarShareButton" Icon="Share" />
             </CommandBar.SecondaryCommands>
         </CommandBar>
     </Grid>

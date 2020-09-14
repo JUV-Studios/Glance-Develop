@@ -12,7 +12,7 @@ namespace ProjectCodeEditor.Views
         public MonacoEditorPage()
         {
             InitializeComponent();
-            App.ShellViewModel.FrameCreated += ShellViewModel_FrameCreated;
+            EditorShellViewModel.FrameCreated += ShellViewModel_FrameCreated;
         }
 
         private void Load()

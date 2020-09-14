@@ -10,51 +10,40 @@ using Windows.UI.Xaml.Input;
 
 namespace ProjectCodeEditor.Views
 {
-    public sealed partial class BrowserPage : UserControl
+    public sealed partial class BrowserPage : BaseLayout
     {
         public BrowserViewModel ViewModel { get; } = new BrowserViewModel();
+
         private Uri UriToNavigate;
 
         public BrowserPage()
         {
             InitializeComponent();
-            App.ShellViewModel.FrameCreated += EditorShellViewModel_FrameCreated;
-            App.ShellViewModel.FrameClosed += EditorShellViewModel_FrameClosed;
         }
 
-        private void EditorShellViewModel_FrameCreated(object sender, ShellView e)
+        private Uri ConvertStringToUri(string val)
         {
-            if (e.Parameter is string)
+            string text = AddressBox.Text.ToLower();
+            if (!text.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || !text.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
-                WebContent.NavigationCompleted -= WebContent_NavigationCompleted;
-                var uri = new Uri(e.Parameter as string);
-                if (uri != UriToNavigate)
-                {
-                    UriToNavigate = uri;
-                    WebContent.Navigate(UriToNavigate);
-                }
+                text = "http://" + text;
             }
-            App.ShellViewModel.FrameCreated -= EditorShellViewModel_FrameCreated;
+
+            return new Uri(text);
         }
 
         private void TextBox_KeyUp(object sender, KeyRoutedEventArgs e)
         {
             if (e.Key == VirtualKey.Enter)
             {
-                string text = AddressBox.Text.ToLower();
-                if (!text.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || !text.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-                {
-                    text = "http://" + text;
-                }
-
-                WebContent.Navigate(new Uri(text));
+                WebContent.Navigate(ConvertStringToUri((sender as TextBox).Text));
             }
         }
 
         private void WebContent_NavigationStarting(WebView sender, WebViewNavigationStartingEventArgs args)
         {
             ViewModel.ProgressRingOn = true;
-            WebContent.Visibility = Visibility.Collapsed;
+            ViewModel.ContentShown = true;
             ViewModel.WorkString = "WorkStringTaskLoad".GetLocalized();
             AddressBox.Text = args.Uri.AbsoluteUri;
             AddressBox.IsReadOnly = true;
@@ -66,18 +55,44 @@ namespace ProjectCodeEditor.Views
             {
                 ViewModel.WorkString = sender.DocumentTitle;
                 ViewModel.ProgressRingOn = true;
-                WebContent.Visibility = Visibility.Visible;
+                ViewModel.ContentShown = true;
                 AddressBox.Text = args.Uri.AbsoluteUri;
                 BackButton.Visibility = sender.CanGoBack ? Visibility.Visible : Visibility.Collapsed;
                 ForwardButton.Visibility = sender.CanGoForward ? Visibility.Visible : Visibility.Collapsed;
                 MainViewModel.RecentPagesContainer.Values[sender.DocumentTitle] = AddressBox.Text;
                 RefreshButton.Visibility = Visibility.Visible;
                 AddressBox.IsReadOnly = false;
+                ShellInstance.Title = sender.DocumentTitle;
+                ShellInstance.Caption = sender.Source.AbsoluteUri;
             }
         }
 
-        private void EditorShellViewModel_FrameClosed(object sender, ShellView e)
+        public override void OnLoad()
         {
+            WebContent.NavigationCompleted -= WebContent_NavigationCompleted;
+            var uri = new Uri(ShellInstance.Parameter as string);
+            if (uri != UriToNavigate)
+            {
+                UriToNavigate = uri;
+                WebContent.Navigate(UriToNavigate);
+            }
+        }
+
+        public override void OnSuspend()
+        {
+            WebContent.NavigationStarting -= WebContent_NavigationStarting;
+            WebContent.NavigationCompleted -= WebContent_NavigationCompleted;
+        }
+
+        public override void OnResume()
+        {
+            WebContent.NavigationStarting += WebContent_NavigationStarting;
+            WebContent.NavigationCompleted += WebContent_NavigationCompleted;
+        }
+
+        private void ReduceMemoryUsage()
+        {
+            WebContent.NavigationStarting -= WebContent_NavigationStarting;
             WebContent.NavigationCompleted -= WebContent_NavigationCompleted;
             Debug.WriteLine("Cleaning up memory");
             int count = 0;
@@ -92,8 +107,12 @@ namespace ProjectCodeEditor.Views
                     timer.Stop();
                 }
             };
+        }
 
-            App.ShellViewModel.FrameClosed -= EditorShellViewModel_FrameClosed;
+        public override void Dispose()
+        {
+            ReduceMemoryUsage();
+            WebContent = null;
         }
     }
 }

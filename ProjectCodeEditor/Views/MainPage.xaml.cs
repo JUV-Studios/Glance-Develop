@@ -7,11 +7,9 @@ using Windows.UI.Xaml.Input;
 
 namespace ProjectCodeEditor.Views
 {
-    public sealed partial class MainPage : Page
+    public sealed partial class MainPage : BaseLayout
     {
         public MainViewModel ViewModel { get; } = new MainViewModel();
-        private bool reload = false;
-
         private Type SettingsPageType
         {
             get => typeof(SettingsPage);
@@ -22,32 +20,7 @@ namespace ProjectCodeEditor.Views
             InitializeComponent();
         }
 
-        private void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-            ViewModel.LoadRecentItems();
-            ViewModel.RecentListChanged += ViewModel_RecentListChanged;
-            ShowHideCommandBar();
-            App.ShellViewModel.FrameChanged += EditorShellViewModel_FrameChanged;
-            App.ShellViewModel.FrameNavigationCompleted += EditorShellViewModel_FrameNavigationCompleted;
-        }
-
         private void ViewModel_RecentListChanged(object sender, EventArgs e) => ShowHideCommandBar();
-
-        private void EditorShellViewModel_FrameNavigationCompleted(object sender, EventArgs e)
-        {
-            if (reload)
-            {
-                ViewModel.LoadRecentItems();
-            }
-        }
-
-        private void EditorShellViewModel_FrameChanged(object sender, ShellView e)
-        {
-            if (e != null)
-            {
-                reload = e.Title == "Recent";
-            }
-        }
 
         private void RecentList_DoubleClick(object sender, DoubleTappedRoutedEventArgs e)
         {
@@ -72,12 +45,38 @@ namespace ProjectCodeEditor.Views
         {
             if ((pivot.SelectedItem as PivotItem).Tag.ToString() == "Recent" && !ViewModel.IsEmpty)
             {
-                //RecentsCommandBar.Visibility = Visibility.Visible;
+                RecentsCommandBar.Visibility = Visibility.Visible;
             }
             else
             {
-                //RecentsCommandBar.Visibility = Visibility.Collapsed;
+                RecentsCommandBar.Visibility = Visibility.Collapsed;
             }
+        }
+
+        public override void OnLoad()
+        {
+            ViewModel.LoadRecentItems();
+            ViewModel.RecentListChanged += ViewModel_RecentListChanged;
+        }
+
+        public override void OnSuspend()
+        {
+            ViewModel.RecentListChanged -= ViewModel_RecentListChanged;
+            ViewModel.ClearRecentItems();
+        }
+
+        public override void OnResume() => OnLoad();
+
+        public override void Dispose() => ViewModel.ClearRecentItems();
+
+        private void BaseLayout_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            ShowHideCommandBar();
         }
     }
 }

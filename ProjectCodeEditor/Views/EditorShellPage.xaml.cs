@@ -1,4 +1,5 @@
-﻿using ProjectCodeEditor.ViewModels;
+﻿using ProjectCodeEditor.Models;
+using ProjectCodeEditor.ViewModels;
 using System;
 using System.Linq;
 using Windows.UI.Xaml;
@@ -36,7 +37,7 @@ namespace ProjectCodeEditor.Views
             }
         }
 
-        private void masterDetail_SelectionChanged(object sender, SelectionChangedEventArgs e) => ViewModel.InvokeFrameNavigationCompleted(this);
+        private void masterDetail_SelectionChanged(object sender, SelectionChangedEventArgs e) => ViewModel.InvokeFrameNavigationCompleted(this, e.AddedItems.First() as ShellView);
 
         private void Close_Click(object sender, RoutedEventArgs e) => ViewModel.RemoveSelectedItem();
 

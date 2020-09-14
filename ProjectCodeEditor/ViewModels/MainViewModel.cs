@@ -67,6 +67,10 @@ namespace ProjectCodeEditor.ViewModels
                 {
                     continue;
                 }
+                catch (ArgumentException)
+                {
+                    continue;
+                }
             }
 
             foreach (var values in RecentPagesContainer.Values)

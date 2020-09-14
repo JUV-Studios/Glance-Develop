@@ -23,34 +23,8 @@ namespace ProjectCodeEditor.Views
         public EditorPage()
         {
             InitializeComponent();
-            App.ShellViewModel.FrameCreated += ShellViewModel_FrameCreated;
-            App.ShellViewModel.FrameChanged += ShellViewModel_FrameChanged;
-            App.ShellViewModel.FrameNavigationCompleted += ShellViewModel_FrameNavigationCompleted;
-            App.ShellViewModel.FrameClosed += ShellViewModel_FrameClosed;
         }
 
-        private void ShellViewModel_FrameClosed(object sender, ShellView e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void ShellViewModel_FrameNavigationCompleted(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void ShellViewModel_FrameChanged(object sender, ShellView e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void ShellViewModel_FrameCreated(object sender, ShellView e)
-        {
-            if (e.Parameter is StorageFile)
-            {
-
-            }
-        }
 
         /* private async void Load()
         {
