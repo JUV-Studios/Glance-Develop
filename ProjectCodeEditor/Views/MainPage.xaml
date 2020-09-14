@@ -1,0 +1,46 @@
+﻿<Page
+    x:Class="ProjectCodeEditor.Views.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:models="using:ProjectCodeEditor.Models"
+    Loaded="Page_Loaded"
+    Style="{StaticResource PageStyle}"
+    mc:Ignorable="d">
+
+    <Grid>
+        <Pivot x:Name="pivot" SelectionChanged="Pivot_SelectionChanged" Margin="{StaticResource MediumLeftTopRightBottomMargin}">
+            <PivotItem x:Uid="RecentsPivot" Tag="Recent">
+                <Grid>
+                    <TextBlock x:Uid="RecentEmpty_Title" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="{StaticResource SmallTopBottomMargin}" Visibility="{x:Bind ViewModel.IsEmpty, Converter={StaticResource BoolToVisibility}, Mode=OneWay}" />
+                    <ListView x:Name="recentList" ItemsSource="{x:Bind ViewModel.RecentItems, Mode=OneWay}" SelectionMode="Single" IsDoubleTapEnabled="True" DoubleTapped="RecentList_DoubleClick" Margin="{StaticResource SmallTopBottomMargin}" SelectionChanged="recentList_SelectionChanged">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:RecentItem">
+                                <StackPanel Spacing="4" Margin="{StaticResource XSmallLeftTopRightBottomMargin}">
+                                    <TextBlock Text="{x:Bind DisplayName}" Style="{StaticResource BodyTextStyle}" />
+                                    <TextBlock Text="{x:Bind Location}" Opacity=".6" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </PivotItem>
+            <PivotItem x:Uid="SettingsPivot" Tag="Setting">
+                
+            </PivotItem>
+        </Pivot>
+        <CommandBar x:Name="RecentsCommandBar" DefaultLabelPosition="Right" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+            <CommandBar.PrimaryCommands>
+                <AppBarButton x:Uid="RecentsRemoveSelectedButton" Icon="Remove" Click="RemoveSelected_Click" Visibility="{x:Bind ViewModel.ItemSelected, Converter={StaticResource BoolToVisibility}, Mode=OneWay}">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Delete" Modifiers="None" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+                <AppBarButton x:Uid="RecentsClearButton" Icon="Delete" Click="{x:Bind ViewModel.ClearRecentItems}" />
+            </CommandBar.PrimaryCommands>
+        </CommandBar>
+    </Grid>
+</Page>

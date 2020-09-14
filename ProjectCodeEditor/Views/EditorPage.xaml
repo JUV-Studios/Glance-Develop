@@ -1,0 +1,66 @@
+﻿<Page
+    x:Class="ProjectCodeEditor.Views.EditorPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Loaded="Page_Loaded"
+    NavigationCacheMode="Disabled"
+    Style="{StaticResource PageStyle}"
+    mc:Ignorable="d"> 
+
+    <Page.Resources>
+        <ResourceDictionary>
+            <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="Transparent" />
+            <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="Transparent" />
+            <SolidColorBrush x:Key="TextControlBorderBrush" Color="Transparent" />
+        </ResourceDictionary>
+    </Page.Resources>
+    <Grid>
+        <MenuBar HorizontalAlignment="Left" VerticalAlignment="Top">
+            <MenuBarItem x:Uid="EditorEditMenu" AccessKey="F">
+                <MenuFlyoutItem x:Uid="EditMenuFindItem" Click="Find_Click">
+                    <MenuFlyoutItem.Icon>
+                        <SymbolIcon Symbol="Find" />
+                    </MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+            </MenuBarItem>
+        </MenuBar>
+        <ScrollViewer Margin="0,40,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <ListView x:Name="LineNumbers" Grid.Column="0" SelectionMode="None" Visibility="Collapsed">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Margin" Value="8" />
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="FontSize" Value="12" />
+                            <Setter Property="BorderThickness" Value="0"/>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <TextBlock Text="{x:Bind}" FontWeight="SemiBold" Foreground="{ThemeResource SystemAccentColorLight2}" Margin="0" />
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+                <RichEditBox x:Name="Editor" CornerRadius="0" DisabledFormattingAccelerators="All" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" IsSpellCheckEnabled="False" KeyDown="Editor_KeyDown" />
+            </Grid>
+        </ScrollViewer>
+        <CommandBar DefaultLabelPosition="Right" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+            <CommandBar.Content>
+                <TextBlock Margin="{StaticResource SmallLeftTopMargin}" Text="{x:Bind ViewModel.WorkString, Mode=OneWay}" />
+            </CommandBar.Content>
+            <CommandBar.PrimaryCommands>
+                <AppBarButton x:Uid="EditorCommandBarSaveButton" Icon="Save" Click="{x:Bind SaveFile}">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="S" Modifiers="Control" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+            </CommandBar.PrimaryCommands>
+        </CommandBar>
+    </Grid>
+</Page>
