@@ -1,7 +1,10 @@
 ﻿using Microsoft.Toolkit.Uwp.Extensions;
+using ProjectCodeEditor.Dialogs;
+using ProjectCodeEditor.Models;
 using ProjectCodeEditor.Services;
 using ProjectCodeEditor.ViewModels;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -9,36 +12,49 @@ using Windows.Storage;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Navigation;
 
 namespace ProjectCodeEditor.Views
 {
-    public sealed partial class EditorPage : Page
+    public sealed partial class EditorPage : UserControl
     {
         public EditorViewModel ViewModel { get; } = new EditorViewModel();
-        private int allLines = 0;
-        private bool controlPressed = false;
         private static readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
 
         public EditorPage()
         {
             InitializeComponent();
+            App.ShellViewModel.FrameCreated += ShellViewModel_FrameCreated;
+            App.ShellViewModel.FrameChanged += ShellViewModel_FrameChanged;
+            App.ShellViewModel.FrameNavigationCompleted += ShellViewModel_FrameNavigationCompleted;
+            App.ShellViewModel.FrameClosed += ShellViewModel_FrameClosed;
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        private void ShellViewModel_FrameClosed(object sender, ShellView e)
         {
-            base.OnNavigatedTo(e);
-            ViewModel.WorkingFile = e.Parameter as StorageFile;
+            throw new NotImplementedException();
         }
 
-        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        private void ShellViewModel_FrameNavigationCompleted(object sender, EventArgs e)
         {
-            base.OnNavigatedFrom(e);
+            throw new NotImplementedException();
         }
 
-        private async void Load()
+        private void ShellViewModel_FrameChanged(object sender, ShellView e)
         {
+            throw new NotImplementedException();
+        }
+
+        private void ShellViewModel_FrameCreated(object sender, ShellView e)
+        {
+            if (e.Parameter is StorageFile)
+            {
+
+            }
+        }
+
+        /* private async void Load()
+        {
+            Debug.WriteLine("Loading file");
             ViewModel.WorkString = "WorkStringTaskLoad".GetLocalized();
             MainViewModel.RecentlyUsedList.AddOrReplace(ViewModel.WorkingFile.Path.Replace('\\', '-'), ViewModel.WorkingFile);
             var fileReadData = await ViewModel.WorkingFile.ReadCodeFile();
@@ -52,45 +68,12 @@ namespace ProjectCodeEditor.Views
 
         private void WriteLineNumbers()
         {
-            if (LineNumbers.Visibility == Visibility.Visible)
-            {
-                string text;
-                Editor.TextDocument.GetText(TextGetOptions.None, out text);
-                var lines = text.TrimEnd().Split('\r');
-                if (allLines == lines.Count())
-                {
-                    // Don't do anything
-                }
-                else
-                {
-                    LineNumbers.Items.Clear();
-                    for (int i = 0; i < lines.Count(); i++)
-                    {
-                        LineNumbers.Items.Add((i + 1).ToString());
-                    }
-
-                    allLines = lines.Count();
-                }
-            }
         }
 
-        private void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-            EditorShellViewModel.FrameClosed += EditorShellViewModel_FrameClosed;
-            EditorShellViewModel.FrameNavigationCompleted += EditorShellViewModel_FrameNavigationCompleted;
-            Load();
-        }
-
-        private void EditorShellViewModel_FrameNavigationCompleted(object sender, EventArgs e)
+        private void GoToLineDialog_Submitted(object sender, bool e)
         {
         }
 
-        private void EditorShellViewModel_FrameClosed(object sender, Models.ShellView e)
-        {
-            SaveFile();
-            EditorShellViewModel.FrameClosed -= EditorShellViewModel_FrameClosed;
-            EditorShellViewModel.FrameNavigationCompleted -= EditorShellViewModel_FrameNavigationCompleted;
-        }
 
         private void Editor_TextChanged(object sender, RoutedEventArgs e)
         {
@@ -124,7 +107,8 @@ namespace ProjectCodeEditor.Views
 
         private void Find_Click(object sender, RoutedEventArgs e)
         {
-
         }
+
+        private void GoToLine_Click(object sender, RoutedEventArgs e) => GoToLineDialog.Show(ViewModel.LineCount); */
     }
 }

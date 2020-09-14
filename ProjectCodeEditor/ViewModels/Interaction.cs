@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Windows.ApplicationModel;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -33,11 +34,12 @@ namespace ProjectCodeEditor.ViewModels
                 var files = await openPicker.PickMultipleFilesAsync();
                 if (files != null)
                 {
-                    var instance = EditorShellViewModel.Instance;
                     foreach (var file in files)
                     {
-                        EditorShellViewModel.AddFile(file, instance);
+                        App.ShellViewModel.AddFile(file, true);
                     }
+
+                    App.ShellViewModel.SelectedItem = App.ShellViewModel.Instances.Last();
                 }
 
                 IsFilePickerOpen = false;

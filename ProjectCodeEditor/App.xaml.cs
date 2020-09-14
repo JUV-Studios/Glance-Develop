@@ -2,6 +2,7 @@
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
 using ProjectCodeEditor.Services;
+using ProjectCodeEditor.ViewModels;
 using ProjectCodeEditor.Views;
 using System;
 using System.Threading.Tasks;
@@ -17,6 +18,9 @@ namespace ProjectCodeEditor
         {
             get { return _activationService.Value; }
         }
+
+        public static SettingsViewModel AppSettings { get; } = new SettingsViewModel();
+        public static EditorShellViewModel ShellViewModel { get; } = new EditorShellViewModel();
 
         public App()
         {
@@ -50,7 +54,6 @@ namespace ProjectCodeEditor
         {
             // TODO WTS: Please log and handle the exception as appropriate to your scenario
             // For more info see https://docs.microsoft.com/uwp/api/windows.ui.xaml.application.unhandledexception
-            await Task.Run(async () => await LogService.LogException(e.Exception));
         }
 
         private ActivationService CreateActivationService()

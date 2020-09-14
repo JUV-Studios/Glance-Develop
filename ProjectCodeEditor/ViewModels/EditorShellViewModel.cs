@@ -13,28 +13,26 @@ namespace ProjectCodeEditor.ViewModels
 {
     public sealed class EditorShellViewModel : Observable
     {
-        static EditorShellViewModel() { }
-        public static EditorShellViewModel Instance { get; } = new EditorShellViewModel();
+        public event EventHandler<ShellView> FrameCreated;
 
-        public static event EventHandler<ShellView> FrameChanged;
+        public event EventHandler<ShellView> FrameChanged;
 
-        public static event EventHandler FrameNavigationCompleted;
+        public event EventHandler FrameNavigationCompleted;
 
-        public static event EventHandler<ShellView> FrameClosed;
+        public event EventHandler<ShellView> FrameClosedRequested;
 
-        public static void InvokeFrameNavigationCompleted(object sender)
+        public void InvokeFrameNavigationCompleted(object sender)
         {
             FrameNavigationCompleted?.Invoke(sender, null);
         }
 
-        public static void AddWebPage(string uriString = null)
+        public void AddWebPage(string uriString = null)
         {
-            EditorShellViewModel instance = Instance;
             bool contains = false;
             int index = 0;
-            for (int i = 0; i < instance.Instances.Count; i++)
+            for (int i = 0; i < Instances.Count; i++)
             {
-                if (instance.Instances[i].DisplayName == "TabBrowserDisplayName".GetLocalized())
+                if (Instances[i].Title == "TabBrowserDisplayName".GetLocalized())
                 {
                     contains = true;
                     index = i;
@@ -44,50 +42,37 @@ namespace ProjectCodeEditor.ViewModels
 
             if (contains)
             {
-                instance.SelectedItem = instance.Instances[index];
+                var item = Instances[index];
+                item.Parameter = uriString;
+                SelectedItem = Instances[index];
             }
             else
             {
-                Frame frame = new Frame()
+                var item = new ShellView()
                 {
-                    IsNavigationStackEnabled = false
+                    Title = "TabBrowserDisplayName".GetLocalized(),
+                    Caption = "TabBrowserCaption".GetLocalized(),
+                    Content = new BrowserPage(),
+                    Parameter = uriString
                 };
 
-                frame.Navigate(typeof(BrowserPage));
+                FrameCreated?.Invoke(null, item);
 
-                instance.Instances.Add(new ShellView()
-                {
-                    DisplayName = "TabBrowserDisplayName".GetLocalized(),
-                    Caption = "TabBrowserCaption".GetLocalized(),
-                    Content = frame,
-                    Parameter = uriString
-                });
+                Instances.Add(item);
+
+                SelectedItem = Instances.Last();
             }
-
-            instance.SelectedItem = instance.Instances.Last();
-
-            instance = null;
         }
 
-        public static void AddFile(StorageFile file, EditorShellViewModel instanceToUse = null)
+        public void AddFile(StorageFile file, bool multiple = false)
         {
-            EditorShellViewModel instance;
-            if (instanceToUse == null)
-            {
-                instance = Instance;
-            }
-            else
-            {
-                instance = instanceToUse;
-            }
-
             bool contains = false;
             int index = 0;
-            for (int i = 0; i < instance.Instances.Count; i++)
+            for (int i = 0; i < Instances.Count; i++)
             {
-                if (instance.Instances[i].Parameter is StorageFile)
+                if (Instances[i].Parameter is StorageFile)
                 {
-                    if ((instance.Instances[i].Parameter as StorageFile).IsEqual(file))
+                    if ((Instances[i].Parameter as StorageFile).IsEqual(file))
                     {
                         contains = true;
                         index = i;
@@ -98,7 +83,7 @@ namespace ProjectCodeEditor.ViewModels
 
             if (contains)
             {
-                instance.SelectedItem = instance.Instances[index];
+                SelectedItem = Instances[index];
             }
             else
             {
@@ -107,39 +92,32 @@ namespace ProjectCodeEditor.ViewModels
                     IsNavigationStackEnabled = false
                 };
 
-                frame.Navigate(typeof(EditorPage), file);
+                frame.Navigate(typeof(EditorPage));
 
-                instance.Instances.Add(new ShellView()
+                var item = new ShellView()
                 {
-                    DisplayName = file.Name,
+                    Title = file.Name,
                     Caption = file.Path,
-                    Parameter = file,
-                    Content = frame
-                });
+                    Content = frame,
+                    Parameter = file
+                };
+
+                FrameCreated?.Invoke(null, item);
+
+                Instances.Add(item);
+
+
+                if (!multiple)
+                {
+                    SelectedItem = Instances.Last();
+                }
             }
-
-            instance.SelectedItem = instance.Instances.Last();
-
-            instance = null;
         }
 
-        public static void RemoveSelectedItem()
+        public void RemoveSelectedItem()
         {
-            EditorShellViewModel instance = Instance;
-            var index = instance.Instances.IndexOf(instance.SelectedItem);
-            FrameClosed?.Invoke(null, instance.SelectedItem);
-            instance.Instances.Remove(instance.SelectedItem);
-            if (index < instance.Instances.Count)
-            {
-                instance.SelectedItem = instance.Instances[index];
-            }
-            else
-            {
-                instance.SelectedItem = instance.Instances[index - 1];
-            }
-
-            instance = null;
-            GC.Collect();
+            var index = Instances.IndexOf(SelectedItem);
+            FrameClosedRequested?.Invoke(null, SelectedItem);
         }
 
 
@@ -151,7 +129,9 @@ namespace ProjectCodeEditor.ViewModels
                 else return true;
             }
             set
-            { }
+            {
+                OnPropertyChanged(nameof(CanCloseSelectedItem));
+            }
         }
 
         private ShellView _SelectedItem;
@@ -161,16 +141,16 @@ namespace ProjectCodeEditor.ViewModels
             get => _SelectedItem;
             set
             {
-                ViewService.SetTitle(value?.DisplayName);
+                ViewService.SetTitle(value?.Title);
                 Set(ref _SelectedItem, value);
                 FrameChanged?.Invoke(this, value);
-                OnPropertyChanged(nameof(CanCloseSelectedItem));
+                CanCloseSelectedItem = false;
             }
         }
 
         public ObservableCollection<ShellView> Instances = new ObservableCollection<ShellView>();
 
-        private EditorShellViewModel()
+        public EditorShellViewModel()
         {
             Frame frame = new Frame()
             {
@@ -181,7 +161,7 @@ namespace ProjectCodeEditor.ViewModels
 
             Instances.Add(new ShellView()
             {
-                DisplayName = "HubTitle".GetLocalized(),
+                Title = "HubTitle".GetLocalized(),
                 Caption = "HubCaption".GetLocalized(),
                 Content = frame
             });

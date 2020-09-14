@@ -60,7 +60,7 @@ namespace ProjectCodeEditor.ViewModels
                     {
                         Token = item.Token,
                         FileHandle = file,
-                        DisplayName = file.DisplayName
+                        Title = file.Name
                     });
                 }
                 catch (FileNotFoundException)
@@ -77,7 +77,7 @@ namespace ProjectCodeEditor.ViewModels
                     {
                         Token = values.Value.ToString(),
                         IsWeb = true,
-                        DisplayName = values.Key
+                        Title = values.Key
                     });
                 }
                 catch
@@ -100,7 +100,7 @@ namespace ProjectCodeEditor.ViewModels
         public void RemoveRecentItem(int itemToRemoveIndex)
         {
             var item = _RecentItems[itemToRemoveIndex];
-            if (item.IsWeb) RecentPagesContainer.Values.Remove(item.DisplayName);
+            if (item.IsWeb) RecentPagesContainer.Values.Remove(item.Title);
             else RecentlyUsedList.Remove(item.Token);
             _RecentItems.RemoveAt(itemToRemoveIndex);
 

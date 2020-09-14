@@ -4,7 +4,7 @@ namespace ProjectCodeEditor.Models
 {
     public sealed class ShellView
     {
-        public string DisplayName { get; set; }
+        public string Title { get; set; }
 
         public string Caption { get; set; }
 

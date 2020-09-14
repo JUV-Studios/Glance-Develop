@@ -10,13 +10,13 @@
   <Identity
     Name="JUVStudios.DevelopApp"
     Publisher="CN=jaiga"
-    Version="1.0.1.0" />
+    Version="0.0.1.0" />
 
   <mp:PhoneIdentity PhoneProductId="8982C99F-A50D-47B3-B079-5A9077C936D0" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>Develop</DisplayName>
-    <PublisherDisplayName>jaiga</PublisherDisplayName>
+    <PublisherDisplayName>JUV Studios</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -33,7 +33,7 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="ProjectCodeEditor.App">
       <uap:VisualElements
-        DisplayName="ms-resource:AppDisplayName"
+        DisplayName="Develop"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
         Description="ms-resource:AppDescription"
@@ -46,7 +46,7 @@
 
         <uap:Extension Category="windows.fileTypeAssociation">
 
-          <uap:FileTypeAssociation Name="develop">
+          <uap:FileTypeAssociation  Name="source">
 
             <uap:SupportedFileTypes>
 
@@ -110,6 +110,14 @@
 
             <uap:InfoTip>Open and edit this file with Develop</uap:InfoTip>
           </uap:FileTypeAssociation>
+        </uap:Extension>
+
+        <uap:Extension Category="windows.protocol">
+
+          <uap:Protocol Name="develop-web">
+
+            <uap:DisplayName>Develop Browser</uap:DisplayName>
+          </uap:Protocol>
         </uap:Extension>
       </Extensions>
     </Application>

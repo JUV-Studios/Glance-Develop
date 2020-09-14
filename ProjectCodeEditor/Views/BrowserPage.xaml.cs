@@ -10,7 +10,7 @@ using Windows.UI.Xaml.Input;
 
 namespace ProjectCodeEditor.Views
 {
-    public sealed partial class BrowserPage : Page
+    public sealed partial class BrowserPage : UserControl
     {
         public BrowserViewModel ViewModel { get; } = new BrowserViewModel();
         private Uri UriToNavigate;
@@ -18,11 +18,23 @@ namespace ProjectCodeEditor.Views
         public BrowserPage()
         {
             InitializeComponent();
+            App.ShellViewModel.FrameCreated += EditorShellViewModel_FrameCreated;
+            App.ShellViewModel.FrameClosed += EditorShellViewModel_FrameClosed;
         }
 
-        private void Back_Click(object sender, RoutedEventArgs e)
+        private void EditorShellViewModel_FrameCreated(object sender, ShellView e)
         {
-            WebContent.GoBack();
+            if (e.Parameter is string)
+            {
+                WebContent.NavigationCompleted -= WebContent_NavigationCompleted;
+                var uri = new Uri(e.Parameter as string);
+                if (uri != UriToNavigate)
+                {
+                    UriToNavigate = uri;
+                    WebContent.Navigate(UriToNavigate);
+                }
+            }
+            App.ShellViewModel.FrameCreated -= EditorShellViewModel_FrameCreated;
         }
 
         private void TextBox_KeyUp(object sender, KeyRoutedEventArgs e)
@@ -57,31 +69,11 @@ namespace ProjectCodeEditor.Views
                 WebContent.Visibility = Visibility.Visible;
                 AddressBox.Text = args.Uri.AbsoluteUri;
                 BackButton.Visibility = sender.CanGoBack ? Visibility.Visible : Visibility.Collapsed;
+                ForwardButton.Visibility = sender.CanGoForward ? Visibility.Visible : Visibility.Collapsed;
                 MainViewModel.RecentPagesContainer.Values[sender.DocumentTitle] = AddressBox.Text;
                 RefreshButton.Visibility = Visibility.Visible;
                 AddressBox.IsReadOnly = false;
             }
-        }
-
-        private void Refresh_Click(object sender, RoutedEventArgs e)
-        {
-            WebContent.Refresh();
-        }
-
-        private void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (EditorShellViewModel.Instance.SelectedItem.Parameter is string)
-            {
-                WebContent.NavigationCompleted -= WebContent_NavigationCompleted;
-                var uri = new Uri(EditorShellViewModel.Instance.SelectedItem.Parameter as string);
-                if (uri != UriToNavigate)
-                {
-                    UriToNavigate = uri;
-                    WebContent.Navigate(UriToNavigate);
-                }
-            }
-
-            EditorShellViewModel.FrameClosed += EditorShellViewModel_FrameClosed;
         }
 
         private void EditorShellViewModel_FrameClosed(object sender, ShellView e)
@@ -89,19 +81,19 @@ namespace ProjectCodeEditor.Views
             WebContent.NavigationCompleted -= WebContent_NavigationCompleted;
             Debug.WriteLine("Cleaning up memory");
             int count = 0;
-            var timer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(1) };
+            var timer = new DispatcherTimer() { Interval = TimeSpan.FromSeconds(1) };
             timer.Start();
             timer.Tick += (s, p) =>
             {
                 WebContent.Source = new Uri("about:blank");
                 count++;
-                if (count == 40)
+                if (count == 20)
                 {
                     timer.Stop();
                 }
             };
 
-            EditorShellViewModel.FrameClosed -= EditorShellViewModel_FrameClosed;
+            App.ShellViewModel.FrameClosed -= EditorShellViewModel_FrameClosed;
         }
     }
 }

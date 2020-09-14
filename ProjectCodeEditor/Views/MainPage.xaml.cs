@@ -12,13 +12,14 @@ namespace ProjectCodeEditor.Views
         public MainViewModel ViewModel { get; } = new MainViewModel();
         private bool reload = false;
 
+        private Type SettingsPageType
+        {
+            get => typeof(SettingsPage);
+        }
+
         public MainPage()
         {
             InitializeComponent();
-        }
-
-        private void Settings_Click(object sender, RoutedEventArgs e)
-        {
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
@@ -26,8 +27,8 @@ namespace ProjectCodeEditor.Views
             ViewModel.LoadRecentItems();
             ViewModel.RecentListChanged += ViewModel_RecentListChanged;
             ShowHideCommandBar();
-            EditorShellViewModel.FrameChanged += EditorShellViewModel_FrameChanged;
-            EditorShellViewModel.FrameNavigationCompleted += EditorShellViewModel_FrameNavigationCompleted;
+            App.ShellViewModel.FrameChanged += EditorShellViewModel_FrameChanged;
+            App.ShellViewModel.FrameNavigationCompleted += EditorShellViewModel_FrameNavigationCompleted;
         }
 
         private void ViewModel_RecentListChanged(object sender, EventArgs e) => ShowHideCommandBar();
@@ -44,7 +45,7 @@ namespace ProjectCodeEditor.Views
         {
             if (e != null)
             {
-                reload = e.DisplayName == "Recent";
+                reload = e.Title == "Recent";
             }
         }
 
@@ -53,11 +54,11 @@ namespace ProjectCodeEditor.Views
             var clickedItem = recentList.SelectedItem as RecentItem;
             if (clickedItem.IsWeb)
             {
-                EditorShellViewModel.AddWebPage(clickedItem.Location);
+                App.ShellViewModel.AddWebPage(clickedItem.Location);
             }
             else
             {
-                EditorShellViewModel.AddFile(clickedItem.FileHandle);
+                App.ShellViewModel.AddFile(clickedItem.FileHandle);
             }
         }
 
@@ -71,11 +72,11 @@ namespace ProjectCodeEditor.Views
         {
             if ((pivot.SelectedItem as PivotItem).Tag.ToString() == "Recent" && !ViewModel.IsEmpty)
             {
-                RecentsCommandBar.Visibility = Visibility.Visible;
+                //RecentsCommandBar.Visibility = Visibility.Visible;
             }
             else
             {
-                RecentsCommandBar.Visibility = Visibility.Collapsed;
+                //RecentsCommandBar.Visibility = Visibility.Collapsed;
             }
         }
     }

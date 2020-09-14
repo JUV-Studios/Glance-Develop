@@ -1,9 +1,11 @@
-﻿using ProjectCodeEditor.Activation;
-using ProjectCodeEditor.ViewModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using ProjectCodeEditor.Activation;
+using ProjectCodeEditor.ViewModels;
+
 using Windows.ApplicationModel.Activation;
 using Windows.Storage;
 using Windows.System;
@@ -71,10 +73,17 @@ namespace ProjectCodeEditor.Services
 
             if (activationArgs is FileActivatedEventArgs)
             {
-                EditorShellViewModel instance = EditorShellViewModel.Instance;
-                EditorShellViewModel.AddFile((activationArgs as FileActivatedEventArgs).Files.First() as StorageFile, instance);
+                foreach (var file in (activationArgs as FileActivatedEventArgs).Files)
+                {
+                    App.ShellViewModel.AddFile(file as StorageFile, true);
+                    App.ShellViewModel.SelectedItem = App.ShellViewModel.Instances.Last();
+                }
+            }
+            else if (activationArgs is ProtocolActivatedEventArgs)
+            {
             }
         }
+
         private static KeyboardAccelerator BuildKeyboardAccelerator(VirtualKey key, VirtualKeyModifiers? modifiers = null)
         {
             var keyboardAccelerator = new KeyboardAccelerator() { Key = key };
@@ -96,6 +105,8 @@ namespace ProjectCodeEditor.Services
         private async Task InitializeAsync()
         {
             ViewService.Initialize();
+            await App.AppSettings.InitializeAsync();
+            await ThemeSelectorService.InitializeAsync().ConfigureAwait(false);
         }
 
         private async Task HandleActivationAsync(object activationArgs)
@@ -120,6 +131,7 @@ namespace ProjectCodeEditor.Services
 
         private async Task StartupAsync()
         {
+            await ThemeSelectorService.SetRequestedThemeAsync();
         }
 
         private IEnumerable<ActivationHandler> GetActivationHandlers()

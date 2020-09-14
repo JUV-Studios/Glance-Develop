@@ -12,6 +12,8 @@
 
     <Page.KeyboardAccelerators>
         <KeyboardAccelerator Key="Tab" Modifiers="Control" Invoked="FastSwitch" />
+        <KeyboardAccelerator Key="W" Modifiers="Menu" Invoked="Browser" />
+        <KeyboardAccelerator Key="F8" Modifiers="Menu" Invoked="MemoryFree" />
         <KeyboardAccelerator Key="Number1" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
         <KeyboardAccelerator Key="Number2" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
         <KeyboardAccelerator Key="Number3" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
@@ -66,19 +68,21 @@
         </controls:MasterDetailsView> -->
         <SplitView DisplayMode="Inline" PaneBackground="{ThemeResource SystemControlAcrylicWindowBrush}" IsPaneOpen="True">
             <SplitView.Pane>
-                <ListView SelectionMode="Single" SelectionChanged="masterDetail_SelectionChanged" ItemsSource="{x:Bind ViewModel.Instances, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.SelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" CanReorderItems="True" ReorderMode="Enabled">
-                    <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="models:ShellView">
-                            <StackPanel Spacing="4" Margin="{StaticResource XSmallLeftTopRightBottomMargin}">
-                                <TextBlock Text="{x:Bind DisplayName}" Style="{ThemeResource SubtitleTextBlockStyle}" />
-                                <TextBlock Text="{x:Bind Caption}" Opacity=".6" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
+                <Grid>
+                    <ListView SelectionMode="Single" SelectionChanged="masterDetail_SelectionChanged" ItemsSource="{x:Bind ViewModel.Instances, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.SelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" CanReorderItems="True" ReorderMode="Enabled" AllowDrop="True" IsSwipeEnabled="True">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:ShellView">
+                                <StackPanel Spacing="4" Margin="{StaticResource XSmallLeftTopRightBottomMargin}">
+                                    <TextBlock Text="{x:Bind Title}" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                                    <TextBlock Text="{x:Bind Caption}" Opacity=".6" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
             </SplitView.Pane>
             <SplitView.Content>
-                <Border Child="{x:Bind ViewModel.SelectedItem.Content, Mode=OneWay}" />
+                <ContentPresenter Content="{x:Bind ViewModel.SelectedItem.Content, Mode=OneWay}" />
             </SplitView.Content>
         </SplitView>
     </Grid>

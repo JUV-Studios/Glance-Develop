@@ -1,4 +1,5 @@
 ﻿using ProjectCodeEditor.ViewModels;
+using System;
 using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -9,7 +10,7 @@ namespace ProjectCodeEditor.Views
 {
     public sealed partial class EditorShellPage : Page
     {
-        private EditorShellViewModel ViewModel = EditorShellViewModel.Instance;
+        private readonly EditorShellViewModel ViewModel = App.ShellViewModel;
 
         public EditorShellPage()
         {
@@ -35,20 +36,19 @@ namespace ProjectCodeEditor.Views
             }
         }
 
-        private void Up_Click(object sender, RoutedEventArgs e)
-        {
+        private void masterDetail_SelectionChanged(object sender, SelectionChangedEventArgs e) => ViewModel.InvokeFrameNavigationCompleted(this);
 
-        }
-
-        private void Browser_Click(object sender, RoutedEventArgs e) => EditorShellViewModel.AddWebPage(null);
-
-        private void masterDetail_SelectionChanged(object sender, SelectionChangedEventArgs e) => EditorShellViewModel.InvokeFrameNavigationCompleted(this);
-
-        private void Close_Click(object sender, RoutedEventArgs e) => EditorShellViewModel.RemoveSelectedItem();
+        private void Close_Click(object sender, RoutedEventArgs e) => ViewModel.RemoveSelectedItem();
 
         private void NavigateToNumberedTabKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
         {
 
         }
+
+        private void Browser(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args) => ViewModel.AddWebPage();
+
+        private void MemoryFree(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args) => GC.Collect();
+
+        private void Browser_Click(object sender, RoutedEventArgs e) => ViewModel.AddWebPage();
     }
 }

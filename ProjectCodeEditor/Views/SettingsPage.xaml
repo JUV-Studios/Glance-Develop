@@ -1,0 +1,87 @@
+﻿<Page
+    x:Class="ProjectCodeEditor.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helper="using:ProjectCodeEditor.Helpers"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="using:ProjectCodeEditor"
+    Style="{StaticResource PageStyle}"
+    xmlns:xaml="using:Windows.UI.Xaml"
+    xmlns:winui="using:Microsoft.UI.Xaml.Controls"
+    xmlns:vmodels="using:ProjectCodeEditor.ViewModels"
+    mc:Ignorable="d">
+    
+    <Page.Resources>
+        <helper:EnumToBooleanConverter x:Key="EnumToBooleanConverter" EnumType="ElementTheme" />
+    </Page.Resources>
+
+    <Grid ScrollViewer.HorizontalScrollMode="Auto" ScrollViewer.VerticalScrollMode="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="24" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        
+        <StackPanel Grid.Column="0">
+            <TextBlock x:Uid="Settings_Editor" Style="{ThemeResource SubtitleTextBlockStyle}" />
+            <StackPanel Margin="{StaticResource SmallTopBottomMargin}" Style="{StaticResource FormStackPanel}">
+                <ToggleSwitch x:Uid="Settings_EditorAutoSaveToggle" IsOn="{x:Bind local:App.AppSettings.AutoSave, Mode=TwoWay}" />
+                <ComboBox x:Uid="Settings_EditorFontFamilyBox" ItemsSource="{x:Bind local:App.AppSettings.FontList, Mode=OneTime}" HorizontalAlignment="Stretch" SelectedValue="{x:Bind local:App.AppSettings.EditorFont, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <TextBlock Text="{x:Bind}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </StackPanel>
+        </StackPanel>
+        
+        <StackPanel Grid.Column="2">
+            <TextBlock x:Uid="Settings_Personalization" Style="{ThemeResource SubtitleTextBlockStyle}" />
+            <StackPanel Margin="{StaticResource SmallTopBottomMargin}">
+                <TextBlock x:Uid="Settings_Theme" />
+
+                <StackPanel Margin="{StaticResource XSmallTopMargin}">
+                    <RadioButton
+                        x:Uid="Settings_Theme_Light"
+                        Command="{x:Bind local:App.AppSettings.SwitchThemeCommand}"
+                        IsChecked="{x:Bind local:App.AppSettings.ElementTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Light, Mode=OneWay}"
+                        GroupName="AppTheme">
+                        <RadioButton.CommandParameter>
+                            <xaml:ElementTheme>Light</xaml:ElementTheme>
+                        </RadioButton.CommandParameter>
+                    </RadioButton>
+                    <RadioButton
+                        x:Uid="Settings_Theme_Dark"
+                        Command="{x:Bind local:App.AppSettings.SwitchThemeCommand}"
+                        IsChecked="{x:Bind local:App.AppSettings.ElementTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Dark, Mode=OneWay}"
+                        GroupName="AppTheme">
+                        <RadioButton.CommandParameter>
+                            <xaml:ElementTheme>Dark</xaml:ElementTheme>
+                        </RadioButton.CommandParameter>
+                    </RadioButton>
+                    <RadioButton
+                        x:Uid="Settings_Theme_Default"
+                        Command="{x:Bind local:App.AppSettings.SwitchThemeCommand}"
+                        IsChecked="{x:Bind local:App.AppSettings.ElementTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Default, Mode=OneWay}"
+                        GroupName="AppTheme">
+                        <RadioButton.CommandParameter>
+                            <xaml:ElementTheme>Default</xaml:ElementTheme>
+                        </RadioButton.CommandParameter>
+                    </RadioButton>
+                </StackPanel>
+            </StackPanel>
+
+            <TextBlock x:Uid="Settings_About" Style="{ThemeResource SubtitleTextBlockStyle}" />
+
+            <StackPanel Margin="{StaticResource XSmallTopMargin}">
+                <TextBlock>Develop</TextBlock>
+                <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="{x:Bind local:App.AppSettings.VersionDescription, Mode=OneWay}" />
+                <TextBlock x:Uid="Settings_AboutDescription" Style="{ThemeResource BodyTextBlockStyle}" />
+                <TextBlock x:Uid="Settings_AboutCopyright" />
+                <HyperlinkButton x:Uid="Settings_TermsLink" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>    
+</Page>

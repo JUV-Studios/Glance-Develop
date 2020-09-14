@@ -4,8 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
-    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:models="using:ProjectCodeEditor.Models"
     Loaded="Page_Loaded"
     Style="{StaticResource PageStyle}"
@@ -18,18 +16,18 @@
                     <TextBlock x:Uid="RecentEmpty_Title" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="{StaticResource SmallTopBottomMargin}" Visibility="{x:Bind ViewModel.IsEmpty, Converter={StaticResource BoolToVisibility}, Mode=OneWay}" />
                     <ListView x:Name="recentList" ItemsSource="{x:Bind ViewModel.RecentItems, Mode=OneWay}" SelectionMode="Single" IsDoubleTapEnabled="True" DoubleTapped="RecentList_DoubleClick" Margin="{StaticResource SmallTopBottomMargin}" SelectionChanged="recentList_SelectionChanged">
                         <ListView.ItemTemplate>
-                            <DataTemplate x:DataType="models:RecentItem">
-                                <StackPanel Spacing="4" Margin="{StaticResource XSmallLeftTopRightBottomMargin}">
-                                    <TextBlock Text="{x:Bind DisplayName}" Style="{StaticResource BodyTextStyle}" />
-                                    <TextBlock Text="{x:Bind Location}" Opacity=".6" />
-                                </StackPanel>
-                            </DataTemplate>
+                        <DataTemplate x:DataType="models:RecentItem">
+                            <StackPanel Spacing="4" Margin="{StaticResource XSmallLeftTopRightBottomMargin}">
+                                <TextBlock Text="{x:Bind Title}" Style="{StaticResource BodyTextStyle}" />
+                                <TextBlock Text="{x:Bind Location}" Opacity=".6" />
+                            </StackPanel>
+                        </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
                 </Grid>
             </PivotItem>
             <PivotItem x:Uid="SettingsPivot" Tag="Setting">
-                
+                <Frame SourcePageType="{x:Bind SettingsPageType}" />
             </PivotItem>
         </Pivot>
         <CommandBar x:Name="RecentsCommandBar" DefaultLabelPosition="Right" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
