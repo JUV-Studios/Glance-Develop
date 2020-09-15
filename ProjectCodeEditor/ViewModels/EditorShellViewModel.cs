@@ -82,7 +82,7 @@ namespace ProjectCodeEditor.ViewModels
                 {
                     Title = file.Name,
                     Caption = file.Path,
-                    Content = new MonacoEditorPage(),
+                    Content = new LowLatencyEditorPage(),
                     Parameter = file
                 }, multiple);
             }

@@ -1,19 +1,38 @@
 ﻿<local:CodeEditorBase
-    x:Class="ProjectCodeEditor.Views.MonacoEditorPage"
+    x:Class="ProjectCodeEditor.Views.LowLatencyEditorPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:ProjectCodeEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:monaco="using:Monaco"
     Style="{StaticResource PageStyle}"
     mc:Ignorable="d">
 
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="Transparent" />
+            <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="Transparent" />
+            <SolidColorBrush x:Key="TextControlBorderBrush" Color="Transparent" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+
     <Grid>
-        <monaco:CodeEditor
+        <MenuBar HorizontalAlignment="Stretch" VerticalAlignment="Top">
+            <MenuBarItem x:Uid="EditorEditMenu" AccessKey="F">
+                <MenuFlyoutItem x:Uid="EditMenuFindItem">
+                    <MenuFlyoutItem.Icon>
+                        <SymbolIcon Symbol="Find" />
+                    </MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+            </MenuBarItem>
+        </MenuBar>
+        <RichEditBox
             x:Name="Editor"
+            Margin="0,44,0,40"
+            CornerRadius="0"
+            DisabledFormattingAccelerators="All"
             FontFamily="{x:Bind local:App.AppSettings.EditorFont, Mode=OneWay}"
-            OpenLinkRequested="Editor_OpenLinkRequested" />
+            IsSpellCheckEnabled="False" />
         <CommandBar
             HorizontalAlignment="Stretch"
             VerticalAlignment="Bottom"
@@ -30,13 +49,9 @@
                         <KeyboardAccelerator Key="S" Modifiers="Control" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
-                <AppBarButton
-                    x:Uid="EditorCommandBarShareButton"
-                    Click="Share_Click"
-                    Icon="Share" />
+                <AppBarButton x:Uid="EditorCommandBarShareButton" Icon="Share" />
             </CommandBar.PrimaryCommands>
+            <CommandBar.SecondaryCommands />
         </CommandBar>
     </Grid>
-
-
 </local:CodeEditorBase>

@@ -78,7 +78,7 @@ namespace ProjectCodeEditor
         public override void Dispose()
         {
             // ShareCharm.DataRequested -= ShareCharm_DataRequested;
-            SaveFile();
+            // SaveFile();
         }
 
         public override void OnResume()
@@ -90,7 +90,6 @@ namespace ProjectCodeEditor
 
         protected override void OnLoad()
         {
-            Debug.WriteLine("Loading file");
             ViewModel.WorkingFile = ShellInstance.Parameter as StorageFile;
             // ShareCharm.DataRequested += ShareCharm_DataRequested;
         }

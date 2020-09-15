@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Extensions;
+using Monaco;
 using ProjectCodeEditor.ViewModels;
 using System;
 using System.Diagnostics;
@@ -47,10 +48,25 @@ namespace ProjectCodeEditor.Views
         {
             Loaded -= BaseLayout_Loaded;
             PageXamlLoaded -= MonacoEditor_Loaded;
+            AddKeyShortcutsForEditor();
             await LoadFile();
             Editor.Text = ViewModel.FileData.Text;
             Editor.CodeLanguage = GetLanguageStringForFileType();
             ViewModel.WorkString = "WorkStringReady".GetLocalized();
+        }
+
+        private async void AddKeyShortcutsForEditor()
+        {
+            var saveCommand = await Editor.CreateContextKeyAsync("Save", false);
+            await Editor.AddCommandAsync(KeyMod.CtrlCmd | KeyCode.KEY_S, () =>
+            {
+                SaveFile();
+                // Turn off Command again.
+                saveCommand?.Reset();
+
+                // Refocus on CodeEditor
+                Editor.Focus(FocusState.Programmatic);
+            }, saveCommand.Key);
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
@@ -65,12 +81,6 @@ namespace ProjectCodeEditor.Views
         private void Editor_OpenLinkRequested(WebView sender, WebViewNewWindowRequestedEventArgs args)
         {
             App.ShellViewModel.AddWebPage(args.Uri.AbsoluteUri);
-        }
-
-        private void Save(Windows.UI.Xaml.Input.KeyboardAccelerator sender, Windows.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs args)
-        {
-            args.Handled = true;
-            Save_Click(null, null);
         }
     }
 }

@@ -349,4 +349,8 @@
   <data name="Untitled" xml:space="preserve">
     <value>Untitled</value>
   </data>
+  <data name="LowLatencyEditor_Title.Text" xml:space="preserve">
+    <value>LowLatencyEditor</value>
+    <comment>Page title for LowLatencyEditorPage</comment>
+  </data>
 </root>

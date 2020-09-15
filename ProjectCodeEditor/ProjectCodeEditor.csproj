@@ -200,6 +200,7 @@
     <Compile Include="ViewModels\EditorShellViewModel.cs" />
     <Compile Include="ViewModels\EditorViewModel.cs" />
     <Compile Include="ViewModels\Interaction.cs" />
+    <Compile Include="ViewModels\LowLatencyEditorViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\MonacoEditorViewModel.cs" />
     <Compile Include="ViewModels\OpenFileViewModel.cs" />
@@ -213,6 +214,9 @@
     </Compile>
     <Compile Include="Views\EditorShellPage.xaml.cs">
       <DependentUpon>EditorShellPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LowLatencyEditorPage.xaml.cs">
+      <DependentUpon>LowLatencyEditorPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
@@ -270,6 +274,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\EditorShellPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\LowLatencyEditorPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

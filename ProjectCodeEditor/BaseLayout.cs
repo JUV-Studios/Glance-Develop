@@ -15,6 +15,8 @@ namespace ProjectCodeEditor
 
         private bool FrameLoaded = false;
 
+        private bool Suspended = false;
+
         protected DataTransferManager ShareCharm;
 
         protected abstract void OnXamlLoad();
@@ -45,13 +47,20 @@ namespace ProjectCodeEditor
             {
                 if (e != ShellInstance)
                 {
-                    Debug.WriteLine("Suspending");
-                    OnSuspend();
+                    if (!Suspended)
+                    {
+                        Suspended = true;
+                        Debug.WriteLine("Suspending");
+                        OnSuspend();
+                    }
                 }
                 else
                 {
-                    Debug.WriteLine("Resuming");
-                    OnResume();
+                    if (Suspended)
+                    {
+                        Debug.WriteLine("Resuming");
+                        OnResume();
+                    }
                 }
             }
         }
