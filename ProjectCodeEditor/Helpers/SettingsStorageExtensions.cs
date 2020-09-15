@@ -1,11 +1,9 @@
-﻿using System;
+﻿using Microsoft.Toolkit.Uwp.Extensions;
+using ProjectCodeEditor.Core.Helpers;
+using System;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Toolkit.Uwp.Extensions;
-using ProjectCodeEditor.Core.Helpers;
-
 using Windows.Storage;
-using Windows.Storage.Streams;
 
 namespace ProjectCodeEditor.Helpers
 {
@@ -85,7 +83,7 @@ namespace ProjectCodeEditor.Helpers
             var storageFile = await folder.CreateFileAsync(fileName, options);
             await FileIO.WriteBytesAsync(storageFile, content);
             return storageFile;
-        }       
+        }
 
         private static string GetFileName(string name)
         {

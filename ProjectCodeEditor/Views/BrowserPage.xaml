@@ -3,31 +3,66 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="using:ProjectCodeEditor"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Style="{StaticResource PageStyle}"
     mc:Ignorable="d">
 
     <Grid>
-        <TextBox x:Name="AddressBox" PlaceholderText="Enter a web address to go" HorizontalAlignment="Stretch" VerticalAlignment="Top" InputScope="Url" Margin="{StaticResource SmallLeftTopRightBottomMargin}" KeyUp="TextBox_KeyUp" />
-        <ProgressRing IsActive="{x:Bind ViewModel.ProgressRingOn, Mode=OneWay}" IsEnabled="{x:Bind ViewModel.ProgressRingOn, Mode=OneWay}" Width="100" Height="100" />
-        <WebView x:Name="WebContent" Margin="0,49,0,40" NavigationStarting="WebContent_NavigationStarting" NavigationCompleted="WebContent_NavigationCompleted" Visibility="{x:Bind ViewModel.ContentShown, Converter={StaticResource BoolToVisibility}, Mode=OneWay}"/>
-        <CommandBar DefaultLabelPosition="Right" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" x:Name="CommandBar">
+        <TextBox
+            x:Name="AddressBox"
+            Margin="{StaticResource SmallLeftTopRightBottomMargin}"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Top"
+            InputScope="Url"
+            KeyUp="TextBox_KeyUp"
+            PlaceholderText="Enter a web address to go" />
+        <ProgressRing
+            Width="100"
+            Height="100"
+            IsActive="{x:Bind ViewModel.ProgressRingOn, Mode=OneWay}"
+            IsEnabled="{x:Bind ViewModel.ProgressRingOn, Mode=OneWay}" />
+        <WebView
+            x:Name="WebContent"
+            Margin="0,49,0,40"
+            NavigationCompleted="WebContent_NavigationCompleted"
+            NavigationStarting="WebContent_NavigationStarting"
+            Visibility="{x:Bind ViewModel.ContentShown, Converter={StaticResource BoolToVisibility}, Mode=OneWay}" />
+        <CommandBar
+            x:Name="CommandBar"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Bottom"
+            DefaultLabelPosition="Right">
             <CommandBar.Content>
                 <TextBlock Margin="{StaticResource SmallLeftTopMargin}" Text="{x:Bind ViewModel.WorkString, Mode=OneWay}" />
             </CommandBar.Content>
             <CommandBar.PrimaryCommands>
-                <AppBarButton x:Uid="BrowserBackButton" x:Name="BackButton" Icon="Back" Click="{x:Bind WebContent.GoBack}" Visibility="Collapsed">
+                <AppBarButton
+                    x:Name="BackButton"
+                    x:Uid="BrowserBackButton"
+                    Click="{x:Bind WebContent.GoBack}"
+                    Icon="Back"
+                    Visibility="Collapsed">
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Key="Left" Modifiers="Menu" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
-                <AppBarButton x:Uid="BrowserForwardButton" x:Name="ForwardButton" Icon="Forward" Click="{x:Bind WebContent.GoForward}" Visibility="Collapsed">
+                <AppBarButton
+                    x:Name="ForwardButton"
+                    x:Uid="BrowserForwardButton"
+                    Click="{x:Bind WebContent.GoForward}"
+                    Icon="Forward"
+                    Visibility="Collapsed">
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Key="Right" Modifiers="Menu" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
-                <AppBarButton x:Uid="BrowserRefreshButton" x:Name="RefreshButton" Icon="Refresh" Click="{x:Bind WebContent.Refresh}" Visibility="Collapsed">
+                <AppBarButton
+                    x:Name="RefreshButton"
+                    x:Uid="BrowserRefreshButton"
+                    Click="{x:Bind WebContent.Refresh}"
+                    Icon="Refresh"
+                    Visibility="Collapsed">
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Key="R" Modifiers="Control" />
                         <KeyboardAccelerator Key="F5" Modifiers="None" />

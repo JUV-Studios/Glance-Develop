@@ -29,7 +29,14 @@ namespace ProjectCodeEditor.ViewModels
         public bool IsEmpty
         {
             get => _RecentItems.Count == 0;
-            set => OnPropertyChanged(nameof(IsEmpty));
+        }
+
+        private bool _CanOpenLocation = false;
+
+        public bool CanOpenLocation
+        {
+            get => _CanOpenLocation;
+            set => Set(ref _CanOpenLocation, value);
         }
 
         public Thickness ContentMargin
@@ -90,7 +97,7 @@ namespace ProjectCodeEditor.ViewModels
                 }
             }
 
-            IsEmpty = true;
+            OnPropertyChanged(nameof(IsEmpty));
         }
 
         public void ClearRecentItems()
@@ -98,8 +105,10 @@ namespace ProjectCodeEditor.ViewModels
             _RecentItems.Clear();
             Task.Run(() => RecentlyUsedList.Clear());
             Task.Run(() => RecentPagesContainer.Values.Clear());
-            IsEmpty = true;
+            OnPropertyChanged(nameof(IsEmpty));
         }
+
+        public void DisposeRecentItems() => _RecentItems.Clear();
 
         public void RemoveRecentItem(int itemToRemoveIndex)
         {
@@ -107,8 +116,8 @@ namespace ProjectCodeEditor.ViewModels
             if (item.IsWeb) RecentPagesContainer.Values.Remove(item.Title);
             else RecentlyUsedList.Remove(item.Token);
             _RecentItems.RemoveAt(itemToRemoveIndex);
+            OnPropertyChanged(nameof(IsEmpty));
 
-            IsEmpty = true;
         }
     }
 }

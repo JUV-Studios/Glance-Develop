@@ -7,7 +7,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Windows.Storage;
-using Windows.UI.Xaml.Controls;
 
 namespace ProjectCodeEditor.ViewModels
 {
@@ -18,8 +17,6 @@ namespace ProjectCodeEditor.ViewModels
         public static event EventHandler<ShellView> FrameChanged;
 
         public static event EventHandler<ShellView> FrameNavigationCompleted;
-
-        public static event EventHandler<ShellView> FrameClosedRequested;
 
         public void InvokeFrameNavigationCompleted(object sender, ShellView e)
         {
@@ -35,8 +32,20 @@ namespace ProjectCodeEditor.ViewModels
             if (!multiple) SelectedItem = Instances.Last();
         }
 
-        public void AddWebPage(string uriString = "about:blank")
+        public void AddWebPage(string uriString = null)
         {
+            foreach (var item in Instances)
+            {
+                if (item.Parameter is string)
+                {
+                    if (uriString == item.Parameter as string)
+                    {
+                        SelectedItem = item;
+                        return;
+                    }
+                }
+            }
+
             AddLayout(new ShellView()
             {
                 Title = "TabBrowserDisplayName".GetLocalized(),
@@ -48,7 +57,7 @@ namespace ProjectCodeEditor.ViewModels
 
         public void AddFile(StorageFile file, bool multiple = false)
         {
-            /* bool contains = false;
+            bool contains = false;
             int index = 0;
             for (int i = 0; i < Instances.Count; i++)
             {
@@ -69,50 +78,36 @@ namespace ProjectCodeEditor.ViewModels
             }
             else
             {
-                Frame frame = new Frame()
-                {
-                    IsNavigationStackEnabled = false
-                };
-
-                frame.Navigate(typeof(EditorPage));
-
-                var item = new ShellView()
+                AddLayout(new ShellView()
                 {
                     Title = file.Name,
                     Caption = file.Path,
-                    Content = frame,
+                    Content = new MonacoEditorPage(),
                     Parameter = file
-                };
-
-                FrameCreated?.Invoke(null, item);
-
-                Instances.Add(item);
-
-
-                if (!multiple)
-                {
-                    SelectedItem = Instances.Last();
-                }
-            } */
+                }, multiple);
+            }
         }
 
-        public void RemoveSelectedItem()
+        public void TerminateSelected()
         {
-            var index = Instances.IndexOf(SelectedItem);
-            FrameClosedRequested?.Invoke(null, SelectedItem);
+            if (CanCloseSelectedItem)
+            {
+                var index = Instances.IndexOf(SelectedItem);
+                var item = SelectedItem;
+                Instances.Remove(SelectedItem);
+                if (index == 0) SelectedItem = Instances[index];
+                else SelectedItem = Instances[index - 1];
+                item.Content.OnSuspend();
+                item.Content.Dispose();
+            }
         }
-
 
         public bool CanCloseSelectedItem
         {
             get
             {
-                if (SelectedItem.Caption == "HubCaption") return false;
+                if (SelectedItem.Caption == "HubCaption".GetLocalized()) return false;
                 else return true;
-            }
-            set
-            {
-                OnPropertyChanged(nameof(CanCloseSelectedItem));
             }
         }
 
@@ -126,15 +121,14 @@ namespace ProjectCodeEditor.ViewModels
                 ViewService.SetTitle(value?.Title);
                 Set(ref _SelectedItem, value);
                 FrameChanged?.Invoke(this, value);
-                CanCloseSelectedItem = false;
+                OnPropertyChanged(nameof(CanCloseSelectedItem));
             }
         }
 
 
         public ObservableCollection<ShellView> Instances = new ObservableCollection<ShellView>();
 
-
-        private void Load()
+        public EditorShellViewModel()
         {
             AddLayout(new ShellView()
             {
@@ -142,11 +136,6 @@ namespace ProjectCodeEditor.ViewModels
                 Caption = "HubCaption".GetLocalized(),
                 Content = new MainPage()
             });
-        }
-
-        public EditorShellViewModel()
-        {
-            Load();
         }
     }
 }

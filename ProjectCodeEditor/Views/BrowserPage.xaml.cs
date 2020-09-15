@@ -1,5 +1,4 @@
 ﻿using Microsoft.Toolkit.Uwp.Extensions;
-using ProjectCodeEditor.Models;
 using ProjectCodeEditor.ViewModels;
 using System;
 using System.Diagnostics;
@@ -16,9 +15,17 @@ namespace ProjectCodeEditor.Views
 
         private Uri UriToNavigate;
 
+        private bool IsLoading = false;
+
         public BrowserPage()
         {
             InitializeComponent();
+            Loaded += BaseLayout_Loaded;
+        }
+
+        protected override void OnXamlLoad()
+        {
+            Loaded -= BaseLayout_Loaded;
         }
 
         private Uri ConvertStringToUri(string val)
@@ -42,8 +49,9 @@ namespace ProjectCodeEditor.Views
 
         private void WebContent_NavigationStarting(WebView sender, WebViewNavigationStartingEventArgs args)
         {
+            IsLoading = true;
             ViewModel.ProgressRingOn = true;
-            ViewModel.ContentShown = true;
+            ViewModel.ContentShown = false;
             ViewModel.WorkString = "WorkStringTaskLoad".GetLocalized();
             AddressBox.Text = args.Uri.AbsoluteUri;
             AddressBox.IsReadOnly = true;
@@ -53,8 +61,9 @@ namespace ProjectCodeEditor.Views
         {
             if (args.IsSuccess)
             {
+                IsLoading = false;
                 ViewModel.WorkString = sender.DocumentTitle;
-                ViewModel.ProgressRingOn = true;
+                ViewModel.ProgressRingOn = false;
                 ViewModel.ContentShown = true;
                 AddressBox.Text = args.Uri.AbsoluteUri;
                 BackButton.Visibility = sender.CanGoBack ? Visibility.Visible : Visibility.Collapsed;
@@ -62,32 +71,36 @@ namespace ProjectCodeEditor.Views
                 MainViewModel.RecentPagesContainer.Values[sender.DocumentTitle] = AddressBox.Text;
                 RefreshButton.Visibility = Visibility.Visible;
                 AddressBox.IsReadOnly = false;
-                ShellInstance.Title = sender.DocumentTitle;
-                ShellInstance.Caption = sender.Source.AbsoluteUri;
+                ShellInstance.Caption = sender.DocumentTitle;
+                ShellInstance.Parameter = sender.Source.AbsoluteUri;
+                Debug.WriteLine("Navigation completed");
             }
         }
 
-        public override void OnLoad()
+        protected override void OnLoad()
         {
             WebContent.NavigationCompleted -= WebContent_NavigationCompleted;
-            var uri = new Uri(ShellInstance.Parameter as string);
-            if (uri != UriToNavigate)
+            if (ShellInstance.Parameter != null)
             {
-                UriToNavigate = uri;
-                WebContent.Navigate(UriToNavigate);
+                var uri = new Uri(ShellInstance.Parameter as string);
+                if (uri != UriToNavigate)
+                {
+                    UriToNavigate = uri;
+                    WebContent.Navigate(UriToNavigate);
+                }
             }
+
+            WebContent.NavigationCompleted += WebContent_NavigationCompleted;
         }
 
         public override void OnSuspend()
         {
-            WebContent.NavigationStarting -= WebContent_NavigationStarting;
-            WebContent.NavigationCompleted -= WebContent_NavigationCompleted;
+            if (!IsLoading) ViewModel.ContentShown = false;
         }
 
         public override void OnResume()
         {
-            WebContent.NavigationStarting += WebContent_NavigationStarting;
-            WebContent.NavigationCompleted += WebContent_NavigationCompleted;
+            if (!IsLoading) ViewModel.ContentShown = true;
         }
 
         private void ReduceMemoryUsage()
@@ -96,13 +109,13 @@ namespace ProjectCodeEditor.Views
             WebContent.NavigationCompleted -= WebContent_NavigationCompleted;
             Debug.WriteLine("Cleaning up memory");
             int count = 0;
-            var timer = new DispatcherTimer() { Interval = TimeSpan.FromSeconds(1) };
+            var timer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(1) };
             timer.Start();
             timer.Tick += (s, p) =>
             {
                 WebContent.Source = new Uri("about:blank");
                 count++;
-                if (count == 20)
+                if (count == 40)
                 {
                     timer.Stop();
                 }
@@ -112,7 +125,6 @@ namespace ProjectCodeEditor.Views
         public override void Dispose()
         {
             ReduceMemoryUsage();
-            WebContent = null;
         }
     }
 }

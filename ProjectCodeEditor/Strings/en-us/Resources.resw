@@ -125,8 +125,8 @@
     <value>Hub</value>
     <comment>Page title for MainPage</comment>
   </data>
-  <data name="OpenFileButton.Label" xml:space="preserve">
-    <value>Open file(s)</value>
+  <data name="OpenFilesItem.Text" xml:space="preserve">
+    <value>Open file(s) and edit them</value>
   </data>
   <data name="RecentItem.Header" xml:space="preserve">
     <value>Recent</value>
@@ -283,9 +283,6 @@
   <data name="SettingsPivot.Header" xml:space="preserve">
     <value>Settings</value>
   </data>
-  <data name="OpenFileButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTi" xml:space="preserve">
-    <value>Open (Control + O)</value>
-  </data>
   <data name="InteractView_Title.Text" xml:space="preserve">
     <value>InteractView</value>
     <comment>Page title for InteractViewPage</comment>
@@ -317,7 +314,7 @@
     <value>Save</value>
   </data>
   <data name="EditorCommandBarSaveButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Save (Control + S)</value>
+    <value>Save (Ctrl + S)</value>
   </data>
   <data name="RecentsRemoveSelectedButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Remove selected (Delete key)</value>
@@ -330,5 +327,26 @@
   </data>
   <data name="EditorCommandBarShareButton.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Share</value>
+  </data>
+  <data name="Settings_SubscribeLink.Content" xml:space="preserve">
+    <value>Subscribe to my YouTube channel</value>
+  </data>
+  <data name="Settings_SubscribeLink.NavigateUri" xml:space="preserve">
+    <value>https://www.youtube.com/channel/UCCgDUPx_XgBfgBx-If1uk1g?sub_confirmation=1</value>
+  </data>
+  <data name="Settings_Browser.Text" xml:space="preserve">
+    <value>Browser</value>
+  </data>
+  <data name="OpenFileLocationButton.Label" xml:space="preserve">
+    <value>Open file location</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="CreateFileItem.Text" xml:space="preserve">
+    <value>Create a file</value>
+  </data>
+  <data name="Untitled" xml:space="preserve">
+    <value>Untitled</value>
   </data>
 </root>

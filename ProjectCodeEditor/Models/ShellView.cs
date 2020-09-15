@@ -1,6 +1,4 @@
-﻿using Windows.UI.Xaml;
-
-namespace ProjectCodeEditor.Models
+﻿namespace ProjectCodeEditor.Models
 {
     public sealed class ShellView
     {

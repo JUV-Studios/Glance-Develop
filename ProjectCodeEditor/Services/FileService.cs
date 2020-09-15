@@ -1,4 +1,5 @@
 ﻿using AutoIt.Common;
+using Microsoft.Toolkit.Uwp.Helpers;
 using System;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -8,7 +9,7 @@ using Windows.Storage;
 
 namespace ProjectCodeEditor.Services
 {
-    public sealed class TextAndEncoding
+    public sealed class TextPlusEncoding
     {
         public string Text { get; set; }
         public Encoding Encoding { get; set; }
@@ -16,12 +17,11 @@ namespace ProjectCodeEditor.Services
 
     public static class FileService
     {
-        public static async Task<TextAndEncoding> ReadCodeFile(this StorageFile file)
+        public static async Task<TextPlusEncoding> ReadCodeFile(this StorageFile file)
         {
-            var buffer = await FileIO.ReadBufferAsync(file);
-            var bytes = buffer.ToArray();
+            var bytes = await file.ReadBytesAsync();
             var encoding = GetTextEncoding(bytes);
-            return new TextAndEncoding()
+            return new TextPlusEncoding()
             {
                 Encoding = encoding,
                 Text = encoding.GetString(bytes)

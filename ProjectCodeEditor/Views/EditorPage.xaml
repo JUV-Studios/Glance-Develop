@@ -25,8 +25,18 @@
                 </MenuFlyoutItem>
             </MenuBarItem>
         </MenuBar>
-        <RichEditBox x:Name="Editor" CornerRadius="0" DisabledFormattingAccelerators="All" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" IsSpellCheckEnabled="False" />
-        <CommandBar DefaultLabelPosition="Right" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+        <RichEditBox
+            x:Name="Editor"
+            Grid.Column="1"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            CornerRadius="0"
+            DisabledFormattingAccelerators="All"
+            IsSpellCheckEnabled="False" />
+        <CommandBar
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Bottom"
+            DefaultLabelPosition="Right">
             <CommandBar.Content>
                 <TextBlock Margin="{StaticResource SmallLeftTopMargin}" Text="{x:Bind ViewModel.WorkString, Mode=OneWay}" />
             </CommandBar.Content>

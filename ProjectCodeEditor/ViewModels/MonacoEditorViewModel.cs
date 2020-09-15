@@ -1,6 +1,5 @@
-﻿using System;
+﻿using ProjectCodeEditor.Helpers;
 using System.Text;
-using ProjectCodeEditor.Helpers;
 using Windows.Graphics.Printing;
 using Windows.Storage;
 

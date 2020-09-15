@@ -1,11 +1,12 @@
 ﻿using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
+using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.Services;
 using ProjectCodeEditor.ViewModels;
 using ProjectCodeEditor.Views;
 using System;
-using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
 
@@ -25,6 +26,9 @@ namespace ProjectCodeEditor
         public App()
         {
             InitializeComponent();
+
+            EnteredBackground += App_EnteredBackground;
+            Resuming += App_Resuming;
             AppCenter.Start("dd9a81de-fe79-4ab8-be96-8f96c346c88e", typeof(Analytics), typeof(Crashes));
             UnhandledException += OnAppUnhandledException;
 
@@ -50,15 +54,32 @@ namespace ProjectCodeEditor
             await ActivationService.ActivateAsync(args);
         }
 
-        private async void OnAppUnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
+        private void OnAppUnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
             // TODO WTS: Please log and handle the exception as appropriate to your scenario
             // For more info see https://docs.microsoft.com/uwp/api/windows.ui.xaml.application.unhandledexception
+
+            if (e.Exception is InsufficientMemoryException || e.Exception is OutOfMemoryException)
+            {
+                GC.Collect();
+            }
         }
 
         private ActivationService CreateActivationService()
         {
             return new ActivationService(this, typeof(EditorShellPage));
+        }
+
+        private async void App_EnteredBackground(object sender, EnteredBackgroundEventArgs e)
+        {
+            var deferral = e.GetDeferral();
+            Singleton<SuspendAndResumeService>.Instance.SaveStateAsync();
+            deferral.Complete();
+        }
+
+        private void App_Resuming(object sender, object e)
+        {
+            Singleton<SuspendAndResumeService>.Instance.ResumeApp();
         }
     }
 }

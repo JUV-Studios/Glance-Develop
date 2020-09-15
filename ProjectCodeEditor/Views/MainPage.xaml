@@ -3,26 +3,40 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:ProjectCodeEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:ProjectCodeEditor.Models"
-    xmlns:local="using:ProjectCodeEditor"
-    Loaded="Page_Loaded"
     Style="{StaticResource PageStyle}"
     mc:Ignorable="d">
 
     <Grid>
-        <Pivot x:Name="pivot" SelectionChanged="Pivot_SelectionChanged" Margin="{StaticResource MediumLeftTopRightBottomMargin}">
+        <Pivot
+            x:Name="pivot"
+            Margin="{StaticResource SmallLeftTopRightBottomMargin}"
+            SelectionChanged="Pivot_SelectionChanged">
             <PivotItem x:Uid="RecentsPivot" Tag="Recent">
                 <Grid>
-                    <TextBlock x:Uid="RecentEmpty_Title" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="{StaticResource SmallTopBottomMargin}" Visibility="{x:Bind ViewModel.IsEmpty, Converter={StaticResource BoolToVisibility}, Mode=OneWay}" />
-                    <ListView x:Name="recentList" ItemsSource="{x:Bind ViewModel.RecentItems, Mode=OneWay}" SelectionMode="Single" IsDoubleTapEnabled="True" DoubleTapped="RecentList_DoubleClick" Margin="{StaticResource SmallTopBottomMargin}" SelectionChanged="recentList_SelectionChanged">
+                    <TextBlock
+                        x:Uid="RecentEmpty_Title"
+                        Margin="{StaticResource SmallTopBottomMargin}"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        Visibility="{x:Bind ViewModel.IsEmpty, Converter={StaticResource BoolToVisibility}, Mode=OneWay}" />
+                    <ListView
+                        x:Name="recentList"
+                        Margin="{StaticResource SmallTopBottomMargin}"
+                        DoubleTapped="RecentList_DoubleClick"
+                        IsDoubleTapEnabled="True"
+                        ItemsSource="{x:Bind ViewModel.RecentItems, Mode=OneWay}"
+                        SelectionChanged="recentList_SelectionChanged"
+                        SelectionMode="Single">
                         <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="models:RecentItem">
-                            <StackPanel Spacing="4" Margin="{StaticResource XSmallLeftTopRightBottomMargin}">
-                                <TextBlock Text="{x:Bind Title}" Style="{StaticResource BodyTextStyle}" />
-                                <TextBlock Text="{x:Bind Location}" Opacity=".6" />
-                            </StackPanel>
-                        </DataTemplate>
+                            <DataTemplate x:DataType="models:RecentItem">
+                                <StackPanel Margin="{StaticResource XSmallLeftTopRightBottomMargin}" Spacing="4">
+                                    <TextBlock Style="{StaticResource BodyTextStyle}" Text="{x:Bind Title}" />
+                                    <TextBlock Opacity=".6" Text="{x:Bind Location}" />
+                                </StackPanel>
+                            </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
                 </Grid>
@@ -31,14 +45,33 @@
                 <Frame SourcePageType="{x:Bind SettingsPageType}" />
             </PivotItem>
         </Pivot>
-        <CommandBar x:Name="RecentsCommandBar" DefaultLabelPosition="Right" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+        <CommandBar
+            x:Name="RecentsCommandBar"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Bottom"
+            DefaultLabelPosition="Right">
             <CommandBar.PrimaryCommands>
-                <AppBarButton x:Uid="RecentsRemoveSelectedButton" Icon="Remove" Click="RemoveSelected_Click" Visibility="{x:Bind ViewModel.ItemSelected, Converter={StaticResource BoolToVisibility}, Mode=OneWay}">
+                <AppBarButton
+                    x:Uid="RecentsRemoveSelectedButton"
+                    Click="RemoveSelected_Click"
+                    Icon="Remove"
+                    Visibility="{x:Bind ViewModel.ItemSelected, Converter={StaticResource BoolToVisibility}, Mode=OneWay}">
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Key="Delete" Modifiers="None" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
-                <AppBarButton x:Uid="RecentsClearButton" Icon="Delete" Click="{x:Bind ViewModel.ClearRecentItems}" />
+                <AppBarButton
+                    x:Uid="RecentsClearButton"
+                    Click="{x:Bind ViewModel.ClearRecentItems}"
+                    Icon="Delete" />
+                <AppBarButton
+                    x:Uid="OpenFileLocationButton"
+                    Click="OpenFileLocation_Click"
+                    Visibility="{x:Bind ViewModel.CanOpenLocation, Converter={StaticResource BoolToVisibility}, Mode=OneWay}">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE838;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
             </CommandBar.PrimaryCommands>
         </CommandBar>
     </Grid>

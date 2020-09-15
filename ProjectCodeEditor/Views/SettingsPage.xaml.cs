@@ -1,7 +1,4 @@
-﻿using System;
-using ProjectCodeEditor.ViewModels;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Navigation;
+﻿using Windows.UI.Xaml.Controls;
 
 namespace ProjectCodeEditor.Views
 {

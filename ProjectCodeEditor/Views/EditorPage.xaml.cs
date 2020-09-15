@@ -1,16 +1,4 @@
-﻿using Microsoft.Toolkit.Uwp.Extensions;
-using ProjectCodeEditor.Dialogs;
-using ProjectCodeEditor.Models;
-using ProjectCodeEditor.Services;
-using ProjectCodeEditor.ViewModels;
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using Windows.Storage;
-using Windows.UI.Text;
-using Windows.UI.Xaml;
+﻿using ProjectCodeEditor.ViewModels;
 using Windows.UI.Xaml.Controls;
 
 namespace ProjectCodeEditor.Views
@@ -18,7 +6,6 @@ namespace ProjectCodeEditor.Views
     public sealed partial class EditorPage : UserControl
     {
         public EditorViewModel ViewModel { get; } = new EditorViewModel();
-        private static readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
 
         public EditorPage()
         {
@@ -36,7 +23,7 @@ namespace ProjectCodeEditor.Views
             Editor.TextDocument.SetText(TextSetOptions.None, fileReadData.Text.TrimEnd());
             Editor.TextDocument.ClearUndoRedoHistory();
             WriteLineNumbers();
-            Editor.TextChanged += Editor_TextChanged;
+            Editor.TextChanged += Editor_TextChacccnged;
             ViewModel.WorkString = "WorkStringReady".GetLocalized();
         }
 

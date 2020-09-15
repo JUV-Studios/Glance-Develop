@@ -2,27 +2,88 @@
     x:Class="ProjectCodeEditor.Views.EditorShellPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vmodels="using:ProjectCodeEditor.ViewModels"
     xmlns:models="using:ProjectCodeEditor.Models"
-    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:vmodels="using:ProjectCodeEditor.ViewModels"
     Style="{StaticResource PageStyle}"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <MenuFlyout x:Key="CommandsMenu" AreOpenCloseAnimationsEnabled="True">
+            <MenuFlyoutItem x:Uid="OpenFilesItem" Click="{x:Bind vmodels:Interaction.OpenFile}">
+                <MenuFlyoutItem.Icon>
+                    <SymbolIcon Symbol="OpenFile" />
+                </MenuFlyoutItem.Icon>
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="O" Modifiers="Control" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem
+                x:Uid="CreateFileItem"
+                Click="{x:Bind vmodels:Interaction.CreateFile}"
+                Icon="Add">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="N" Modifiers="Control" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+        </MenuFlyout>
+    </Page.Resources>
+
     <Page.KeyboardAccelerators>
-        <KeyboardAccelerator Key="Tab" Modifiers="Control" Invoked="FastSwitch" />
-        <KeyboardAccelerator Key="W" Modifiers="Menu" Invoked="Browser" />
-        <KeyboardAccelerator Key="F8" Modifiers="Menu" Invoked="MemoryFree" />
-        <KeyboardAccelerator Key="Number1" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
-        <KeyboardAccelerator Key="Number2" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
-        <KeyboardAccelerator Key="Number3" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
-        <KeyboardAccelerator Key="Number4" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
-        <KeyboardAccelerator Key="Number5" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
-        <KeyboardAccelerator Key="Number6" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
-        <KeyboardAccelerator Key="Number7" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
-        <KeyboardAccelerator Key="Number8" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
-        <KeyboardAccelerator Key="Number9" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
+        <KeyboardAccelerator
+            Key="Tab"
+            Invoked="FastSwitch"
+            Modifiers="Control" />
+        <KeyboardAccelerator
+            Key="W"
+            Invoked="Close"
+            Modifiers="Control" />
+        <KeyboardAccelerator
+            Key="W"
+            Invoked="Browser"
+            Modifiers="Menu" />
+        <KeyboardAccelerator
+            Key="F8"
+            Invoked="MemoryFree"
+            Modifiers="Menu" />
+        <KeyboardAccelerator
+            Key="Number1"
+            Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked"
+            Modifiers="Control" />
+        <KeyboardAccelerator
+            Key="Number2"
+            Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked"
+            Modifiers="Control" />
+        <KeyboardAccelerator
+            Key="Number3"
+            Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked"
+            Modifiers="Control" />
+        <KeyboardAccelerator
+            Key="Number4"
+            Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked"
+            Modifiers="Control" />
+        <KeyboardAccelerator
+            Key="Number5"
+            Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked"
+            Modifiers="Control" />
+        <KeyboardAccelerator
+            Key="Number6"
+            Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked"
+            Modifiers="Control" />
+        <KeyboardAccelerator
+            Key="Number7"
+            Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked"
+            Modifiers="Control" />
+        <KeyboardAccelerator
+            Key="Number8"
+            Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked"
+            Modifiers="Control" />
+        <KeyboardAccelerator
+            Key="Number9"
+            Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked"
+            Modifiers="Control" />
     </Page.KeyboardAccelerators>
 
     <Grid>
@@ -65,16 +126,36 @@
                     </CommandBar.SecondaryCommands>
                 </CommandBar>
             </controls:MasterDetailsView.MasterCommandBar>
-        </controls:MasterDetailsView> -->
-        <SplitView DisplayMode="Inline" PaneBackground="{ThemeResource SystemControlAcrylicWindowBrush}" IsPaneOpen="True">
+        </controls:MasterDetailsView>-->
+        <SplitView
+            DisplayMode="Inline"
+            IsPaneOpen="True"
+            PaneBackground="{ThemeResource SystemControlAcrylicWindowBrush}">
             <SplitView.Pane>
-                <Grid>
-                    <ListView SelectionMode="Single" SelectionChanged="masterDetail_SelectionChanged" ItemsSource="{x:Bind ViewModel.Instances, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.SelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" CanReorderItems="True" ReorderMode="Enabled" AllowDrop="True" IsSwipeEnabled="True">
+                <Grid
+                    x:Name="MasterPanel"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    ContextFlyout="{StaticResource CommandsMenu}"
+                    IsRightTapEnabled="True">
+                    <ListView
+                        x:Name="MasterList"
+                        AllowDrop="True"
+                        CanReorderItems="True"
+                        IsSwipeEnabled="True"
+                        ItemsSource="{x:Bind ViewModel.Instances, Mode=OneWay}"
+                        ReorderMode="Enabled"
+                        SelectedItem="{x:Bind ViewModel.SelectedItem, Mode=TwoWay}"
+                        SelectionChanged="masterDetail_SelectionChanged"
+                        SelectionMode="Single">
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="models:ShellView">
-                                <StackPanel Spacing="4" Margin="{StaticResource XSmallLeftTopRightBottomMargin}">
-                                    <TextBlock Text="{x:Bind Title}" Style="{ThemeResource SubtitleTextBlockStyle}" />
-                                    <TextBlock Text="{x:Bind Caption}" Opacity=".6" TextWrapping="Wrap" />
+                                <StackPanel Margin="{StaticResource XSmallLeftTopRightBottomMargin}" Spacing="4">
+                                    <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="{x:Bind Title}" />
+                                    <TextBlock
+                                        Opacity=".6"
+                                        Text="{x:Bind Caption}"
+                                        TextWrapping="Wrap" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListView.ItemTemplate>

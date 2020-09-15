@@ -1,11 +1,9 @@
-﻿using System;
+﻿using ProjectCodeEditor.Activation;
+using ProjectCodeEditor.Core.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-using ProjectCodeEditor.Activation;
-using ProjectCodeEditor.ViewModels;
-
 using Windows.ApplicationModel.Activation;
 using Windows.Storage;
 using Windows.System;
@@ -64,6 +62,8 @@ namespace ProjectCodeEditor.Services
 
             if (IsInteractive(activationArgs))
             {
+                var activation = activationArgs as IActivatedEventArgs;
+
                 // Ensure the current window is active
                 Window.Current.Activate();
 
@@ -106,7 +106,6 @@ namespace ProjectCodeEditor.Services
         {
             ViewService.Initialize();
             await App.AppSettings.InitializeAsync();
-            await ThemeSelectorService.InitializeAsync().ConfigureAwait(false);
         }
 
         private async Task HandleActivationAsync(object activationArgs)
@@ -131,12 +130,11 @@ namespace ProjectCodeEditor.Services
 
         private async Task StartupAsync()
         {
-            await ThemeSelectorService.SetRequestedThemeAsync();
         }
 
         private IEnumerable<ActivationHandler> GetActivationHandlers()
         {
-            yield break;
+            yield return Singleton<SuspendAndResumeService>.Instance;
         }
 
         private bool IsInteractive(object args)

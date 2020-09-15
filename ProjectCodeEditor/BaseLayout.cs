@@ -2,17 +2,24 @@
 using ProjectCodeEditor.ViewModels;
 using System;
 using System.Diagnostics;
+using Windows.ApplicationModel.DataTransfer;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 namespace ProjectCodeEditor
 {
     public abstract class BaseLayout : UserControl, IDisposable
     {
+
         public ShellView ShellInstance;
 
-        public Guid FrameID;
+        private bool FrameLoaded = false;
 
-        public abstract void OnLoad();
+        protected DataTransferManager ShareCharm;
+
+        protected abstract void OnXamlLoad();
+
+        protected abstract void OnLoad();
 
         public abstract void OnSuspend();
 
@@ -23,33 +30,32 @@ namespace ProjectCodeEditor
         public BaseLayout()
         {
             EditorShellViewModel.FrameCreated += ShellViewModel_FrameCreated;
-            EditorShellViewModel.FrameChanged += ShellViewModel_FrameChanged;
-            EditorShellViewModel.FrameNavigationCompleted += ShellViewModel_FrameNavigationCompleted;
-            EditorShellViewModel.FrameClosedRequested += ShellViewModel_FrameClosed;
         }
 
-        private void ShellViewModel_FrameNavigationCompleted(object sender, ShellView e)
+        protected void BaseLayout_Loaded(object sender, RoutedEventArgs e)
         {
-            if (ShellInstance == e)
-            {
-                Debug.WriteLine("Resuming");
-                OnResume();
-            }
-        }
-
-        private void ShellViewModel_FrameClosed(object sender, ShellView e)
-        {
-            Debug.WriteLine("Disposing");
-            EditorShellViewModel.FrameClosedRequested -= ShellViewModel_FrameClosed;
-            Dispose();
+            FrameLoaded = true;
+            ShareCharm = DataTransferManager.GetForCurrentView();
+            OnXamlLoad();
         }
 
         private void ShellViewModel_FrameChanged(object sender, ShellView e)
         {
-            Debug.WriteLine("Suspending");
-            OnSuspend();
+            if (FrameLoaded)
+            {
+                if (e != ShellInstance)
+                {
+                    Debug.WriteLine("Suspending");
+                    OnSuspend();
+                }
+                else
+                {
+                    Debug.WriteLine("Resuming");
+                    OnResume();
+                }
+            }
         }
-        
+
         private void ShellViewModel_FrameCreated(object sender, ShellView e)
         {
             if (ShellInstance != null)
@@ -57,10 +63,10 @@ namespace ProjectCodeEditor
                 throw new InvalidOperationException("Incorrect usage");
             }
 
-            FrameID = Guid.NewGuid();
             ShellInstance = e;
             OnLoad();
             EditorShellViewModel.FrameCreated -= ShellViewModel_FrameCreated;
+            EditorShellViewModel.FrameChanged += ShellViewModel_FrameChanged;
         }
     }
 }
