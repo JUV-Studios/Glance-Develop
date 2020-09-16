@@ -31,6 +31,15 @@ namespace ProjectCodeEditor.Views
             InitializeComponent();
             Loaded += BaseLayout_Loaded;
             PageXamlLoaded += LowLatencyEditorPage_Loaded;
+            Disposed += LowLatencyEditorPage_Disposed;
+        }
+
+        private void LowLatencyEditorPage_Disposed(object sender, EventArgs e)
+        {
+            Debug.WriteLine("Editor disposed");
+            Editor.TextDocument.SetText(TextSetOptions.None, string.Empty);
+            Editor = null;
+            Disposed -= LowLatencyEditorPage_Disposed;
         }
 
         private async void LowLatencyEditorPage_Loaded(object sender, EventArgs e)

@@ -44,6 +44,8 @@ namespace ProjectCodeEditor
 
         public event EventHandler PageXamlLoaded;
 
+        public event EventHandler Disposed;
+
         public void ShareFile()
         {
             DataTransferManager.ShowShareUI();
@@ -79,6 +81,7 @@ namespace ProjectCodeEditor
         {
             // ShareCharm.DataRequested -= ShareCharm_DataRequested;
             // SaveFile();
+            Disposed?.Invoke(this, null);
         }
 
         public override void OnResume()
@@ -86,7 +89,9 @@ namespace ProjectCodeEditor
             // ShareCharm.DataRequested += ShareCharm_DataRequested;
         }
 
-        public override void OnSuspend() => Dispose();
+        public override void OnSuspend()
+        {
+        }
 
         protected override void OnLoad()
         {

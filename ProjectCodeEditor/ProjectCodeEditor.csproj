@@ -197,6 +197,7 @@
     <Compile Include="Services\ActivationService.cs" />
     <Compile Include="Activation\DefaultActivationHandler.cs" />
     <Compile Include="Services\FileService.cs" />
+    <Compile Include="Services\MemoryService.cs" />
     <Compile Include="Services\NavigationService.cs" />
     <Compile Include="Services\SuspendAndResumeService.cs" />
     <Compile Include="Services\ViewService.cs" />

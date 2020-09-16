@@ -3,9 +3,12 @@ using Microsoft.Toolkit.Uwp.Extensions;
 using MyToolkit.Storage;
 using ProjectCodeEditor.Helpers;
 using ProjectCodeEditor.Models;
+using ProjectCodeEditor.Services;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 
@@ -14,6 +17,8 @@ namespace ProjectCodeEditor.ViewModels
     // Add other settings as necessary. For help see https://github.com/Microsoft/WindowsTemplateStudio/blob/release/docs/UWP/pages/settings.md
     public class SettingsViewModel : Observable
     {
+        private BitArray SmallStorage = new BitArray(2);
+
         private string _versionDescription;
 
         public string VersionDescription
@@ -23,26 +28,24 @@ namespace ProjectCodeEditor.ViewModels
             set { Set(ref _versionDescription, value); }
         }
 
-        private bool _AutoSave = false;
-
         public bool AutoSave
         {
-            get => _AutoSave;
+            get => MemoryService.Get(0, SmallStorage);
             set
             {
-                Set(ref _AutoSave, value);
+                MemoryService.Set(0, value, SmallStorage);
+                OnPropertyChanged(nameof(AutoSave));
                 ApplicationSettings.SetSetting(nameof(AutoSave), value, false, true);
             }
         }
 
-        private bool _TextModeBrowser = false;
-
         public bool TextModeBrowser
         {
-            get => _TextModeBrowser;
+            get => MemoryService.Get(1, SmallStorage);
             set
             {
-                Set(ref _TextModeBrowser, value);
+                MemoryService.Set(1, value, SmallStorage);
+                OnPropertyChanged(nameof(TextModeBrowser));
                 ApplicationSettings.SetSetting(nameof(TextModeBrowser), value, false, true);
             }
         }

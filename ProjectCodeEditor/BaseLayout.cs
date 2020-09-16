@@ -1,6 +1,8 @@
 ﻿using ProjectCodeEditor.Models;
+using ProjectCodeEditor.Services;
 using ProjectCodeEditor.ViewModels;
 using System;
+using System.Collections;
 using System.Diagnostics;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.UI.Xaml;
@@ -12,11 +14,21 @@ namespace ProjectCodeEditor
     {
         public ShellView ShellInstance;
 
-        private bool FrameLoaded = false;
-
-        private bool Suspended = false;
-
         protected DataTransferManager ShareCharm;
+
+        private BitArray StorageForObject = new BitArray(2);
+
+        private bool FrameLoaded
+        {
+            get => MemoryService.Get(0, StorageForObject);
+            set => MemoryService.Set(0, value, StorageForObject);
+        }
+
+        private bool Suspended
+        {
+            get => MemoryService.Get(1, StorageForObject);
+            set => MemoryService.Set(1, value, StorageForObject);
+        }
 
         protected abstract void OnXamlLoad();
 
