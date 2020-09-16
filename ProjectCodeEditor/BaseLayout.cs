@@ -10,7 +10,6 @@ namespace ProjectCodeEditor
 {
     public abstract class BaseLayout : UserControl, IDisposable
     {
-
         public ShellView ShellInstance;
 
         private bool FrameLoaded = false;

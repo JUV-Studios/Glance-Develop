@@ -18,11 +18,17 @@
 
     <Grid>
         <MenuBar HorizontalAlignment="Stretch" VerticalAlignment="Top">
-            <MenuBarItem x:Uid="EditorEditMenu" AccessKey="F">
+            <MenuBarItem x:Uid="EditorEditMenu" AccessKey="E">
                 <MenuFlyoutItem x:Uid="EditMenuFindItem">
                     <MenuFlyoutItem.Icon>
                         <SymbolIcon Symbol="Find" />
                     </MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem x:Uid="EditMenuGoToItem" Click="GoTo_Click">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="G" Modifiers="Control" />
+                        <KeyboardAccelerator Key="G" Modifiers="Control" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
             </MenuBarItem>
         </MenuBar>

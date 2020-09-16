@@ -334,4 +334,22 @@
   <data name="Settings_Dependencies.Text" xml:space="preserve">
     <value>Dependencies &amp; references</value>
   </data>
+  <data name="CancelText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="EditMenuGoToItem.Text" xml:space="preserve">
+    <value>Go to line</value>
+  </data>
+  <data name="GoToDialogPrimaryButtonText" xml:space="preserve">
+    <value>Go</value>
+  </data>
+  <data name="GoToDialogTitle" xml:space="preserve">
+    <value>Go to line</value>
+  </data>
+  <data name="GoToLineBoxHeader" xml:space="preserve">
+    <value>Line number</value>
+  </data>
+  <data name="GoToLineBoxPlaceholder" xml:space="preserve">
+    <value>Where to go?</value>
+  </data>
 </root>
