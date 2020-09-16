@@ -118,13 +118,11 @@ namespace ProjectCodeEditor.Views
 
                 Editor.Focus(FocusState.Programmatic);
 
+                Editor.TextDocument.Selection.SetRange(0, 0);
+
                 if (rangeToSelect != null)
                 {
-                    if (Editor.TextDocument.Selection.Text[rangeToSelect.EndPosition] == ' ')
-                    {
-                        Editor.TextDocument.Selection.SetRange(rangeToSelect.StartPosition, rangeToSelect.EndPosition - 1);
-                    }
-                    else Editor.TextDocument.Selection.SetRange(rangeToSelect.StartPosition, rangeToSelect.EndPosition);
+                    Editor.TextDocument.Selection.SetRange(rangeToSelect.StartPosition, rangeToSelect.EndPosition);
                 }
             }
 
