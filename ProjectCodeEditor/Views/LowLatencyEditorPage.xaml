@@ -23,6 +23,10 @@
                     <MenuFlyoutItem.Icon>
                         <SymbolIcon Symbol="Find" />
                     </MenuFlyoutItem.Icon>
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="F" Modifiers="Control" />
+                        <KeyboardAccelerator Key="F3" Modifiers="None" />
+                    </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>
                 <MenuFlyoutItem x:Uid="EditMenuGoToItem" Click="GoTo_Click">
                     <MenuFlyoutItem.KeyboardAccelerators>

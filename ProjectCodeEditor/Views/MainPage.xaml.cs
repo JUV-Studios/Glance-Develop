@@ -1,4 +1,5 @@
-﻿using ProjectCodeEditor.Models;
+﻿using Microsoft.Toolkit.Uwp.UI.Extensions;
+using ProjectCodeEditor.Models;
 using ProjectCodeEditor.ViewModels;
 using System;
 using System.IO;
@@ -98,15 +99,6 @@ namespace ProjectCodeEditor.Views
         {
             ShowHideCommandBar();
             Loaded -= BaseLayout_Loaded;
-        }
-
-        private async void OpenFileLocation_Click(object sender, RoutedEventArgs e)
-        {
-            if (recentList.SelectedItem != null)
-            {
-                var clickedItem = recentList.SelectedItem as RecentItem;
-                await Launcher.LaunchFolderPathAsync(Path.GetDirectoryName(clickedItem.FileHandle?.Path));
-            }
         }
     }
 }

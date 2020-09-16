@@ -99,6 +99,8 @@ namespace ProjectCodeEditor.Views
 
             if (result == ContentDialogResult.Primary)
             {
+                Editor.LostFocus -= Editor_LostFocus;
+                Editor.GotFocus -= Editor_GotFocus;
                 ITextRange rangeToSelect = null;
                 int line = Convert.ToInt32(lineBox.Value);
                 int size = 0;
@@ -125,8 +127,11 @@ namespace ProjectCodeEditor.Views
 
                 if (rangeToSelect != null)
                 {
-                    Editor.TextDocument.Selection.SetRange(rangeToSelect.StartPosition, rangeToSelect.EndPosition);
+                    Editor.TextDocument.Selection.SetRange(rangeToSelect.StartPosition, rangeToSelect.EndPosition - 1);
                 }
+
+                Editor.LostFocus += Editor_LostFocus;
+                Editor.GotFocus += Editor_GotFocus;
             }
 
             DialogShown = false;
