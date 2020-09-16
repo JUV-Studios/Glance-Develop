@@ -31,7 +31,19 @@ namespace ProjectCodeEditor.ViewModels
             set
             {
                 Set(ref _AutoSave, value);
-                ApplicationSettings.SetSetting(nameof(EditorFont), value, false, true);
+                ApplicationSettings.SetSetting(nameof(AutoSave), value, false, true);
+            }
+        }
+
+        private bool _TextModeBrowser = false;
+
+        public bool TextModeBrowser
+        {
+            get => _TextModeBrowser;
+            set
+            {
+                Set(ref _TextModeBrowser, value);
+                ApplicationSettings.SetSetting(nameof(TextModeBrowser), value, false, true);
             }
         }
 
@@ -81,6 +93,7 @@ namespace ProjectCodeEditor.ViewModels
             foreach (var fontName in CanvasTextFormat.GetSystemFontFamilies()) { _FontList.Add(fontName); }
             EditorFont = ApplicationSettings.GetSetting(nameof(EditorFont), "Segoe UI");
             AutoSave = ApplicationSettings.GetSetting(nameof(AutoSave), false);
+            TextModeBrowser = ApplicationSettings.GetSetting(nameof(TextModeBrowser), false);
             var selectedFontSize = ApplicationSettings.GetSetting(nameof(SelectedFontSize), "Medium");
             foreach (var fontSizeName in BindableFontSizes)
             {

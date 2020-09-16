@@ -33,6 +33,7 @@ namespace ProjectCodeEditor.Views
 
         private void Editor_TextChanged(object sender, RoutedEventArgs e)
         {
+            if (App.AppSettings.AutoSave) Save_Click(null, null);
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)

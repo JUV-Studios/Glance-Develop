@@ -9,15 +9,6 @@
     Style="{StaticResource PageStyle}"
     mc:Ignorable="d">
 
-    <UserControl.Resources>
-        <MenuFlyout x:Key="ItemMenuFlyout">
-
-            <MenuFlyoutItem Text="option 1" />
-            <MenuFlyoutItem Text="option 2" />
-            <MenuFlyoutItem Text="option 3" />
-        </MenuFlyout>
-    </UserControl.Resources>
-
     <Grid>
         <Pivot
             x:Name="pivot"
@@ -54,34 +45,5 @@
                 <Frame SourcePageType="{x:Bind SettingsPageType}" />
             </PivotItem>
         </Pivot>
-        <CommandBar
-            x:Name="RecentsCommandBar"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Bottom"
-            DefaultLabelPosition="Right">
-            <CommandBar.PrimaryCommands>
-                <AppBarButton
-                    x:Uid="RecentsRemoveSelectedButton"
-                    Click="RemoveSelected_Click"
-                    Icon="Remove"
-                    Visibility="{x:Bind ViewModel.ItemSelected, Converter={StaticResource BoolToVisibility}, Mode=OneWay}">
-                    <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="Delete" Modifiers="None" />
-                    </AppBarButton.KeyboardAccelerators>
-                </AppBarButton>
-                <AppBarButton
-                    x:Uid="RecentsClearButton"
-                    Click="{x:Bind ViewModel.ClearRecentItems}"
-                    Icon="Delete" />
-                <AppBarButton
-                    x:Uid="OpenFileLocationButton"
-                    Click="OpenFileLocation_Click"
-                    Visibility="{x:Bind ViewModel.CanOpenLocation, Converter={StaticResource BoolToVisibility}, Mode=OneWay}">
-                    <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE838;" />
-                    </AppBarButton.Icon>
-                </AppBarButton>
-            </CommandBar.PrimaryCommands>
-        </CommandBar>
     </Grid>
 </local:BaseLayout>

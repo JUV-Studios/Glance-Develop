@@ -328,4 +328,7 @@
   <data name="Settings_EditorFontSizeBox.Header" xml:space="preserve">
     <value>Font size</value>
   </data>
+  <data name="Settings_BrowserTextModeToggle.Header" xml:space="preserve">
+    <value>Only load text and images</value>
+  </data>
 </root>

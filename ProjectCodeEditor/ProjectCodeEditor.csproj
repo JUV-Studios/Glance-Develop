@@ -164,6 +164,9 @@
     <PackageReference Include="MyToolkit.Extended">
       <Version>2.5.16</Version>
     </PackageReference>
+    <PackageReference Include="Template10">
+      <Version>1.1.12</Version>
+    </PackageReference>
     <PackageReference Include="Win2D.uwp">
       <Version>1.25.0</Version>
     </PackageReference>
@@ -206,6 +209,7 @@
     <Compile Include="ViewModels\OpenFileViewModel.cs" />
     <Compile Include="ViewModels\ProjectWorkerViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
+    <Compile Include="ViewModels\TextModeBrowserViewModel.cs" />
     <Compile Include="Views\BrowserPage.xaml.cs">
       <DependentUpon>BrowserPage.xaml</DependentUpon>
     </Compile>
@@ -232,6 +236,9 @@
     </Compile>
     <Compile Include="Views\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TextModeBrowserPage.xaml.cs">
+      <DependentUpon>TextModeBrowserPage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -298,6 +305,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\SettingsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\TextModeBrowserPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

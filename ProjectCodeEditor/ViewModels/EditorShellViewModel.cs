@@ -39,11 +39,15 @@ namespace ProjectCodeEditor.ViewModels
                 }
             }
 
+            BaseLayout content;
+            if (App.AppSettings.TextModeBrowser) content = new TextModeBrowserPage();
+            else content = new BrowserPage();
+
             AddLayout(new ShellView()
             {
                 Title = "TabBrowserDisplayName".GetLocalized(),
                 Caption = "TabBrowserCaption".GetLocalized(),
-                Content = new BrowserPage(),
+                Content = content,
                 Parameter = uriString
             });
         }

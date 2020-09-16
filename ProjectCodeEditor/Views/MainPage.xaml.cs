@@ -61,7 +61,7 @@ namespace ProjectCodeEditor.Views
 
         private void ShowHideCommandBar()
         {
-            if (pivot.SelectedItem != null)
+            /* if (pivot.SelectedItem != null)
             {
                 if ((pivot.SelectedItem as PivotItem).Tag.ToString() == "Recent" && !ViewModel.IsEmpty)
                 {
@@ -71,7 +71,7 @@ namespace ProjectCodeEditor.Views
                 {
                     RecentsCommandBar.Visibility = Visibility.Collapsed;
                 }
-            }
+            }*/
         }
 
         protected override void OnLoad()

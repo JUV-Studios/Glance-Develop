@@ -55,9 +55,11 @@
                         </ComboBox.ItemTemplate>
                     </ComboBox>
                 </Grid>
+                <ToggleSwitch x:Uid="Settings_EditorAutoSaveToggle" IsOn="{x:Bind local:App.AppSettings.AutoSave, Mode=TwoWay}" />
             </StackPanel>
             <StackPanel Spacing="8">
                 <TextBlock x:Uid="Settings_Browser" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                <ToggleSwitch x:Uid="Settings_BrowserTextModeToggle" IsOn="{x:Bind local:App.AppSettings.TextModeBrowser, Mode=TwoWay}" />
             </StackPanel>
         </StackPanel>
         <StackPanel
