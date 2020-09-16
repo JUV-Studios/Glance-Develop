@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -18,13 +19,23 @@ namespace ProjectCodeEditor.Views
 {
     public sealed partial class LowLatencyEditorPage : CodeEditorBase
     {
+        private BitArray SmallStorage = new BitArray(2);
+
         public LowLatencyEditorViewModel RichEditViewModel { get; } = new LowLatencyEditorViewModel();
 
         private Tuple<int, int> PreviousSelectedIndex = new Tuple<int, int>(0, 0);
 
-        private bool DialogShown = false;
+        private bool DialogShown
+        {
+            get => MemoryService.Get(0, SmallStorage);
+            set => MemoryService.Set(0, value, SmallStorage);
+        }
 
-        private bool NeedRefocus = false;
+        private bool NeedRefocus
+        {
+            get => MemoryService.Get(1, SmallStorage);
+            set => MemoryService.Set(1, value, SmallStorage);
+        }
 
         public LowLatencyEditorPage()
         {
