@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:ProjectCodeEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:ProjectCodeEditor.Models"
     xmlns:vmodels="using:ProjectCodeEditor.ViewModels"
     xmlns:winui="using:Microsoft.UI.Xaml.Controls"
     xmlns:xaml="using:Windows.UI.Xaml"
@@ -23,17 +24,37 @@
             Spacing="12">
             <StackPanel Spacing="8">
                 <TextBlock x:Uid="Settings_Editor" Style="{ThemeResource SubtitleTextBlockStyle}" />
-                <ComboBox
-                    x:Uid="Settings_EditorFontFamilyBox"
-                    HorizontalAlignment="Stretch"
-                    ItemsSource="{x:Bind local:App.AppSettings.FontList, Mode=OneTime}"
-                    SelectedValue="{x:Bind local:App.AppSettings.EditorFont, Mode=TwoWay}">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate x:DataType="x:String">
-                            <TextBlock Text="{x:Bind}" />
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <ComboBox
+                        x:Name="FontBox"
+                        x:Uid="Settings_EditorFontFamilyBox"
+                        HorizontalAlignment="Stretch"
+                        ItemsSource="{x:Bind local:App.AppSettings.FontList, Mode=OneTime}"
+                        SelectedValue="{x:Bind local:App.AppSettings.EditorFont, Mode=TwoWay}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="x:String">
+                                <TextBlock Text="{x:Bind}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <ComboBox
+                        x:Uid="Settings_EditorFontSizeBox"
+                        Grid.Column="2"
+                        HorizontalAlignment="Stretch"
+                        ItemsSource="{x:Bind local:App.AppSettings.BindableFontSizes, Mode=OneTime}"
+                        SelectedValue="{x:Bind local:App.AppSettings.SelectedFontSize, Mode=TwoWay}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="models:EditorFontSize">
+                                <TextBlock Text="{x:Bind DisplayName}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </Grid>
             </StackPanel>
             <StackPanel Spacing="8">
                 <TextBlock x:Uid="Settings_Browser" Style="{ThemeResource SubtitleTextBlockStyle}" />

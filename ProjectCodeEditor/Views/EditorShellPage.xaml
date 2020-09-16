@@ -28,6 +28,14 @@
                     <KeyboardAccelerator Key="N" Modifiers="Control" />
                 </MenuFlyoutItem.KeyboardAccelerators>
             </MenuFlyoutItem>
+            <MenuFlyoutItem x:Uid="BrowserTabButton" Click="{x:Bind vmodels:Interaction.NewBrowserTab}">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator
+                        Key="W"
+                        Invoked="Browser"
+                        Modifiers="Menu" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
         </MenuFlyout>
     </Page.Resources>
 
@@ -40,10 +48,6 @@
             Key="W"
             Invoked="Close"
             Modifiers="Control" />
-        <KeyboardAccelerator
-            Key="W"
-            Invoked="Browser"
-            Modifiers="Menu" />
         <KeyboardAccelerator
             Key="F8"
             Invoked="MemoryFree"
@@ -136,8 +140,7 @@
                     x:Name="MasterPanel"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
-                    ContextFlyout="{StaticResource CommandsMenu}"
-                    IsRightTapEnabled="True">
+                    ContextFlyout="{StaticResource CommandsMenu}">
                     <ListView
                         x:Name="MasterList"
                         AllowDrop="True"

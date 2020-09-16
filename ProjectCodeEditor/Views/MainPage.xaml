@@ -9,6 +9,15 @@
     Style="{StaticResource PageStyle}"
     mc:Ignorable="d">
 
+    <UserControl.Resources>
+        <MenuFlyout x:Key="ItemMenuFlyout">
+
+            <MenuFlyoutItem Text="option 1" />
+            <MenuFlyoutItem Text="option 2" />
+            <MenuFlyoutItem Text="option 3" />
+        </MenuFlyout>
+    </UserControl.Resources>
+
     <Grid>
         <Pivot
             x:Name="pivot"

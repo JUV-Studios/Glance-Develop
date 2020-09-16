@@ -53,7 +53,7 @@ namespace ProjectCodeEditor.Views
             if (recentList.SelectedItem != null)
             {
                 ViewModel.ItemSelected = true;
-                if (!(recentList.SelectedItem as RecentItem).IsWeb) ViewModel.CanOpenLocation = true;
+                ViewModel.CanOpenLocation = !(recentList.SelectedItem as RecentItem).IsWeb;
             }
         }
 
@@ -86,7 +86,11 @@ namespace ProjectCodeEditor.Views
             ViewModel.DisposeRecentItems();
         }
 
-        public override void OnResume() => OnLoad();
+        public override void OnResume()
+        {
+            OnLoad();
+            ShowHideCommandBar();
+        }
 
         public override void Dispose() => OnSuspend();
 

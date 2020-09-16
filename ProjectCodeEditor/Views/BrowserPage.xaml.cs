@@ -43,7 +43,14 @@ namespace ProjectCodeEditor.Views
         {
             if (e.Key == VirtualKey.Enter)
             {
-                WebContent.Navigate(ConvertStringToUri((sender as TextBox).Text));
+                try
+                {
+                    WebContent.Navigate(ConvertStringToUri((sender as TextBox).Text));
+                }
+                catch (UriFormatException)
+                {
+                    WebContent.Refresh();                    
+                }
             }
         }
 
@@ -74,6 +81,7 @@ namespace ProjectCodeEditor.Views
                 ShellInstance.Caption = sender.DocumentTitle;
                 ShellInstance.Parameter = sender.Source.AbsoluteUri;
                 Debug.WriteLine("Navigation completed");
+                if (CommandBar.Visibility == Visibility.Collapsed) CommandBar.Visibility = Visibility.Visible;
             }
         }
 

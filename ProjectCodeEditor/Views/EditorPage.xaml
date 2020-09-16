@@ -27,9 +27,7 @@
         </MenuBar>
         <RichEditBox
             x:Name="Editor"
-            Grid.Column="1"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch"
+            Margin="0,40,0,0"
             CornerRadius="0"
             DisabledFormattingAccelerators="All"
             IsSpellCheckEnabled="False" />

@@ -16,13 +16,6 @@ namespace ProjectCodeEditor.ViewModels
 
         public static event EventHandler<ShellView> FrameChanged;
 
-        public static event EventHandler<ShellView> FrameNavigationCompleted;
-
-        public void InvokeFrameNavigationCompleted(object sender, ShellView e)
-        {
-            FrameNavigationCompleted?.Invoke(sender, e);
-        }
-
         public void AddLayout(ShellView view, bool multiple = false)
         {
             FrameCreated?.Invoke(this, view);

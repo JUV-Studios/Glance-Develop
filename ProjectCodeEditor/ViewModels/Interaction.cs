@@ -70,5 +70,7 @@ namespace ProjectCodeEditor.ViewModels
                 IsFilePickerOpen = false;
             }
         }
+
+        public static void NewBrowserTab() => App.ShellViewModel.AddWebPage();
     }
 }

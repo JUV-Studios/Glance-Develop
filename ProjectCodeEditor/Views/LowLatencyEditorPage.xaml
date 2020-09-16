@@ -32,6 +32,7 @@
             CornerRadius="0"
             DisabledFormattingAccelerators="All"
             FontFamily="{x:Bind local:App.AppSettings.EditorFont, Mode=OneWay}"
+            FontSize="{x:Bind local:App.AppSettings.SelectedFontSize.FontSize, Mode=OneWay}"
             IsSpellCheckEnabled="False" />
         <CommandBar
             HorizontalAlignment="Stretch"

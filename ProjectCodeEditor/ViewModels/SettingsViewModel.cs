@@ -1,6 +1,8 @@
 ﻿using Microsoft.Graphics.Canvas.Text;
 using Microsoft.Toolkit.Uwp.Extensions;
+using MyToolkit.Storage;
 using ProjectCodeEditor.Helpers;
+using ProjectCodeEditor.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -29,7 +31,7 @@ namespace ProjectCodeEditor.ViewModels
             set
             {
                 Set(ref _AutoSave, value);
-                SettingsStorageExtensions.LocalSettings.Values[nameof(AutoSave)] = value;
+                ApplicationSettings.SetSetting(nameof(EditorFont), value, false, true);
             }
         }
 
@@ -41,13 +43,32 @@ namespace ProjectCodeEditor.ViewModels
             set
             {
                 Set(ref _EditorFont, value);
-                SettingsStorageExtensions.LocalSettings.SaveString(nameof(EditorFont), value);
+                ApplicationSettings.SetSetting(nameof(EditorFont), value, false, true);
             }
         }
 
         private List<string> _FontList = new List<string>();
 
         public ReadOnlyCollection<string> FontList;
+
+        private EditorFontSize _SelectedFontSize;
+
+        public EditorFontSize SelectedFontSize
+        {
+            get => _SelectedFontSize;
+            set
+            {
+                Set(ref _SelectedFontSize, value);
+                ApplicationSettings.SetSetting(nameof(SelectedFontSize), value.PropertyName, false, true);
+            }
+        }
+
+        public readonly EditorFontSize[] BindableFontSizes = new EditorFontSize[]
+        {
+            new EditorFontSize() { FontSizeEnum = EditorFontSizes.Small },
+            new EditorFontSize() { FontSizeEnum = EditorFontSizes.Medium },
+            new EditorFontSize() { FontSizeEnum = EditorFontSizes.Large }
+        };
 
         public SettingsViewModel()
         {
@@ -58,10 +79,18 @@ namespace ProjectCodeEditor.ViewModels
         {
             VersionDescription = GetVersionDescription();
             foreach (var fontName in CanvasTextFormat.GetSystemFontFamilies()) { _FontList.Add(fontName); }
-            EditorFont = SettingsStorageExtensions.LocalSettings.GetString(nameof(EditorFont)) ?? "Segoe UI";
-            var autoSaveValue = SettingsStorageExtensions.LocalSettings.Values[nameof(AutoSave)];
-            if (autoSaveValue == null || autoSaveValue is not bool) AutoSave = false;
-            else AutoSave = Convert.ToBoolean(autoSaveValue);
+            EditorFont = ApplicationSettings.GetSetting(nameof(EditorFont), "Segoe UI");
+            AutoSave = ApplicationSettings.GetSetting(nameof(AutoSave), false);
+            var selectedFontSize = ApplicationSettings.GetSetting(nameof(SelectedFontSize), "Medium");
+            foreach (var fontSizeName in BindableFontSizes)
+            {
+                if (selectedFontSize == fontSizeName.PropertyName)
+                {
+                    _SelectedFontSize = fontSizeName;
+                    break;
+                }
+            }
+
             await Task.CompletedTask;
 
         }

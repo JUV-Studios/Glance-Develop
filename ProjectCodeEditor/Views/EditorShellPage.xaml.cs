@@ -42,7 +42,6 @@ namespace ProjectCodeEditor.Views
         {
             try
             {
-                ViewModel.InvokeFrameNavigationCompleted(this, e.AddedItems.First() as ShellView);
             }
             catch (InvalidOperationException)
             {

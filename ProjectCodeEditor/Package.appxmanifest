@@ -9,8 +9,8 @@
 
   <Identity
     Name="JUVStudios.DevelopApp"
-    Publisher="CN=jaiga"
-    Version="0.0.1.0" />
+    Publisher="CN=JUV Studios"
+    Version="0.0.3.0" />
 
   <mp:PhoneIdentity PhoneProductId="8982C99F-A50D-47B3-B079-5A9077C936D0" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 

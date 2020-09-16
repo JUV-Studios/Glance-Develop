@@ -32,7 +32,8 @@
             x:Name="CommandBar"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Bottom"
-            DefaultLabelPosition="Right">
+            DefaultLabelPosition="Right"
+            Visibility="Collapsed">
             <CommandBar.Content>
                 <TextBlock Margin="{StaticResource SmallLeftTopMargin}" Text="{x:Bind ViewModel.WorkString, Mode=OneWay}" />
             </CommandBar.Content>

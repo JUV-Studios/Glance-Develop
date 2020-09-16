@@ -70,7 +70,7 @@ namespace ProjectCodeEditor
             return new ActivationService(this, typeof(EditorShellPage));
         }
 
-        private async void App_EnteredBackground(object sender, EnteredBackgroundEventArgs e)
+        private void App_EnteredBackground(object sender, EnteredBackgroundEventArgs e)
         {
             var deferral = e.GetDeferral();
             Singleton<SuspendAndResumeService>.Instance.SaveStateAsync();

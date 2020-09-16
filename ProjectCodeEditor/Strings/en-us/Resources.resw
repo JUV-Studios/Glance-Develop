@@ -126,7 +126,7 @@
     <comment>Page title for MainPage</comment>
   </data>
   <data name="OpenFilesItem.Text" xml:space="preserve">
-    <value>Open file(s) and edit them</value>
+    <value>Open file(s)</value>
   </data>
   <data name="RecentItem.Header" xml:space="preserve">
     <value>Recent</value>
@@ -155,22 +155,6 @@
   <data name="ExceptionSettingsStorageExtensionsFileNameIsNullOrEmpty" xml:space="preserve">
     <value>File name is null or empty. Specify a valid file name</value>
     <comment>File name is null or empty to save file in settings storage extensions</comment>
-  </data>
-  <data name="Settings_Theme.Text" xml:space="preserve">
-    <value>Select your favorite theme</value>
-    <comment>Choose theme text for Settings</comment>
-  </data>
-  <data name="Settings_Theme_Dark.Content" xml:space="preserve">
-    <value>Dark</value>
-    <comment>Dark theme text for Settings</comment>
-  </data>
-  <data name="Settings_Theme_Default.Content" xml:space="preserve">
-    <value>Windows default</value>
-    <comment>Windows default theme text for Settings</comment>
-  </data>
-  <data name="Settings_Theme_Light.Content" xml:space="preserve">
-    <value>Light</value>
-    <comment>Light theme text for Settings</comment>
   </data>
   <data name="Settings_About.Text" xml:space="preserve">
     <value>About this application</value>
@@ -205,10 +189,6 @@
     <value>ProjectWorker</value>
     <comment>Page title for ProjectWorkerPage</comment>
   </data>
-  <data name="Editor_Title.Text" xml:space="preserve">
-    <value>Editor</value>
-    <comment>Page title for EditorPage</comment>
-  </data>
   <data name="OpenFile_Title.Text" xml:space="preserve">
     <value>Open</value>
     <comment>Page title for NewFilePage</comment>
@@ -236,10 +216,6 @@
   </data>
   <data name="SettingsCharmAboutMenu" xml:space="preserve">
     <value>About</value>
-  </data>
-  <data name="Browser_Title" xml:space="preserve">
-    <value>Browser</value>
-    <comment>Page title for BrowserPage</comment>
   </data>
   <data name="BrowserBackButton.Label" xml:space="preserve">
     <value>Back</value>
@@ -283,20 +259,8 @@
   <data name="SettingsPivot.Header" xml:space="preserve">
     <value>Settings</value>
   </data>
-  <data name="InteractView_Title.Text" xml:space="preserve">
-    <value>InteractView</value>
-    <comment>Page title for InteractViewPage</comment>
-  </data>
   <data name="EditMenuGoTo.Text" xml:space="preserve">
     <value>Go to line</value>
-  </data>
-  <data name="Settings_Personalization.Text" xml:space="preserve">
-    <value>Personalization</value>
-    <comment>Personalization text for Settings</comment>
-  </data>
-  <data name="Settings_Title.Text" xml:space="preserve">
-    <value>Settings</value>
-    <comment>Page title for SettingsPage</comment>
   </data>
   <data name="Settings_AboutVersionText" xml:space="preserve">
     <value>Version</value>
@@ -349,8 +313,19 @@
   <data name="Untitled" xml:space="preserve">
     <value>Untitled</value>
   </data>
-  <data name="LowLatencyEditor_Title.Text" xml:space="preserve">
-    <value>LowLatencyEditor</value>
-    <comment>Page title for LowLatencyEditorPage</comment>
+  <data name="BrowserTabButton.Text" xml:space="preserve">
+    <value>New browser tab</value>
+  </data>
+  <data name="SettingsFontSizeLarge" xml:space="preserve">
+    <value>Large</value>
+  </data>
+  <data name="SettingsFontSizeMedium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="SettingsFontSizeSmall" xml:space="preserve">
+    <value>Small</value>
+  </data>
+  <data name="Settings_EditorFontSizeBox.Header" xml:space="preserve">
+    <value>Font size</value>
   </data>
 </root>
