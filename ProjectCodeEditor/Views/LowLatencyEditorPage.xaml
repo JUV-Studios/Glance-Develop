@@ -39,7 +39,8 @@
             DisabledFormattingAccelerators="All"
             FontFamily="{x:Bind local:App.AppSettings.EditorFont, Mode=OneWay}"
             FontSize="{x:Bind local:App.AppSettings.SelectedFontSize.FontSize, Mode=OneWay}"
-            IsSpellCheckEnabled="False" />
+            IsSpellCheckEnabled="False"
+            KeyDown="Editor_KeyDown" />
         <CommandBar
             HorizontalAlignment="Stretch"
             VerticalAlignment="Bottom"

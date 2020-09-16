@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using Microsoft.Toolkit.Uwp.Extensions;
 using Microsoft.UI.Xaml.Controls;
 using ProjectCodeEditor.Services;
 using ProjectCodeEditor.ViewModels;
 using Windows.Globalization.NumberFormatting;
+using Windows.System;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 using WinRTXamlToolkit.Controls;
 
 namespace ProjectCodeEditor.Views
@@ -147,6 +150,15 @@ namespace ProjectCodeEditor.Views
         private void Editor_SelectionChanged(object sender, RoutedEventArgs e)
         {
             PreviousSelectedIndex = new Tuple<int, int>(Editor.TextDocument.Selection.StartPosition, Editor.TextDocument.Selection.EndPosition);
+        }
+
+        private void Editor_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == VirtualKey.Tab && Editor.FocusState != FocusState.Programmatic && Editor.FocusState != FocusState.Unfocused)
+            {
+                e.Handled = true;
+                Editor.TextDocument.Selection.TypeText("\t");
+            }
         }
     }
 }
