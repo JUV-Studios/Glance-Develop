@@ -131,6 +131,9 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="LibGit2Sharp">
+      <Version>0.27.0-preview-0034</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.AppCenter.Analytics">
       <Version>3.4.1</Version>
     </PackageReference>
@@ -190,6 +193,7 @@
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\Observable.cs" />
     <Compile Include="Helpers\RelayCommand.cs" />
+    <Compile Include="Models\Dependency.cs" />
     <Compile Include="Models\EditorFontSize.cs" />
     <Compile Include="Models\ShellView.cs" />
     <Compile Include="Models\RecentItem.cs" />
@@ -206,7 +210,6 @@
     <Compile Include="ViewModels\LowLatencyEditorViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\MonacoEditorViewModel.cs" />
-    <Compile Include="ViewModels\OpenFileViewModel.cs" />
     <Compile Include="ViewModels\ProjectWorkerViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\TextModeBrowserViewModel.cs" />
@@ -227,9 +230,6 @@
     </Compile>
     <Compile Include="Views\MonacoEditorPage.xaml.cs">
       <DependentUpon>MonacoEditorPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\OpenFilePage.xaml.cs">
-      <DependentUpon>OpenFilePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ProjectWorkerPage.xaml.cs">
       <DependentUpon>ProjectWorkerPage.xaml</DependentUpon>
@@ -293,10 +293,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\MonacoEditorPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\OpenFilePage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

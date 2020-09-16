@@ -82,6 +82,20 @@ namespace ProjectCodeEditor.ViewModels
             new EditorFontSize() { FontSizeEnum = EditorFontSizes.Large }
         };
 
+        public readonly Dependency[] AppDependencies = new Dependency[]
+        {
+            new Dependency() { DependencyName = "Windows UI Library", ProjectUri = new Uri("https://aka.ms/winui") },
+            new Dependency() { DependencyName = "Win2D", ProjectUri = new Uri("http://microsoft.github.io/Win2D/html/Introduction.htm") },
+            new Dependency() { DependencyName = "Template10", ProjectUri = new Uri("http://aka.ms/Template10-Nuget") },
+            new Dependency() { DependencyName = "WinRTXamlToolkit", ProjectUri = new Uri("https://github.com/xyzzer/WinRTXamlToolkit") },
+            new Dependency() { DependencyName = "MyToolkit", ProjectUri = new Uri("http://mytoolkit.io/")},
+            new Dependency() { DependencyName = "XAML Behaviors", ProjectUri = new Uri("http://go.microsoft.com/fwlink/?LinkID=651678") },
+            new Dependency() { DependencyName = "Monaco Editor UWP", ProjectUri = new Uri("https://github.com/hawkerm/monaco-editor-uwp") },
+            new Dependency() { DependencyName = "Visual Studio App Center", ProjectUri = new Uri("https://azure.microsoft.com/en-us/services/app-center/") },
+            new Dependency() { DependencyName = "LibGit2Sharp", ProjectUri = new Uri("https://github.com/libgit2/libgit2sharp/") },
+            new Dependency() { DependencyName = "Windows Community Toolkit", ProjectUri = new Uri("https://github.com/windows-toolkit/WindowsCommunityToolkit") }
+        };
+
         public SettingsViewModel()
         {
             FontList = new ReadOnlyCollection<string>(_FontList);

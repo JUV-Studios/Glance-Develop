@@ -331,4 +331,7 @@
   <data name="Settings_BrowserTextModeToggle.Header" xml:space="preserve">
     <value>Only load text and images</value>
   </data>
+  <data name="Settings_Dependencies.Text" xml:space="preserve">
+    <value>Dependencies &amp; references</value>
+  </data>
 </root>

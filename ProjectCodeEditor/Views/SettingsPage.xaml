@@ -78,6 +78,27 @@
                     <HyperlinkButton x:Uid="Settings_FollowTwitterLink" />
                 </StackPanel>
             </StackPanel>
+            <StackPanel Spacing="8">
+                <TextBlock x:Uid="Settings_Dependencies" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                <ListView ItemsSource="{x:Bind local:App.AppSettings.AppDependencies, Mode=OneTime}" SelectionMode="None">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="BorderThickness" Value="0" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsStackPanel />
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Dependency">
+                            <HyperlinkButton Content="{x:Bind DependencyName}" NavigateUri="{x:Bind ProjectUri}" />
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </Page>
