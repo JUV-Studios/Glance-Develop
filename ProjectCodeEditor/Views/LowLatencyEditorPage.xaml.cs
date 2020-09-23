@@ -27,14 +27,14 @@ namespace ProjectCodeEditor.Views
 
         private bool DialogShown
         {
-            get => MemoryService.Get(0, SmallStorage);
-            set => MemoryService.Set(0, value, SmallStorage);
+            get => SmallStorage.Get(0);
+            set => SmallStorage.Set(0, value);
         }
 
         private bool NeedRefocus
         {
-            get => MemoryService.Get(1, SmallStorage);
-            set => MemoryService.Set(1, value, SmallStorage);
+            get => SmallStorage.Get(1);
+            set => SmallStorage.Set(1, value);
         }
 
         public LowLatencyEditorPage()

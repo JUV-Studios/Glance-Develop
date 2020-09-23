@@ -30,10 +30,10 @@ namespace ProjectCodeEditor.ViewModels
 
         public bool AutoSave
         {
-            get => MemoryService.Get(0, SmallStorage);
+            get => SmallStorage.Get(0);
             set
             {
-                MemoryService.Set(0, value, SmallStorage);
+                SmallStorage.Set(0, value);
                 OnPropertyChanged(nameof(AutoSave));
                 ApplicationSettings.SetSetting(nameof(AutoSave), value, false, true);
             }
@@ -41,10 +41,10 @@ namespace ProjectCodeEditor.ViewModels
 
         public bool TextModeBrowser
         {
-            get => MemoryService.Get(1, SmallStorage);
+            get => SmallStorage.Get(1);
             set
             {
-                MemoryService.Set(1, value, SmallStorage);
+                SmallStorage.Set(1, value);
                 OnPropertyChanged(nameof(TextModeBrowser));
                 ApplicationSettings.SetSetting(nameof(TextModeBrowser), value, false, true);
             }

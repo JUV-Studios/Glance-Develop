@@ -20,14 +20,14 @@ namespace ProjectCodeEditor
 
         private bool FrameLoaded
         {
-            get => MemoryService.Get(0, StorageForObject);
-            set => MemoryService.Set(0, value, StorageForObject);
+            get => StorageForObject.Get(0);
+            set => StorageForObject.Set(0, value);
         }
 
         private bool Suspended
         {
-            get => MemoryService.Get(1, StorageForObject);
-            set => MemoryService.Set(1, value, StorageForObject);
+            get => StorageForObject.Get(1);
+            set => StorageForObject.Set(1, value);
         }
 
         protected abstract void OnXamlLoad();

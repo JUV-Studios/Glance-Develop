@@ -21,7 +21,7 @@
         <StackPanel
             Grid.Column="0"
             Margin="{StaticResource XSmallLeftTopRightBottomMargin}"
-            Spacing="12">
+            Spacing="24">
             <StackPanel Spacing="8">
                 <TextBlock x:Uid="Settings_Editor" Style="{ThemeResource SubtitleTextBlockStyle}" />
                 <Grid>
@@ -65,7 +65,7 @@
         <StackPanel
             Grid.Column="1"
             Margin="{StaticResource XSmallLeftTopRightBottomMargin}"
-            Spacing="12">
+            Spacing="24">
             <StackPanel Spacing="8">
                 <TextBlock x:Uid="Settings_About" Style="{ThemeResource SubtitleTextBlockStyle}" />
                 <TextBlock>Develop</TextBlock>

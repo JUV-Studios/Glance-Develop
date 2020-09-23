@@ -59,12 +59,16 @@ namespace ProjectCodeEditor.ViewModels
                 var files = await openPicker.PickMultipleFilesAsync();
                 if (files != null)
                 {
-                    foreach (var file in files)
+                    if (files.Count == 1) App.ShellViewModel.AddFile(files.First());
+                    else
                     {
-                        App.ShellViewModel.AddFile(file, true);
-                    }
+                        foreach (var file in files)
+                        {
+                            App.ShellViewModel.AddFile(file, true);
+                        }
 
-                    App.ShellViewModel.SelectedItem = App.ShellViewModel.Instances.Last();
+                        App.ShellViewModel.SelectedItem = App.ShellViewModel.Instances.Last();
+                    }
                 }
 
                 IsFilePickerOpen = false;

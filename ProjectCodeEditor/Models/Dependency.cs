@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ProjectCodeEditor.Models
 {
-    public sealed class Dependency
+    public struct Dependency
     {
         public string DependencyName { get; set; }
 

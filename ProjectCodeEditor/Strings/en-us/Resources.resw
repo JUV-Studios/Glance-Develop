@@ -314,7 +314,7 @@
     <value>Untitled</value>
   </data>
   <data name="BrowserTabButton.Text" xml:space="preserve">
-    <value>New browser tab</value>
+    <value>Open browser</value>
   </data>
   <data name="SettingsFontSizeLarge" xml:space="preserve">
     <value>Large</value>
