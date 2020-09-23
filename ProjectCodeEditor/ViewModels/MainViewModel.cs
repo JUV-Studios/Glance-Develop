@@ -1,6 +1,7 @@
 ﻿using ProjectCodeEditor.Helpers;
 using ProjectCodeEditor.Models;
 using System;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
@@ -14,29 +15,14 @@ namespace ProjectCodeEditor.ViewModels
     {
         private ObservableCollection<RecentItem> _RecentItems = new ObservableCollection<RecentItem>();
         private Thickness _ContentMargin = new Thickness(0);
-        private bool _ItemSelected = false;
         public ReadOnlyObservableCollection<RecentItem> RecentItems;
         public static StorageItemMostRecentlyUsedList RecentlyUsedList = StorageApplicationPermissions.MostRecentlyUsedList;
         public static ApplicationDataContainer RecentPagesContainer;
         public event EventHandler RecentListChanged;
 
-        public bool ItemSelected
-        {
-            get => _ItemSelected;
-            set => Set(ref _ItemSelected, value);
-        }
-
         public bool IsEmpty
         {
             get => _RecentItems.Count == 0;
-        }
-
-        private bool _CanOpenLocation = false;
-
-        public bool CanOpenLocation
-        {
-            get => _CanOpenLocation;
-            set => Set(ref _CanOpenLocation, value);
         }
 
         public Thickness ContentMargin

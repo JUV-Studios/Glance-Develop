@@ -62,9 +62,7 @@ namespace ProjectCodeEditor.ViewModels
             }
         }
 
-        private List<string> _FontList = new List<string>();
-
-        public ReadOnlyCollection<string> FontList;
+        public StringCollection FontList = new StringCollection();
 
         private EditorFontSize _SelectedFontSize;
 
@@ -101,13 +99,12 @@ namespace ProjectCodeEditor.ViewModels
 
         public SettingsViewModel()
         {
-            FontList = new ReadOnlyCollection<string>(_FontList);
         }
 
         public async Task InitializeAsync()
         {
             VersionDescription = GetVersionDescription();
-            foreach (var fontName in CanvasTextFormat.GetSystemFontFamilies()) { _FontList.Add(fontName); }
+            foreach (var fontName in CanvasTextFormat.GetSystemFontFamilies()) { FontList.Add(fontName); }
             EditorFont = ApplicationSettings.GetSetting(nameof(EditorFont), "Segoe UI");
             AutoSave = ApplicationSettings.GetSetting(nameof(AutoSave), false);
             TextModeBrowser = ApplicationSettings.GetSetting(nameof(TextModeBrowser), false);

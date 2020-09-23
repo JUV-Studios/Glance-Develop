@@ -8,6 +8,6 @@
 
         public object Parameter { get; set; }
 
-        public BaseLayout Content { get; set; }
+        public ILayoutView Content { get; set; }
     }
 }

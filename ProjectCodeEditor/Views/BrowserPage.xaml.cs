@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Extensions;
+using ProjectCodeEditor.Models;
 using ProjectCodeEditor.ViewModels;
 using System;
 using System.Diagnostics;
@@ -9,23 +10,19 @@ using Windows.UI.Xaml.Input;
 
 namespace ProjectCodeEditor.Views
 {
-    public sealed partial class BrowserPage : BaseLayout
+    public sealed partial class BrowserPage : UserControl, ILayoutView
     {
         public BrowserViewModel ViewModel { get; } = new BrowserViewModel();
 
+        private ShellView InstanceShellView;
+
         private Uri UriToNavigate;
 
-        private bool IsLoading = false;
+        private WebView WebContent;
 
         public BrowserPage()
         {
             InitializeComponent();
-            Loaded += BaseLayout_Loaded;
-        }
-
-        protected override void OnXamlLoad()
-        {
-            Loaded -= BaseLayout_Loaded;
         }
 
         private Uri ConvertStringToUri(string val)
@@ -56,7 +53,7 @@ namespace ProjectCodeEditor.Views
 
         private void WebContent_NavigationStarting(WebView sender, WebViewNavigationStartingEventArgs args)
         {
-            IsLoading = true;
+            ViewModel.IsLoading = true;
             ViewModel.ProgressRingOn = true;
             ViewModel.ContentShown = false;
             ViewModel.WorkString = "WorkStringTaskLoad".GetLocalized();
@@ -68,7 +65,7 @@ namespace ProjectCodeEditor.Views
         {
             if (args.IsSuccess)
             {
-                IsLoading = false;
+                ViewModel.IsLoading = false;
                 ViewModel.WorkString = sender.DocumentTitle;
                 ViewModel.ProgressRingOn = false;
                 ViewModel.ContentShown = true;
@@ -78,37 +75,9 @@ namespace ProjectCodeEditor.Views
                 MainViewModel.RecentPagesContainer.Values[sender.DocumentTitle] = AddressBox.Text;
                 RefreshButton.Visibility = Visibility.Visible;
                 AddressBox.IsReadOnly = false;
-                ShellInstance.Caption = sender.DocumentTitle;
-                ShellInstance.Parameter = sender.Source.AbsoluteUri;
                 Debug.WriteLine("Navigation completed");
                 if (CommandBar.Visibility == Visibility.Collapsed) CommandBar.Visibility = Visibility.Visible;
             }
-        }
-
-        protected override void OnLoad()
-        {
-            WebContent.NavigationCompleted -= WebContent_NavigationCompleted;
-            if (ShellInstance.Parameter != null)
-            {
-                var uri = new Uri(ShellInstance.Parameter as string);
-                if (uri != UriToNavigate)
-                {
-                    UriToNavigate = uri;
-                    WebContent.Navigate(UriToNavigate);
-                }
-            }
-
-            WebContent.NavigationCompleted += WebContent_NavigationCompleted;
-        }
-
-        public override void OnSuspend()
-        {
-            if (!IsLoading) ViewModel.ContentShown = false;
-        }
-
-        public override void OnResume()
-        {
-            if (!IsLoading) ViewModel.ContentShown = true;
         }
 
         private void ReduceMemoryUsage()
@@ -130,9 +99,47 @@ namespace ProjectCodeEditor.Views
             };
         }
 
-        public override void Dispose()
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            ReduceMemoryUsage();
+            WebContentBorder.Child = WebContent;
         }
+
+        public UIElement GetUserInterface() => this;
+
+        public void Initialize(ShellView e)
+        {
+            InstanceShellView = e;
+            WebContent = new WebView(WebViewExecutionMode.SeparateThread);
+            WebContent.NavigationStarting += WebContent_NavigationStarting;
+            if (InstanceShellView.Parameter != null)
+            {
+                var uri = new Uri(InstanceShellView.Parameter as string);
+                if (uri != UriToNavigate)
+                {
+                    UriToNavigate = uri;
+                    WebContent.Navigate(UriToNavigate);
+                }
+            }
+            WebContent.NavigationCompleted += WebContent_NavigationCompleted;
+        }
+
+        public void OnTabAdded()
+        {
+            ViewModel.ContentShown = true;
+        }
+
+        public void OnTabRemoveRequested() => App.ShellViewModel.TerminateSelected();
+
+        public void SaveState()
+        {
+            if (!ViewModel.IsLoading) ViewModel.ContentShown = false;
+        }
+
+        public void RestoreState()
+        {
+            if (!ViewModel.IsLoading) ViewModel.ContentShown = true;
+        }
+
+        public void Dispose() => ReduceMemoryUsage();
     }
 }

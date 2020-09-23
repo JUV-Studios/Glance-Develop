@@ -1,39 +1,47 @@
 ﻿using System;
+using ProjectCodeEditor.Models;
 using ProjectCodeEditor.ViewModels;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 namespace ProjectCodeEditor.Views
 {
-    public sealed partial class TextModeBrowserPage : BaseLayout
+    public sealed partial class TextModeBrowserPage : UserControl, ILayoutView
     {
-        public TextModeBrowserViewModel ViewModel { get; } = new TextModeBrowserViewModel();
-
+        private ShellView InstanceShellView;
         public TextModeBrowserPage()
         {
             InitializeComponent();
-            Loaded += BaseLayout_Loaded;
         }
 
-        protected override void OnLoad()
+        public UIElement GetUserInterface() => this;
+
+        public void Initialize(ShellView e)
+        {
+            InstanceShellView = e;
+        }
+
+        public void OnTabAdded()
         {
         }
 
-        protected override void OnXamlLoad()
-        {
-            Loaded -= BaseLayout_Loaded;
-        }
+        public void OnTabRemoveRequested() => App.ShellViewModel.TerminateSelected();
 
-        public override void OnResume()
+        public void SaveState()
         {
         }
 
-        public override void Dispose()
+        public void RestoreState()
         {
         }
 
-        public override void OnSuspend()
+        public void Dispose()
         {
+        }
 
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            viewer.Html = "<h1>Hello World</h1>";
         }
     }
 }

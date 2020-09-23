@@ -19,8 +19,7 @@ namespace ProjectCodeEditor.Views
 {
     public sealed partial class LowLatencyEditorPage : CodeEditorBase
     {
-        private BitArray SmallStorage = new BitArray(2);
-
+        private BitArray SmallStorage = new BitArray(3);
         public LowLatencyEditorViewModel RichEditViewModel { get; } = new LowLatencyEditorViewModel();
 
         private Tuple<int, int> PreviousSelectedIndex = new Tuple<int, int>(0, 0);
@@ -37,26 +36,78 @@ namespace ProjectCodeEditor.Views
             set => SmallStorage.Set(1, value);
         }
 
+        private bool Saved
+        {
+            get => SmallStorage.Get(2);
+            set => SmallStorage.Set(2, value);
+        }
+
         public LowLatencyEditorPage()
         {
             InitializeComponent();
-            Loaded += BaseLayout_Loaded;
-            PageXamlLoaded += LowLatencyEditorPage_Loaded;
-            Disposed += LowLatencyEditorPage_Disposed;
+            EditorShellPage.AppClosed += EditorShellPage_AppClosed;
         }
 
-        private void LowLatencyEditorPage_Disposed(object sender, EventArgs e)
+        private ContentDialog GetCloseDialog()
+        {
+            return new ContentDialog()
+            {
+                Title = "SavePromptDialogTitle".GetLocalized(),
+                Content = "SavePromptDialogContent".GetLocalized(),
+                PrimaryButtonText = "SavePromptDialogPrimaryButtonText".GetLocalized(),
+                SecondaryButtonText = "SavePromptDialogSecondaryButtonText".GetLocalized(),
+                CloseButtonText = "SavePromptDialogCloseButtonText".GetLocalized(),
+                DefaultButton = ContentDialogButton.Primary
+            };
+        }
+
+        private async void EditorShellPage_AppClosed(object sender, EventArgs e)
+        {
+            var result = await GetCloseDialog().ShowAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                Save_Click(null, null);
+            }
+            else if (result == ContentDialogResult.None)
+            {
+                return;
+            }
+
+            ViewService.applicationView.TryConsolidateAsync();
+        }
+
+        protected override void Exited()
+        {
+            if (!Saved)
+            {
+                ShowExitDialog();
+            }
+        }
+
+        private async void ShowExitDialog()
+        {
+            var result = await GetCloseDialog().ShowAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                Save_Click(null, null);
+            }
+            else if (result == ContentDialogResult.None)
+            {
+                return;
+            }
+
+            App.ShellViewModel.TerminateSelected();
+        }
+
+        protected override void PerformCleanup()
         {
             Debug.WriteLine("Editor disposed");
             Editor.TextDocument.SetText(TextSetOptions.None, string.Empty);
-            Editor = null;
-            Disposed -= LowLatencyEditorPage_Disposed;
         }
 
-        private async void LowLatencyEditorPage_Loaded(object sender, EventArgs e)
+        private async void LowLatencyEditorPage_Loaded(object sender, RoutedEventArgs e)
         {
-            Loaded -= BaseLayout_Loaded;
-            PageXamlLoaded -= LowLatencyEditorPage_Loaded;
+            Loaded -= LowLatencyEditorPage_Loaded;
             await LoadFile();
             Editor.TextDocument.SetText(TextSetOptions.None, ViewModel.FileData.Text.TrimEnd());
             Editor.TextDocument.ClearUndoRedoHistory();
@@ -65,6 +116,7 @@ namespace ProjectCodeEditor.Views
             Editor.LostFocus += Editor_LostFocus;
             Editor.GotFocus += Editor_GotFocus;
             ViewModel.WorkString = "WorkStringReady".GetLocalized();
+            Saved = true;
         }
 
         private void Editor_GotFocus(object sender, RoutedEventArgs e)
@@ -75,6 +127,7 @@ namespace ProjectCodeEditor.Views
         private void Editor_TextChanged(object sender, RoutedEventArgs e)
         {
             if (App.AppSettings.AutoSave) Save_Click(null, null);
+            Saved = false;
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
@@ -184,6 +237,12 @@ namespace ProjectCodeEditor.Views
                 e.Handled = true;
                 Editor.TextDocument.Selection.TypeText("\t");
             }
+        }
+
+        protected override void Suspend() => Save_Click(null, null);
+
+        protected override void Resume()
+        {
         }
     }
 }

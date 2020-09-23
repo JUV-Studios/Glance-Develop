@@ -1,8 +1,10 @@
 ﻿using ProjectCodeEditor.Models;
+using ProjectCodeEditor.Services;
 using ProjectCodeEditor.ViewModels;
 using System;
 using System.Linq;
 using Windows.System;
+using Windows.UI.Core.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -13,6 +15,8 @@ namespace ProjectCodeEditor.Views
     public sealed partial class EditorShellPage : Page
     {
         private readonly EditorShellViewModel ViewModel = App.ShellViewModel;
+
+        public static event EventHandler AppClosed;
 
         public EditorShellPage()
         {
@@ -49,7 +53,7 @@ namespace ProjectCodeEditor.Views
             }
         }
 
-        private void Close_Click(object sender, RoutedEventArgs e) => ViewModel.TerminateSelected();
+        private void Close_Click(object sender, RoutedEventArgs e) => ViewModel.CloseSelected();
 
         private void NavigateToNumberedTabKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
         {
@@ -107,6 +111,22 @@ namespace ProjectCodeEditor.Views
         {
             args.Handled = true;
             Close_Click(null, null);
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += EditorShellPage_CloseRequested;
+        }
+
+        private async void EditorShellPage_CloseRequested(object sender, SystemNavigationCloseRequestedPreviewEventArgs e)
+        {
+            e.Handled = true;
+            if (ViewModel.SelectedItem.Content is not LowLatencyEditorPage)
+            {
+                await ViewService.applicationView.TryConsolidateAsync();
+            }
+
+            AppClosed?.Invoke(this, null);
         }
     }
 }

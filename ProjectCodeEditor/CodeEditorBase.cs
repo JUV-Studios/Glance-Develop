@@ -1,5 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.Extensions;
 using ProjectCodeEditor.Helpers;
+using ProjectCodeEditor.Models;
 using ProjectCodeEditor.Services;
 using ProjectCodeEditor.ViewModels;
 using System;
@@ -10,6 +11,8 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Graphics.Printing;
 using Windows.Storage;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 
 namespace ProjectCodeEditor
 {
@@ -36,15 +39,19 @@ namespace ProjectCodeEditor
         public TextPlusEncoding FileData;
     }
 
-    public class CodeEditorBase : BaseLayout
+    public abstract class CodeEditorBase : UserControl, ILayoutView
     {
         public CodeEditorBaseViewModel ViewModel { get; } = new CodeEditorBaseViewModel();
 
         private static readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
 
-        public event EventHandler PageXamlLoaded;
+        protected abstract void PerformCleanup();
 
-        public event EventHandler Disposed;
+        protected abstract void Exited();
+
+        protected abstract void Suspend();
+
+        protected abstract void Resume();
 
         public void ShareFile()
         {
@@ -77,27 +84,7 @@ namespace ProjectCodeEditor
             }
         }
 
-        public override void Dispose()
-        {
-            // ShareCharm.DataRequested -= ShareCharm_DataRequested;
-            // SaveFile();
-            Disposed?.Invoke(this, null);
-        }
-
-        public override void OnResume()
-        {
-            // ShareCharm.DataRequested += ShareCharm_DataRequested;
-        }
-
-        public override void OnSuspend()
-        {
-        }
-
-        protected override void OnLoad()
-        {
-            ViewModel.WorkingFile = ShellInstance.Parameter as StorageFile;
-            // ShareCharm.DataRequested += ShareCharm_DataRequested;
-        }
+        public void Dispose() => PerformCleanup();
 
         protected async Task LoadFile()
         {
@@ -106,9 +93,21 @@ namespace ProjectCodeEditor
             ViewModel.FileData = await ViewModel.WorkingFile.ReadCodeFile();
         }
 
-        protected override void OnXamlLoad()
+        public UIElement GetUserInterface() => this;
+
+        public void Initialize(ShellView e)
         {
-            PageXamlLoaded?.Invoke(this, null);
+            ViewModel.WorkingFile = e.Parameter as StorageFile;
         }
+
+        public void OnTabAdded()
+        {
+        }
+
+        public void OnTabRemoveRequested() => Exited();
+
+        public void SaveState() => Suspend();
+
+        public void RestoreState() => Resume();
     }
 }

@@ -352,4 +352,19 @@
   <data name="GoToLineBoxPlaceholder" xml:space="preserve">
     <value>Where to go?</value>
   </data>
+  <data name="SavePromptDialogCloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="SavePromptDialogContent" xml:space="preserve">
+    <value>Would you like to save your changes?</value>
+  </data>
+  <data name="SavePromptDialogPrimaryButtonText" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="SavePromptDialogSecondaryButtonText" xml:space="preserve">
+    <value>Don't save</value>
+  </data>
+  <data name="SavePromptDialogTitle" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
 </root>

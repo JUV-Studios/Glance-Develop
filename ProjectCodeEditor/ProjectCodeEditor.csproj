@@ -184,12 +184,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Activation\ActivationHandler.cs" />
-    <Compile Include="BaseLayout.cs" />
     <Compile Include="CodeEditorBase.cs" />
     <Compile Include="Helpers\EnumToBooleanConverter.cs" />
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\Observable.cs" />
     <Compile Include="Helpers\RelayCommand.cs" />
+    <Compile Include="ILayoutView.cs" />
     <Compile Include="Models\Dependency.cs" />
     <Compile Include="Models\EditorFontSize.cs" />
     <Compile Include="Models\ShellView.cs" />
@@ -209,7 +209,6 @@
     <Compile Include="ViewModels\MonacoEditorViewModel.cs" />
     <Compile Include="ViewModels\ProjectWorkerViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
-    <Compile Include="ViewModels\TextModeBrowserViewModel.cs" />
     <Compile Include="Views\BrowserPage.xaml.cs">
       <DependentUpon>BrowserPage.xaml</DependentUpon>
     </Compile>
@@ -224,9 +223,6 @@
     </Compile>
     <Compile Include="Views\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\MonacoEditorPage.xaml.cs">
-      <DependentUpon>MonacoEditorPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ProjectWorkerPage.xaml.cs">
       <DependentUpon>ProjectWorkerPage.xaml</DependentUpon>
@@ -285,10 +281,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\MonacoEditorPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Views\ProjectWorkerPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -329,10 +321,6 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DevelopComponent\DevelopComponent.vcxproj">
-      <Project>{736d364e-954d-4698-b107-53c42fe34727}</Project>
-      <Name>DevelopComponent</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ProjectCodeEditor.Core\ProjectCodeEditor.Core.csproj">
       <Project>{D9F94A39-3E4F-47E1-8B93-5F906D411371}</Project>
       <Name>ProjectCodeEditor.Core</Name>

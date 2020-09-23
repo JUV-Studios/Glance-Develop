@@ -12,17 +12,15 @@ namespace ProjectCodeEditor.ViewModels
 {
     public sealed class EditorShellViewModel : Observable
     {
-        public static event EventHandler<ShellView> FrameCreated;
-
-        public static event EventHandler<ShellView> FrameChanged;
-
         public void AddLayout(ShellView view, bool multiple = false)
         {
-            FrameCreated?.Invoke(this, view);
+            view.Content.Initialize(view);
 
             Instances.Add(view);
 
             if (!multiple) SelectedItem = Instances.Last();
+
+            view.Content.OnTabAdded();
         }
 
         public void AddWebPage(string uriString = null)
@@ -39,7 +37,7 @@ namespace ProjectCodeEditor.ViewModels
                 }
             }
 
-            BaseLayout content;
+            ILayoutView content;
             if (App.AppSettings.TextModeBrowser) content = new TextModeBrowserPage();
             else content = new BrowserPage();
 
@@ -85,6 +83,8 @@ namespace ProjectCodeEditor.ViewModels
             }
         }
 
+        public void CloseSelected() => SelectedItem.Content.OnTabRemoveRequested();
+
         public void TerminateSelected()
         {
             if (CanCloseSelectedItem)
@@ -94,7 +94,6 @@ namespace ProjectCodeEditor.ViewModels
                 Instances.Remove(SelectedItem);
                 if (index == 0) SelectedItem = Instances[index];
                 else SelectedItem = Instances[index - 1];
-                item.Content.OnSuspend();
                 item.Content.Dispose();
             }
         }
@@ -115,13 +114,13 @@ namespace ProjectCodeEditor.ViewModels
             get => _SelectedItem;
             set
             {
+                _SelectedItem?.Content.SaveState();
                 ViewService.SetTitle(value?.Title);
                 Set(ref _SelectedItem, value);
-                FrameChanged?.Invoke(this, value);
+                value?.Content.RestoreState();
                 OnPropertyChanged(nameof(CanCloseSelectedItem));
             }
         }
-
 
         public ObservableCollection<ShellView> Instances = new ObservableCollection<ShellView>();
 

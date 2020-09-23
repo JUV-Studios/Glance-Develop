@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:ProjectCodeEditor.Models"
     xmlns:vmodels="using:ProjectCodeEditor.ViewModels"
+    Loaded="Page_Loaded"
     Style="{StaticResource PageStyle}"
     mc:Ignorable="d">
 
@@ -166,7 +167,7 @@
                 </Grid>
             </SplitView.Pane>
             <SplitView.Content>
-                <ContentPresenter Content="{x:Bind ViewModel.SelectedItem.Content, Mode=OneWay}" />
+                <ContentPresenter Content="{x:Bind ViewModel.SelectedItem.Content.GetUserInterface(), Mode=OneWay}" />
             </SplitView.Content>
         </SplitView>
     </Grid>

@@ -1,23 +1,40 @@
 ﻿using ProjectCodeEditor.Helpers;
+using System.Collections;
 
 namespace ProjectCodeEditor.ViewModels
 {
     public class BrowserViewModel : Observable
     {
-        private bool _ProgressRingOn = false;
+        private BitArray SmallStorage = new BitArray(3);
 
         public bool ProgressRingOn
         {
-            get => _ProgressRingOn;
-            set => Set(ref _ProgressRingOn, value);
+            get => SmallStorage.Get(0);
+            set
+            {
+                SmallStorage.Set(0, value);
+                OnPropertyChanged(nameof(ProgressRingOn));
+            }
         }
-
-        private bool _ContentShown = false;
 
         public bool ContentShown
         {
-            get => _ContentShown;
-            set => Set(ref _ContentShown, value);
+            get => SmallStorage.Get(1);
+            set
+            {
+                SmallStorage.Set(1, value);
+                OnPropertyChanged(nameof(ContentShown));
+            }
+        }
+
+        public bool IsLoading
+        {
+            get => SmallStorage.Get(2);
+            set
+            {
+                SmallStorage.Set(2, value);
+                OnPropertyChanged(nameof(IsLoading));
+            }
         }
 
         private string _WorkString;

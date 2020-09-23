@@ -1,13 +1,16 @@
-﻿<local:BaseLayout
+﻿<UserControl
     x:Class="ProjectCodeEditor.Views.TextModeBrowserPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:ProjectCodeEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:mytoolkit="using:MyToolkit.Controls.Html"
+    xmlns:mytoolkit="using:MyToolkit.Controls"
+    Loaded="UserControl_Loaded"
     Style="{StaticResource PageStyle}"
     mc:Ignorable="d">
 
-    <Grid />
-</local:BaseLayout>
+    <Grid>
+        <mytoolkit:HtmlView x:Name="viewer" />
+    </Grid>
+</UserControl>

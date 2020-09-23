@@ -10,19 +10,13 @@ using Windows.UI.Xaml.Input;
 
 namespace ProjectCodeEditor.Views
 {
-    public sealed partial class MainPage : BaseLayout
+    public sealed partial class MainPage : UserControl, ILayoutView
     {
         public MainViewModel ViewModel { get; } = new MainViewModel();
-
-        private Type SettingsPageType
-        {
-            get => typeof(SettingsPage);
-        }
 
         public MainPage()
         {
             InitializeComponent();
-            Loaded += BaseLayout_Loaded;
         }
 
         private void ViewModel_RecentListChanged(object sender, EventArgs e) => ShowHideCommandBar();
@@ -53,8 +47,7 @@ namespace ProjectCodeEditor.Views
         {
             if (recentList.SelectedItem != null)
             {
-                ViewModel.ItemSelected = true;
-                ViewModel.CanOpenLocation = !(recentList.SelectedItem as RecentItem).IsWeb;
+
             }
         }
 
@@ -75,30 +68,31 @@ namespace ProjectCodeEditor.Views
             }*/
         }
 
-        protected override void OnLoad()
-        {
-            ViewModel.LoadRecentItems();
-            ViewModel.RecentListChanged += ViewModel_RecentListChanged;
-        }
-
-        public override void OnSuspend()
+        public void Dispose()
         {
             ViewModel.RecentListChanged -= ViewModel_RecentListChanged;
             ViewModel.DisposeRecentItems();
         }
 
-        public override void OnResume()
+        private void UserControl_Loaded(object sender, RoutedEventArgs e) => ShowHideCommandBar();
+
+        public UIElement GetUserInterface() => this;
+
+        public void Initialize(ShellView e)
         {
-            OnLoad();
+            ViewModel.LoadRecentItems();
+            ViewModel.RecentListChanged += ViewModel_RecentListChanged;
             ShowHideCommandBar();
         }
 
-        public override void Dispose() => OnSuspend();
-
-        protected override void OnXamlLoad()
+        public void OnTabAdded()
         {
-            ShowHideCommandBar();
-            Loaded -= BaseLayout_Loaded;
         }
+
+        public void OnTabRemoveRequested() => App.ShellViewModel.TerminateSelected();
+
+        public void SaveState() { }
+
+        public void RestoreState() { }
     }
 }

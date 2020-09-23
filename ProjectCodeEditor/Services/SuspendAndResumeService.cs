@@ -17,23 +17,15 @@ namespace ProjectCodeEditor.Services
     {
         public bool SaveStateAsync()
         {
-            if (App.ShellViewModel.SelectedItem.Content is not MainPage)
-            {
-                App.ShellViewModel.SelectedItem.Content.OnSuspend();
-                return true;
-            }
-
-            return false;
+            App.ShellViewModel.SelectedItem.Content.SaveState();
+            return true;
         }
 
         // This method allows subscribers to refresh data that might be outdated when the App is resuming from suspension.
         // If the App was terminated during suspension this event will not fire, data restore is handled by the method HandleInternalAsync.
         public void ResumeApp()
         {
-            if (App.ShellViewModel.SelectedItem.Content is not MainPage)
-            {
-                App.ShellViewModel.SelectedItem.Content.OnResume();
-            }
+            App.ShellViewModel.SelectedItem.Content.RestoreState();
         }
 
         // This method restores application state when the App is launched after termination, it navigates to the stored Page passing the recovered state data.
