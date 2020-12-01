@@ -12,16 +12,7 @@ namespace ProjectCodeEditor.ViewModels
 {
     public sealed class EditorShellViewModel : Observable
     {
-        public void AddLayout(ShellView view, bool multiple = false)
-        {
-            view.Content.Initialize(view);
 
-            Instances.Add(view);
-
-            if (!multiple) SelectedItem = Instances.Last();
-
-            view.Content.OnTabAdded();
-        }
 
         public void AddWebPage(string uriString = null)
         {
@@ -107,22 +98,6 @@ namespace ProjectCodeEditor.ViewModels
             }
         }
 
-        private ShellView _SelectedItem;
-
-        public ShellView SelectedItem
-        {
-            get => _SelectedItem;
-            set
-            {
-                _SelectedItem?.Content.SaveState();
-                ViewService.SetTitle(value?.Title);
-                Set(ref _SelectedItem, value);
-                value?.Content.RestoreState();
-                OnPropertyChanged(nameof(CanCloseSelectedItem));
-            }
-        }
-
-        public ObservableCollection<ShellView> Instances = new ObservableCollection<ShellView>();
 
         public EditorShellViewModel()
         {

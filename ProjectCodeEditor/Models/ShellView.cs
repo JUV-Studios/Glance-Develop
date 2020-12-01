@@ -1,13 +1,16 @@
-﻿namespace ProjectCodeEditor.Models
+﻿using Microsoft.Toolkit.Uwp.Extensions;
+using Windows.UI.Xaml;
+
+namespace ProjectCodeEditor.Models
 {
     public sealed class ShellView
     {
-        public string Title { get; set; }
+        public UIElement Content { get; set; }
 
-        public string Caption { get; set; }
+        public string Title { get; init; }
 
-        public object Parameter { get; set; }
+        public string Caption { get; init; }
 
-        public ILayoutView Content { get; set; }
+        public override string ToString() => $"{Title}, {Caption}, {"TabItemAutomation".GetLocalized()}";
     }
 }

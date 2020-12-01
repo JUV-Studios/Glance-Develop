@@ -8,8 +8,8 @@
 .c
 .cc 
 .class 
-.clj 
-.cpp 
+.clj
+.cpp
 .cs
 .cxx
 .ixx
@@ -32,7 +32,7 @@
 .vb
 .diff
 .patch
-.html 
+.html
 .htm
 .css
 .js
@@ -43,3 +43,5 @@
 .scss
 .wasm
 .hc
+.txt
+.ini

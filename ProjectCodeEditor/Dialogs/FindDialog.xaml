@@ -1,0 +1,21 @@
+﻿<ContentDialog
+    x:Class="ProjectCodeEditor.Dialogs.FindDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="{x:Bind TitleStringId, Converter={StaticResource ResourceLocator}}"
+    DefaultButton="Primary"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    PrimaryButtonText="{x:Bind Title}"
+    SecondaryButtonClick="ContentDialog_SecondaryButtonClick"
+    SecondaryButtonText="{x:Bind CancelStringId, Converter={StaticResource ResourceLocator}}"
+    mc:Ignorable="d">
+
+    <TextBox
+        x:Name="Input"
+        x:Uid="FindDialog_TextBox"
+        HorizontalAlignment="Stretch"
+        VerticalAlignment="Top" />
+
+</ContentDialog>

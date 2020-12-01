@@ -10,15 +10,20 @@
                 x:Key="BoolToVisibility"
                 FalseValue="Collapsed"
                 TrueValue="Visible" />
+            <converters:BoolToVisibilityConverter
+                x:Key="ReverseBoolToVisibility"
+                FalseValue="Visible"
+                TrueValue="Collapsed" />
+            <converters:ResourceNameToResourceStringConverter x:Key="ResourceLocator" />
+            <converters:BoolNegationConverter x:Key="BooleanReverse" />
+            <x:Double x:Key="MinWindowBreakpoint">0</x:Double>
+            <x:Double x:Key="MediumWindowBreakpoint">641</x:Double>
+            <x:Double x:Key="LargeWindowBreakpoint">1008</x:Double>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-                <ResourceDictionary Source="/Styles/_Colors.xaml" />
                 <ResourceDictionary Source="/Styles/_FontSizes.xaml" />
-                <ResourceDictionary Source="/Styles/_Thickness.xaml" />
-
                 <ResourceDictionary Source="/Styles/TextBlock.xaml" />
-                <ResourceDictionary Source="/Styles/Page.xaml" />
+                <ResourceDictionary Source="/Styles/HubStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

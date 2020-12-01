@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Modified by Jaiganesh Kumaran for Develop
+
 namespace AutoIt.Common
 {
     public class TextEncodingDetect
@@ -64,6 +66,8 @@ namespace AutoIt.Common
                 _nullSuggestsBinary = value;
             }
         }
+
+        public Encoding EncodingForNull { get; set; } = Encoding.Utf8Nobom;
 
         public double Utf16ExpectedNullPercent
         {
@@ -184,7 +188,7 @@ namespace AutoIt.Common
             }
 
             // Found a null, return based on the preference in null_suggests_binary_
-            return _nullSuggestsBinary ? Encoding.None : Encoding.Ansi;
+            return _nullSuggestsBinary ? Encoding.None : EncodingForNull;
         }
 
         /// <summary>

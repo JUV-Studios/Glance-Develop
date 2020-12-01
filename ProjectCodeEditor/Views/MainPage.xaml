@@ -1,51 +1,86 @@
-﻿<UserControl
+﻿<Page
     x:Class="ProjectCodeEditor.Views.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:ProjectCodeEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:ProjectCodeEditor.Models"
-    xmlns:views="using:ProjectCodeEditor.Views"
-    Loaded="UserControl_Loaded"
-    Style="{StaticResource PageStyle}"
+    xmlns:services="using:ProjectCodeEditor.Services"
+    xmlns:triggers="using:Microsoft.Toolkit.Uwp.UI.Triggers"
+    xmlns:vmodels="using:ProjectCodeEditor.ViewModels"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    Loaded="Page_Loaded"
     mc:Ignorable="d">
+    <ContentPresenter Grid.Row="1" Content="{x:Bind ViewModel.SelectedItem.Content, Mode=OneWay}">
+        <ContentPresenter.ContentTransitions>
+            <TransitionCollection>
+                <EntranceThemeTransition />
+            </TransitionCollection>
+        </ContentPresenter.ContentTransitions>
+    </ContentPresenter>
 
-    <Grid>
-        <Pivot
-            x:Name="pivot"
-            Margin="{StaticResource SmallLeftTopRightBottomMargin}"
-            SelectionChanged="Pivot_SelectionChanged">
-            <PivotItem x:Uid="RecentsPivot" Tag="Recent">
-                <Grid>
-                    <TextBlock
-                        x:Uid="RecentEmpty_Title"
-                        Margin="{StaticResource SmallTopBottomMargin}"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
-                        Visibility="{x:Bind ViewModel.IsEmpty, Converter={StaticResource BoolToVisibility}, Mode=OneWay}" />
-                    <ListView
-                        x:Name="recentList"
-                        Margin="{StaticResource SmallTopBottomMargin}"
-                        DoubleTapped="RecentList_DoubleClick"
-                        IsDoubleTapEnabled="True"
-                        ItemsSource="{x:Bind ViewModel.RecentItems, Mode=OneWay}"
-                        SelectionChanged="recentList_SelectionChanged"
-                        SelectionMode="Single">
-                        <ListView.ItemTemplate>
-                            <DataTemplate x:DataType="models:RecentItem">
-                                <StackPanel Margin="{StaticResource XSmallLeftTopRightBottomMargin}" Spacing="4">
-                                    <TextBlock Style="{StaticResource BodyTextStyle}" Text="{x:Bind Title}" />
-                                    <TextBlock Opacity=".6" Text="{x:Bind Location}" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </Grid>
-            </PivotItem>
-            <PivotItem x:Uid="SettingsPivot" Tag="Setting">
-                <views:SettingsPage />
-            </PivotItem>
-        </Pivot>
-    </Grid>
-</UserControl>
+    <Page.BottomAppBar>
+        <CommandBar ClosedDisplayMode="{x:Bind services:ViewService.Properties.RecommendedAppBarMode, Mode=OneWay}" DefaultLabelPosition="Right">
+            <CommandBar.Content>
+                <ComboBox
+                    x:Uid="TabSwitcher"
+                    Margin="8"
+                    ItemsSource="{x:Bind ViewModel.Instances, Mode=OneWay}"
+                    SelectedItem="{x:Bind ViewModel.SelectedItem, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="models:ShellView">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="{x:Bind Title}" />
+                                <TextBlock Opacity=".6" Text="{x:Bind Caption}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </CommandBar.Content>
+            <CommandBar.SecondaryCommands>
+                <AppBarButton
+                    x:Uid="OpenOption"
+                    Click="{x:Bind vmodels:Interactions.OpenFile}"
+                    Icon="OpenFile">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="O" Modifiers="Control" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+                <AppBarButton
+                    x:Uid="NewFileOption"
+                    Click="{x:Bind vmodels:Interactions.NewFile}"
+                    Icon="Add">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="N" Modifiers="Control" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+                <AppBarSeparator />
+                <AppBarButton Click="{x:Bind services:ViewService.ToggleFullScreen}" Label="{x:Bind ViewModel.FSLabel, Mode=OneWay}">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="F11" Modifiers="None" />
+                    </AppBarButton.KeyboardAccelerators>
+                    <AppBarButton.Icon>
+                        <IconSourceElement IconSource="{x:Bind ViewModel.FSIconSource, Mode=OneWay}" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton
+                    Click="{x:Bind services:ViewService.ToggleCompactOverlay}"
+                    IsEnabled="{x:Bind services:ViewService.CompactOverlaySupported}"
+                    Label="{x:Bind ViewModel.CompactOverlayBtnLabel, Mode=OneWay}">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="F12" Modifiers="None" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+                <AppBarButton
+                    x:Uid="CloseTabOption"
+                    Click="{x:Bind ViewModel.CloseCurrentInstance}"
+                    Icon="Clear"
+                    IsEnabled="{x:Bind ViewModel.IsCurrentClosable, Mode=OneWay}">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="W" Modifiers="Control" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+            </CommandBar.SecondaryCommands>
+        </CommandBar>
+    </Page.BottomAppBar>
+</Page>

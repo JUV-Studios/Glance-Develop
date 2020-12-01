@@ -1,98 +1,27 @@
-﻿using Microsoft.Toolkit.Uwp.UI.Extensions;
-using ProjectCodeEditor.Models;
+﻿using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.ViewModels;
-using System;
-using System.IO;
-using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
+
+// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
 namespace ProjectCodeEditor.Views
 {
-    public sealed partial class MainPage : UserControl, ILayoutView
+    /// <summary>
+    /// An empty page that can be used on its own or navigated to within a Frame.
+    /// </summary>
+    public sealed partial class MainPage : Page
     {
-        public MainViewModel ViewModel { get; } = new MainViewModel();
+        public readonly ShellViewModel ViewModel = Singleton<ShellViewModel>.Instance;
 
         public MainPage()
         {
             InitializeComponent();
         }
 
-        private void ViewModel_RecentListChanged(object sender, EventArgs e) => ShowHideCommandBar();
-
-        private void RecentList_DoubleClick(object sender, DoubleTappedRoutedEventArgs e)
+        private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            var clickedItem = recentList.SelectedItem as RecentItem;
-            if (clickedItem != null)
-            {
-                if (clickedItem.IsWeb)
-                {
-                    App.ShellViewModel.AddWebPage(clickedItem.Location);
-                }
-                else
-                {
-                    App.ShellViewModel.AddFile(clickedItem.FileHandle);
-                }
-            }
+            Window.Current.SetTitleBar(null);
         }
-
-        private void RemoveSelected_Click(object sender, RoutedEventArgs e)
-        {
-            ShowHideCommandBar();
-            ViewModel.RemoveRecentItem(recentList.SelectedIndex);
-        }
-
-        private void recentList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (recentList.SelectedItem != null)
-            {
-
-            }
-        }
-
-        private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e) => ShowHideCommandBar();
-
-        private void ShowHideCommandBar()
-        {
-            /* if (pivot.SelectedItem != null)
-            {
-                if ((pivot.SelectedItem as PivotItem).Tag.ToString() == "Recent" && !ViewModel.IsEmpty)
-                {
-                    RecentsCommandBar.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    RecentsCommandBar.Visibility = Visibility.Collapsed;
-                }
-            }*/
-        }
-
-        public void Dispose()
-        {
-            ViewModel.RecentListChanged -= ViewModel_RecentListChanged;
-            ViewModel.DisposeRecentItems();
-        }
-
-        private void UserControl_Loaded(object sender, RoutedEventArgs e) => ShowHideCommandBar();
-
-        public UIElement GetUserInterface() => this;
-
-        public void Initialize(ShellView e)
-        {
-            ViewModel.LoadRecentItems();
-            ViewModel.RecentListChanged += ViewModel_RecentListChanged;
-            ShowHideCommandBar();
-        }
-
-        public void OnTabAdded()
-        {
-        }
-
-        public void OnTabRemoveRequested() => App.ShellViewModel.TerminateSelected();
-
-        public void SaveState() { }
-
-        public void RestoreState() { }
     }
 }

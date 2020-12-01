@@ -11,7 +11,7 @@
   <Identity
     Name="JUVStudios.DevelopApp"
     Publisher="CN=JUV Studios"
-    Version="0.0.3.0" />
+    Version="0.0.1.5" />
 
   <mp:PhoneIdentity PhoneProductId="8982C99F-A50D-47B3-B079-5A9077C936D0" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -37,88 +37,66 @@
         DisplayName="Develop"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
-        Description="ms-resource:AppDescription"
+        Description="Code editing, reimagined."
         BackgroundColor="transparent">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
-
       <Extensions>
-
         <uap:Extension Category="windows.fileTypeAssociation">
-
-          <uap:FileTypeAssociation  Name="source">
-
+          <uap:FileTypeAssociation Name="develop-text">
             <uap:SupportedFileTypes>
-
-              <uap:FileType>.md</uap:FileType>
-
-              <uap:FileType>.json</uap:FileType>
-
-              <uap:FileType>.xml</uap:FileType>
-
-              <uap:FileType>.xaml</uap:FileType>
-
-              <uap:FileType>.yaml</uap:FileType>
-
-              <uap:FileType>.yml</uap:FileType>
-              
-              <uap:FileType>.asm</uap:FileType>
-              
-              <uap:FileType>.c</uap:FileType>
-              
-              <uap:FileType>.cc</uap:FileType>
-              
-              <uap:FileType>.class</uap:FileType>
-              <uap:FileType>.clj</uap:FileType>
-              <uap:FileType>.cpp</uap:FileType>
-              <uap:FileType>.cs</uap:FileType>
-              <uap:FileType>.cxx</uap:FileType>
-              <uap:FileType>.ixx</uap:FileType>
-              <uap:FileType>.hpp</uap:FileType>
-              <uap:FileType>.el</uap:FileType>
-              <uap:FileType>.go</uap:FileType>
-              <uap:FileType>.h</uap:FileType>
-              <uap:FileType>.java</uap:FileType>
-              <uap:FileType>.lua</uap:FileType>
-              <uap:FileType>.m</uap:FileType>
-              <uap:FileType>.m4</uap:FileType>
-              <uap:FileType>.pl</uap:FileType>
-              <uap:FileType>.po</uap:FileType>
-              <uap:FileType>.py</uap:FileType>
-              <uap:FileType>.rb</uap:FileType>
-              <uap:FileType>.rs</uap:FileType>
-              <uap:FileType>.sh</uap:FileType>
-              <uap:FileType>.swift</uap:FileType>
-              <uap:FileType>.vb</uap:FileType>
-              <uap:FileType>.diff</uap:FileType>
-              <uap:FileType>.patch</uap:FileType>
-              <uap:FileType>.js</uap:FileType>
-              <uap:FileType>.html</uap:FileType>
-              <uap:FileType>.htm</uap:FileType>
-              <uap:FileType>.css</uap:FileType>
-              <uap:FileType>.jsx</uap:FileType>
-              <uap:FileType>.ts</uap:FileType>
-              <uap:FileType>.tsx</uap:FileType>
-              <uap:FileType>.less</uap:FileType>
-              <uap:FileType>.scss</uap:FileType>
-              <uap:FileType>.wasm</uap:FileType>
-              <uap:FileType>.php</uap:FileType>
-              <uap:FileType>.hc</uap:FileType>
+              <uap:FileType ContentType="text/markdown">.md</uap:FileType>
+              <uap:FileType ContentType="application/json">.json</uap:FileType>
+              <uap:FileType ContentType="text/xml">.xml</uap:FileType>
+              <uap:FileType ContentType="text/yaml">.yaml</uap:FileType>
+              <uap:FileType ContentType="text/yaml">.yml</uap:FileType>
+              <uap:FileType ContentType="text/x-asm">.asm</uap:FileType>
+              <uap:FileType ContentType="text/x-c">.c</uap:FileType>
+              <uap:FileType ContentType="text/plain">.cc</uap:FileType>
+              <uap:FileType ContentType="application/java">.class</uap:FileType>
+              <uap:FileType ContentType="text/plain">.clj</uap:FileType>
+              <uap:FileType ContentType="text/plain">.cpp</uap:FileType>
+              <uap:FileType ContentType="text/plain">.cs</uap:FileType>
+              <uap:FileType ContentType="text/plain">.cxx</uap:FileType>
+              <uap:FileType ContentType="text/x-h">.ixx</uap:FileType>
+              <uap:FileType ContentType="text/x-h">.hpp</uap:FileType>
+              <uap:FileType ContentType="text/x-script.elisp">.el</uap:FileType>
+              <uap:FileType ContentType="text/plain">.go</uap:FileType>
+              <uap:FileType ContentType="text/x-h">.h</uap:FileType>
+              <uap:FileType ContentType="text/x-java-source">.java</uap:FileType>
+              <uap:FileType ContentType="text/plain">.lua</uap:FileType>
+              <uap:FileType ContentType="text/x-m">.m</uap:FileType>
+              <uap:FileType ContentType="text/plain">.m4</uap:FileType>
+              <uap:FileType ContentType="application/x-php">.php</uap:FileType>
+              <uap:FileType ContentType="text/plain">.pl</uap:FileType>
+              <uap:FileType ContentType="text/x-script.phyton">.py</uap:FileType>
+              <uap:FileType ContentType="text/plain">.rb</uap:FileType>
+              <uap:FileType ContentType="text/plain">.rs</uap:FileType>
+              <uap:FileType ContentType="text/x-shellscript">.sh</uap:FileType>
+              <uap:FileType ContentType="text/plain">.swift</uap:FileType>
+              <uap:FileType ContentType="text/plain">.vb</uap:FileType>
+              <uap:FileType ContentType="application/x-binary">.diff</uap:FileType>
+              <uap:FileType ContentType="application/x-binary">.patch</uap:FileType>
+              <uap:FileType ContentType="text/html">.html</uap:FileType>
+              <uap:FileType ContentType="text/html">.htm</uap:FileType>
+              <uap:FileType ContentType="text/css">.css</uap:FileType>
+              <uap:FileType ContentType="text/javascript">.js</uap:FileType>
+              <uap:FileType ContentType="text/plain">.jsx</uap:FileType>
+              <uap:FileType ContentType="text/javascript">.ts</uap:FileType>
+              <uap:FileType ContentType="text/plain">.tsx</uap:FileType>
+              <uap:FileType ContentType="text/plain">.less</uap:FileType>
+              <uap:FileType ContentType="text/plain">.scss</uap:FileType>
+              <uap:FileType ContentType="application/wasm">.wasm</uap:FileType>
+              <uap:FileType ContentType="text/plain">.hc</uap:FileType>
+              <uap:FileType ContentType="text/plain">.txt</uap:FileType>
+              <uap:FileType ContentType="application/x-binary">.ini</uap:FileType>
             </uap:SupportedFileTypes>
-
-            <uap:DisplayName>Develop</uap:DisplayName>
-
-            <uap:InfoTip>Open and edit this file with Develop</uap:InfoTip>
+            <uap:DisplayName>Text source file</uap:DisplayName>
+            <uap:InfoTip>Edit this text file with Develop</uap:InfoTip>
           </uap:FileTypeAssociation>
         </uap:Extension>
-
-        <uap:Extension Category="windows.protocol">
-
-          <uap:Protocol Name="develop-web">
-            <uap:DisplayName>Develop Browser</uap:DisplayName>
-          </uap:Protocol>
-        </uap:Extension>
+        <uap:Extension Category="windows.search"/>
       </Extensions>
     </Application>
   </Applications>
@@ -127,6 +105,8 @@
     <Capability Name="internetClient" />
     <rescap:Capability Name="confirmAppClose"/>
     <uap:Capability Name="documentsLibrary"/>
+    <Capability Name="privateNetworkClientServer"/>
+    <Capability Name="internetClientServer"/>
 
   </Capabilities>
 
