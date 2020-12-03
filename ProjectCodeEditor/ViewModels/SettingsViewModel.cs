@@ -1,11 +1,9 @@
-﻿using AutoIt.Common;
-using Microsoft.Graphics.Canvas.Text;
+﻿using Microsoft.Graphics.Canvas.Text;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Uwp.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using Windows.ApplicationModel;
 using Windows.Storage;
 using Windows.UI.Xaml;
@@ -90,23 +88,6 @@ namespace ProjectCodeEditor.ViewModels
             }
         }
 
-        public bool TrimWhitespace
-        {
-            get
-            {
-                if (AppSettings.Values.ContainsKey(nameof(TrimWhitespace))) return Convert.ToBoolean(AppSettings.Values[nameof(TrimWhitespace)]);
-                else return true;
-            }
-            set
-            {
-                if (TrimWhitespace != value)
-                {
-                    AppSettings.Values[nameof(TrimWhitespace)] = value;
-                    OnPropertyChanged(nameof(TrimWhitespace));
-                }
-            }
-        }
-
         public bool DisableSound
         {
             get
@@ -133,7 +114,7 @@ namespace ProjectCodeEditor.ViewModels
         {
             new("Windows UI Library", new Uri("https://aka.ms/winui")), new("Win2D", new Uri("http://microsoft.github.io/Win2D/html/Introduction.htm")),
             new("WinRTXamlToolkit", new Uri("https://github.com/xyzzer/WinRTXamlToolkit")), new("XAML Behaviors", new Uri("http://go.microsoft.com/fwlink/?LinkID=651678")),
-            new("Visual Studio App Center", new Uri("https://azure.microsoft.com/en-us/services/app-center/")), new("LibGit2Sharp", new Uri("https://github.com/libgit2/libgit2sharp/")),
+            new("Visual Studio App Center", new Uri("https://azure.microsoft.com/en-us/services/app-center/")),
             new("Windows Community Toolkit", new Uri("https://github.com/windows-toolkit/WindowsCommunityToolkit")), new("TextEncodingDetect", new Uri("https://github.com/AutoItConsulting/text-encoding-detect")),
             new("SwordfishCollections", new Uri("https://github.com/stewienj/SwordfishCollections"))
         };

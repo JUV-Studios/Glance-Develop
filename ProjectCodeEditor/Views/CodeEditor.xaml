@@ -50,6 +50,11 @@
                         Click="{x:Bind ViewModel.ShareAsSelection}"
                         IsEnabled="{x:Bind Editor.IsSelectionValid, Mode=OneWay}" />
                 </MenuFlyoutSubItem>
+                <MenuFlyoutItem>
+                    <MenuFlyoutItem.Command>
+                        <StandardUICommand Kind="Close" />
+                    </MenuFlyoutItem.Command>
+                </MenuFlyoutItem>
             </MenuFlyoutSubItem>
             <MenuFlyoutSubItem x:Uid="EditSubItem">
                 <MenuFlyoutItem IsEnabled="{x:Bind ViewModel.CanUndo, Mode=OneWay}">
@@ -60,6 +65,15 @@
                             Kind="Undo" />
                     </MenuFlyoutItem.Command>
                 </MenuFlyoutItem>
+                <MenuFlyoutItem IsEnabled="{x:Bind ViewModel.CanRedo, Mode=OneWay}">
+                    <MenuFlyoutItem.Command>
+                        <StandardUICommand
+                            CanExecuteRequested="StandardUICommand_CanExecuteRequested"
+                            ExecuteRequested="Redo_Click"
+                            Kind="Redo" />
+                    </MenuFlyoutItem.Command>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem x:Uid="ClearHistoryItem" Click="{x:Bind ViewModel.ClearHistory}" />
                 <MenuFlyoutSeparator />
                 <MenuFlyoutItem
                     x:Uid="GoToLineItem"

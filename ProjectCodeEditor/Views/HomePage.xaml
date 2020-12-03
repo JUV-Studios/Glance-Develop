@@ -17,23 +17,26 @@
 
     <UserControl.Resources>
         <MenuFlyout x:Name="RecentFileContextMenu">
-            <MenuFlyoutItem
-                x:Uid="RecentFileContextMenuShareItem"
-                Click="ShareRecentFile_Click"
-                Icon="Share"
-                Text="{x:Bind ShareItemTextId, Converter={StaticResource ResourceLocator}}" />
-            <MenuFlyoutItem x:Uid="RecentFileContextMenuOpenPathItem" Click="OpenRecentFilePath_Click">
+            <MenuFlyoutItem IsEnabled="{x:Bind dataTransfer:DataTransferManager.IsSupported()}">
+                <MenuFlyoutItem.Command>
+                    <StandardUICommand
+                        CanExecuteRequested="{x:Bind dataTransfer:DataTransferManager.IsSupported}"
+                        ExecuteRequested="{x:Bind ViewModel.ShareRecentFile}"
+                        Kind="Share" />
+                </MenuFlyoutItem.Command>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem x:Uid="FileOpenPathItem" Click="{x:Bind ViewModel.OpenRecentFilePath}">
                 <MenuFlyoutItem.Icon>
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE838;" />
                 </MenuFlyoutItem.Icon>
             </MenuFlyoutItem>
             <MenuFlyoutItem
                 x:Uid="RecentFileContextMenuRemoveItem"
-                Click="RemoveRecentFile_Click"
+                Click="{x:Bind ViewModel.RemoveRecentFile}"
                 Icon="Remove" />
             <MenuFlyoutItem
                 x:Uid="ClearRecentFilesItem"
-                Click="{x:Bind Recents.Clear}"
+                Click="{x:Bind ViewModel.Recents.Clear}"
                 Icon="Delete" />
         </MenuFlyout>
     </UserControl.Resources>
@@ -43,17 +46,14 @@
             x:Uid="HomePageHub"
             Margin="{x:Bind services:ViewService.Properties.RecommendedPageMargin, Mode=OneWay}"
             Loaded="Layout_Loaded">
-            <HubSection
-                x:Uid="Hub_GettingStarted"
-                MaxWidth="456"
-                DataContext="{x:Bind Actions}">
-                <DataTemplate>
+            <HubSection x:Uid="Hub_GettingStarted" DataContext="{x:Bind ViewModel}">
+                <DataTemplate x:DataType="vmodels:HomeViewModel">
                     <ListView
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
                         IsItemClickEnabled="True"
                         ItemClick="ActionList_ItemClick"
-                        ItemsSource="{Binding}"
+                        ItemsSource="{x:Bind Actions}"
                         SelectionMode="None">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
@@ -74,8 +74,8 @@
                                         VerticalAlignment="Center"
                                         IconSource="{x:Bind Icon}" />
                                     <StackPanel Grid.Column="2" Spacing="4">
-                                        <TextBlock Style="{ThemeResource ListTitleTextStyle}" Text="{x:Bind Title}" />
-                                        <TextBlock Style="{ThemeResource ListDetailTextStyle}" Text="{x:Bind Description}" />
+                                        <TextBlock Style="{ThemeResource BaseTextBlockStyle}" Text="{x:Bind Title}" />
+                                        <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Text="{x:Bind Description}" />
                                     </StackPanel>
                                 </Grid>
                             </DataTemplate>
@@ -87,15 +87,15 @@
                 x:Name="RecentFilesSection"
                 x:Uid="Hub_RecentFiles"
                 MaxWidth="456"
-                DataContext="{x:Bind Recents}"
-                Visibility="Collapsed">
-                <DataTemplate x:DataType="vmodels:RecentsViewModel">
+                DataContext="{x:Bind ViewModel}"
+                Visibility="{x:Bind ViewModel.RecentFilesVisibility, Mode=OneWay}">
+                <DataTemplate x:DataType="vmodels:HomeViewModel">
                     <ListView
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
                         IsItemClickEnabled="True"
                         ItemClick="RecentFilesListItem_Click"
-                        ItemsSource="{x:Bind RecentFiles, Mode=OneWay}"
+                        ItemsSource="{x:Bind Recents.RecentFiles, Mode=OneWay}"
                         Loaded="RecentFilesList_Loaded"
                         SelectionMode="None"
                         Unloaded="RecentFilesList_Unloaded">
@@ -109,13 +109,13 @@
                             <DataTemplate x:DataType="models:RecentFile">
                                 <StackPanel Margin="8,8,16,8" Spacing="4">
                                     <TextBlock
-                                        Style="{ThemeResource ListTitleTextStyle}"
+                                        Style="{ThemeResource BaseTextBlockStyle}"
                                         Text="{x:Bind File.Name}"
                                         TextTrimming="CharacterEllipsis"
                                         TextWrapping="NoWrap" />
-                                    <TextBlock Style="{ThemeResource ListDetailTextStyle}" Text="{x:Bind File.Path}" />
+                                    <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Text="{x:Bind File.Path}" />
                                     <TextBlock
-                                        Style="{ThemeResource ListDetailTextStyle}"
+                                        Style="{ThemeResource CaptionTextBlockStyle}"
                                         Text="{x:Bind TimeString}"
                                         TextWrapping="Wrap" />
                                 </StackPanel>

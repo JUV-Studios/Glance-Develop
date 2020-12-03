@@ -1,6 +1,5 @@
 ﻿using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.ViewModels;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
@@ -14,14 +13,10 @@ namespace ProjectCodeEditor.Views
     {
         public readonly ShellViewModel ViewModel = Singleton<ShellViewModel>.Instance;
 
-        public MainPage()
-        {
-            InitializeComponent();
-        }
+        public readonly SettingsViewModel AppSettings = Singleton<SettingsViewModel>.Instance;
 
-        private void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-            Window.Current.SetTitleBar(null);
-        }
+        public readonly string OpenLabelId = "OpenOption/Label";
+
+        public MainPage() => InitializeComponent();
     }
 }

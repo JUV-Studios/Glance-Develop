@@ -1,4 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.Extensions;
+using Microsoft.Toolkit.Uwp.UI.Controls;
+using Microsoft.Toolkit.Uwp.UI.Extensions;
 using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.Helpers;
 using ProjectCodeEditor.ViewModels;
@@ -19,6 +21,8 @@ namespace ProjectCodeEditor.Views
     public sealed partial class SettingsPage : Page
     {
         public readonly SettingsViewModel ViewModel = Singleton<SettingsViewModel>.Instance;
+
+        public readonly string DependenciesHeaderId = "DependenciesListBlock/Text";
 
         public SettingsPage()
         {
@@ -45,18 +49,10 @@ namespace ProjectCodeEditor.Views
             specialThanksBlock.Loaded -= SpecialThanksBlock_Loaded;
         }
 
-        private void DependenciesList_Loaded(object sender, RoutedEventArgs e)
-        {
-            var target = sender as FrameworkElement;
-            AutomationProperties.SetName(target, "DependenciesListBlock/Text".GetLocalized());
-            target.Loaded -= DependenciesList_Loaded;
-        }
-
         private void Layout_Loaded(object sender, RoutedEventArgs e)
         {
             var section = sender as Hub;
             AccessibilityHelper.SetProperties(section);
-            section.Header = "SettingsTitle".GetLocalized();
             section.Loaded -= Layout_Loaded;
         }
     }

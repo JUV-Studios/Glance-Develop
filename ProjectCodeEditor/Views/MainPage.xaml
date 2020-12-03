@@ -6,12 +6,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:ProjectCodeEditor.Models"
     xmlns:services="using:ProjectCodeEditor.Services"
-    xmlns:triggers="using:Microsoft.Toolkit.Uwp.UI.Triggers"
     xmlns:vmodels="using:ProjectCodeEditor.ViewModels"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-    Loaded="Page_Loaded"
     mc:Ignorable="d">
-    <ContentPresenter Grid.Row="1" Content="{x:Bind ViewModel.SelectedItem.Content, Mode=OneWay}">
+
+    <ContentPresenter Content="{x:Bind ViewModel.SelectedItem.Content, Mode=OneWay}">
         <ContentPresenter.ContentTransitions>
             <TransitionCollection>
                 <EntranceThemeTransition />
@@ -27,6 +26,9 @@
                     Margin="8"
                     ItemsSource="{x:Bind ViewModel.Instances, Mode=OneWay}"
                     SelectedItem="{x:Bind ViewModel.SelectedItem, Mode=TwoWay}">
+                    <ComboBox.Resources>
+                        <ResourceDictionary Source="ms-appx:///Microsoft.UI.Xaml/DensityStyles/Compact.xaml" />
+                    </ComboBox.Resources>
                     <ComboBox.ItemTemplate>
                         <DataTemplate x:DataType="models:ShellView">
                             <StackPanel Orientation="Horizontal" Spacing="4">
@@ -37,24 +39,29 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
             </CommandBar.Content>
-            <CommandBar.SecondaryCommands>
-                <AppBarButton
-                    x:Uid="OpenOption"
-                    Click="{x:Bind vmodels:Interactions.OpenFile}"
-                    Icon="OpenFile">
-                    <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="O" Modifiers="Control" />
-                    </AppBarButton.KeyboardAccelerators>
+            <CommandBar.PrimaryCommands>
+                <AppBarButton x:Uid="OpenCommand">
+                    <AppBarButton.Command>
+                        <StandardUICommand Kind="Open" />
+                    </AppBarButton.Command>
+                    <AppBarButton.Flyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem Click="{x:Bind vmodels:Interactions.OpenFile}" Text="{x:Bind OpenLabelId, Converter={StaticResource ResourceLocator}}" />
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
                 </AppBarButton>
-                <AppBarButton
-                    x:Uid="NewFileOption"
-                    Click="{x:Bind vmodels:Interactions.NewFile}"
-                    Icon="Add">
+                <AppBarButton x:Uid="NewCommand" Icon="Add">
+                    <AppBarButton.Flyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem x:Uid="NewFileOption" Click="{x:Bind vmodels:Interactions.NewFile}" />
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Key="N" Modifiers="Control" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
-                <AppBarSeparator />
+            </CommandBar.PrimaryCommands>
+            <CommandBar.SecondaryCommands>
                 <AppBarButton Click="{x:Bind services:ViewService.ToggleFullScreen}" Label="{x:Bind ViewModel.FSLabel, Mode=OneWay}">
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Key="F11" Modifiers="None" />
@@ -71,14 +78,13 @@
                         <KeyboardAccelerator Key="F12" Modifiers="None" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
-                <AppBarButton
-                    x:Uid="CloseTabOption"
-                    Click="{x:Bind ViewModel.CloseCurrentInstance}"
-                    Icon="Clear"
-                    IsEnabled="{x:Bind ViewModel.IsCurrentClosable, Mode=OneWay}">
-                    <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="W" Modifiers="Control" />
-                    </AppBarButton.KeyboardAccelerators>
+                <AppBarButton IsEnabled="{x:Bind ViewModel.IsCurrentClosable, Mode=OneWay}">
+                    <AppBarButton.Command>
+                        <StandardUICommand
+                            CanExecuteRequested="{x:Bind ViewModel.CanClose}"
+                            ExecuteRequested="{x:Bind ViewModel.CloseCurrentInstance}"
+                            Kind="Close" />
+                    </AppBarButton.Command>
                 </AppBarButton>
             </CommandBar.SecondaryCommands>
         </CommandBar>

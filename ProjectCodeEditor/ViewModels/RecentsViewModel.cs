@@ -69,14 +69,11 @@ namespace ProjectCodeEditor.ViewModels
             }
         }
 
-        public async void Clear()
+        public void Clear()
         {
             RecentFiles.Clear();
-            await Task.Run(() =>
-            {
-                RecentsList.Clear();
-                foreach (var key in TimeContainer.Values.Keys) TimeContainer.Values.Remove(key);
-            });
+            RecentsList.Clear();
+            foreach (var key in TimeContainer.Values.Keys) TimeContainer.Values.Remove(key);
         }
     }
 }

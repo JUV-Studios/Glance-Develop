@@ -4,9 +4,11 @@ using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.Models;
 using ProjectCodeEditor.ViewModels;
 using System;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.System;
 
 namespace ProjectCodeEditor.Services
 {
@@ -16,8 +18,7 @@ namespace ProjectCodeEditor.Services
         {
             var bytes = await file.ReadBytesAsync();
             var encoding = GetTextEncoding(bytes);
-            string text = encoding.GetString(bytes);
-            if (Singleton<SettingsViewModel>.Instance.TrimWhitespace) text = text.TrimEnd();
+            string text = encoding.GetString(bytes).TrimEnd();
             return new TextPlusEncoding(text, encoding);
         }
 
@@ -32,5 +33,7 @@ namespace ProjectCodeEditor.Services
             else if (encoding == TextEncodingDetect.Encoding.Ascii) return Encoding.ASCII;
             else return Encoding.UTF32;
         }
+
+        public static async Task OpenFileLocation(StorageFile file) => await Launcher.LaunchFolderPathAsync(Path.GetDirectoryName(file.Path));
     }
 }

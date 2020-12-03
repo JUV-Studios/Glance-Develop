@@ -1,6 +1,7 @@
 ﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Uwp.UI.Helpers;
 using ProjectCodeEditor.Core.Helpers;
+using ProjectCodeEditor.Helpers;
 using ProjectCodeEditor.ViewModels;
 using Swordfish.NET.Collections.Auxiliary;
 using System;
@@ -28,13 +29,13 @@ namespace ProjectCodeEditor.Services
     {
         public interface IViewProperties : INotifyPropertyChanged
         {
-            public AppBarClosedDisplayMode RecommendedAppBarMode { get; set; }
+            public AppBarClosedDisplayMode RecommendedAppBarMode { get; }
 
             public string ViewTitle { get; set; }
 
-            public Thickness RecommendedPageMargin { get; set; }
+            public Thickness RecommendedPageMargin { get; }
 
-            public bool AppClosing { get; set; }
+            public bool AppClosing { get; }
         }
 
         private class ViewServiceProperties : ObservableObject, IViewProperties
@@ -62,10 +63,7 @@ namespace ProjectCodeEditor.Services
             public Thickness RecommendedPageMargin
             {
                 get => _RecommendedPageMargin;
-                set
-                {
-                    SetProperty(ref _RecommendedPageMargin, value);
-                }
+                set => SetProperty(ref _RecommendedPageMargin, value);
             }
 
             public bool AppClosing { get; set; } = false;
@@ -79,7 +77,9 @@ namespace ProjectCodeEditor.Services
 
         public static bool CompactOverlaySupported => ApplicationView.IsViewModeSupported(ApplicationViewMode.CompactOverlay);
 
-        public static readonly IViewProperties Properties = new ViewServiceProperties();
+        private static readonly ViewServiceProperties _Properties = new ViewServiceProperties();
+
+        public static IViewProperties Properties => _Properties;
 
         public static event EventHandler<KeyShortcutPressedEventArgs> KeyShortcutPressed;
 
@@ -99,12 +99,15 @@ namespace ProjectCodeEditor.Services
         {
             SetTitleBarProperties();
             SetPageMargin();
+            Size minSize = new(500, 500);
+            ApplicationView.SetPreferredMinSize(minSize);
+            ApplicationViewCore.TitleBar.ExtendViewIntoTitleBar = false;
             ApplicationViewCore.TitleBar.LayoutMetricsChanged += TitleBar_LayoutMetricsChanged;
             ApplicationViewCore.CoreWindow.Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
             ThemeManager.ThemeChanged += Instance_ThemeChanged;
             ApplicationViewCore.CoreWindow.SizeChanged += CoreWindow_SizeChanged;
             CloseManager.CloseRequested += CloseManager_CloseRequested;
-            CompactOverlayPreferences.CustomSize = new Size(500, 500);
+            CompactOverlayPreferences.CustomSize = minSize;
             CompactOverlayPreferences.ViewSizePreference = ViewSizePreference.Custom;
         }
 
@@ -124,14 +127,8 @@ namespace ProjectCodeEditor.Services
             AppViewMode viewMode = AppViewMode.Resizable;
             if (ApplicationView.IsFullScreenMode) viewMode = AppViewMode.FullScreen;
             else if (ApplicationView.ViewMode == ApplicationViewMode.CompactOverlay) viewMode = AppViewMode.CompactOverlay;
-            if (viewMode == AppViewMode.CompactOverlay)
-            {
-                Properties.RecommendedAppBarMode = AppBarClosedDisplayMode.Minimal;
-            }
-            else
-            {
-                Properties.RecommendedAppBarMode = AppBarClosedDisplayMode.Compact;
-            }
+            if (viewMode == AppViewMode.CompactOverlay) _Properties.RecommendedAppBarMode = AppBarClosedDisplayMode.Minimal;
+            else _Properties.RecommendedAppBarMode = AppBarClosedDisplayMode.Compact;
             ViewModeChanged?.Invoke(null, viewMode);
         }
 
@@ -139,7 +136,7 @@ namespace ProjectCodeEditor.Services
         {
             e.Handled = true;
             var deferral = e.GetDeferral();
-            Properties.AppClosing = true;
+            _Properties.AppClosing = true;
             if (!AppClosingEvent.IsEmpty()) foreach (var func in AppClosingEvent) func();
             AppClosingEvent.Clear();
             await CloseView();
@@ -171,18 +168,18 @@ namespace ProjectCodeEditor.Services
 
         private static void SetTitleBarProperties()
         {
-            ApplicationViewCore.TitleBar.ExtendViewIntoTitleBar = true;
             ApplicationView.TitleBar.BackgroundColor = Singleton<UISettings>.Instance.GetColorValue(UIColorType.Background);
             ApplicationView.TitleBar.ForegroundColor = Singleton<UISettings>.Instance.GetColorValue(UIColorType.Foreground);
-            ApplicationView.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+            ApplicationView.TitleBar.ButtonBackgroundColor = ApplicationView.TitleBar.BackgroundColor;
+            ApplicationView.TitleBar.ButtonForegroundColor = ApplicationView.TitleBar.ForegroundColor;
         }
 
         private static void SetPageMargin()
         {
             var size = ApplicationViewCore.CoreWindow.Bounds;
-            if (size.Width < 641) Properties.RecommendedPageMargin = new(12, 12, 12, 0);
-            else if (size.Width < 1008) Properties.RecommendedPageMargin = new(24, 24, 24, 0);
-            else Properties.RecommendedPageMargin = new(36, 36, 36, 0);
+            if (size.Width < 641) _Properties.RecommendedPageMargin = new(12, 12, 12, 0);
+            else if (size.Width < 1008) _Properties.RecommendedPageMargin = new(24, 24, 24, 0);
+            else _Properties.RecommendedPageMargin = new(36, 36, 36, 0);
         }
 
         public static void ToggleFullScreen()
@@ -193,8 +190,16 @@ namespace ProjectCodeEditor.Services
 
         public static async void ToggleCompactOverlay()
         {
-            if (ApplicationView.ViewMode == ApplicationViewMode.Default) await ApplicationView.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, CompactOverlayPreferences);
-            else await ApplicationView.TryEnterViewModeAsync(ApplicationViewMode.Default);
+            if (ApplicationView.ViewMode == ApplicationViewMode.Default)
+            {
+                ApplicationViewCore.TitleBar.ExtendViewIntoTitleBar = true;
+                await ApplicationView.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, CompactOverlayPreferences);
+            }
+            else
+            {
+                ApplicationViewCore.TitleBar.ExtendViewIntoTitleBar = false;
+                await ApplicationView.TryEnterViewModeAsync(ApplicationViewMode.Default);
+            }
         }
     }
 }

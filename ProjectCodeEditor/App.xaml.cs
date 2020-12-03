@@ -20,8 +20,11 @@ namespace ProjectCodeEditor
 {
     public sealed partial class App : Application
     {
+        private readonly Stopwatch LaunchStopwatch = new();
+
         public App()
         {
+            LaunchStopwatch.Start();
             InitializeComponent();
             ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Maximized;
             AppCenter.Start("dd9a81de-fe79-4ab8-be96-8f96c346c88e", typeof(Analytics), typeof(Crashes));
@@ -42,7 +45,6 @@ namespace ProjectCodeEditor
         public async Task ActivateAsync(object activationArgs)
         {
             Frame frame = null;
-
             if (IsInteractive(activationArgs))
             {
                 // Initialize services that you need before app activation
@@ -59,15 +61,12 @@ namespace ProjectCodeEditor
                     frame.NavigationFailed += (sender, e) => throw e.Exception;
                 }
                 else frame = Window.Current.Content as Frame;
-            }
 
-            object arguments = null;
-            if (activationArgs is LaunchActivatedEventArgs launchArgs) arguments = launchArgs.Arguments;
+                object arguments = null;
+                if (activationArgs is LaunchActivatedEventArgs launchArgs) arguments = launchArgs.Arguments;
 
-            frame.Navigate(typeof(MainPage), arguments);
+                frame.Navigate(typeof(MainPage), arguments);
 
-            if (IsInteractive(activationArgs))
-            {
                 var activation = activationArgs as IActivatedEventArgs;
 
                 // Ensure the current window is active
@@ -86,7 +85,11 @@ namespace ProjectCodeEditor
                 }
                 else if (activationArgs is ProtocolActivatedEventArgs)
                 {
+
                 }
+
+                LaunchStopwatch.Stop();
+                Debug.WriteLine($"Develop took {LaunchStopwatch.ElapsedMilliseconds} ms to launch");
             }
         }
 

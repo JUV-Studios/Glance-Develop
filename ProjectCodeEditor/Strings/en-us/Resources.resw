@@ -123,14 +123,14 @@
   <data name="CancelText" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="ClearHistoryItem.Text" xml:space="preserve">
+    <value>Clear undo/redo history</value>
+  </data>
   <data name="ClearRecentFilesItem.Text" xml:space="preserve">
     <value>Clear recent files</value>
   </data>
   <data name="ClearSelectionItem.Text" xml:space="preserve">
     <value>Clear selection</value>
-  </data>
-  <data name="CloseTabOption.Label" xml:space="preserve">
-    <value>Close current tab</value>
   </data>
   <data name="CopyrightBlock.Text" xml:space="preserve">
     <value>© 2020 JUV Studios. All rights reserved</value>
@@ -153,11 +153,11 @@
   <data name="EditorSettingsManageFontsList.Content" xml:space="preserve">
     <value>Manage installed fonts</value>
   </data>
-  <data name="EditorSettingsTrimWhitespace.Header" xml:space="preserve">
-    <value>Get rid of unwanted white-space in my document</value>
-  </data>
   <data name="EditSubItem.Text" xml:space="preserve">
     <value>Edit</value>
+  </data>
+  <data name="FileOpenPathItem.Text" xml:space="preserve">
+    <value>Open file location</value>
   </data>
   <data name="FileSaveNotificationContent" xml:space="preserve">
     <value>Saving {0}</value>
@@ -176,9 +176,6 @@
   </data>
   <data name="FindItem.Text" xml:space="preserve">
     <value>Find</value>
-  </data>
-  <data name="FolderItemAutomation" xml:space="preserve">
-    <value>Folder</value>
   </data>
   <data name="FontOption.Header" xml:space="preserve">
     <value>Font family</value>
@@ -211,7 +208,7 @@
     <value>Welcome to Develop!</value>
   </data>
   <data name="HubTitle" xml:space="preserve">
-    <value>Hub</value>
+    <value>Home</value>
   </data>
   <data name="Hub_GettingStarted.Header" xml:space="preserve">
     <value>Getting started</value>
@@ -219,13 +216,19 @@
   <data name="Hub_RecentFiles.Header" xml:space="preserve">
     <value>Recent files</value>
   </data>
+  <data name="NewCommand.Label" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="NewCommand.ToolTipService.ToolTip" xml:space="preserve">
+    <value>New (Ctrl+N)</value>
+  </data>
   <data name="NewFileActionDescription" xml:space="preserve">
     <value>Create a new source file</value>
   </data>
   <data name="NewFileActionTitle" xml:space="preserve">
     <value>Create a new file</value>
   </data>
-  <data name="NewFileOption.Label" xml:space="preserve">
+  <data name="NewFileOption.Text" xml:space="preserve">
     <value>New file</value>
   </data>
   <data name="NoFileOpenDialogContent" xml:space="preserve">
@@ -236,6 +239,9 @@
   </data>
   <data name="OkayText" xml:space="preserve">
     <value>Okay</value>
+  </data>
+  <data name="OpenCommand.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Open (Ctrl+O)</value>
   </data>
   <data name="OpenFileActionDescription" xml:space="preserve">
     <value>Open source files from this PC</value>
@@ -252,9 +258,6 @@
   <data name="RecentFileAutomation" xml:space="preserve">
     <value>recent file</value>
   </data>
-  <data name="RecentFileContextMenuOpenPathItem.Text" xml:space="preserve">
-    <value>Open file location</value>
-  </data>
   <data name="RecentFileContextMenuRemoveItem.Text" xml:space="preserve">
     <value>Remove from this list</value>
   </data>
@@ -267,7 +270,7 @@
   <data name="SettingsCaption" xml:space="preserve">
     <value>Customize Develop!</value>
   </data>
-  <data name="SettingsTitle" xml:space="preserve">
+  <data name="SettingsHub.Header" xml:space="preserve">
     <value>Preferences</value>
   </data>
   <data name="Settings_About.Header" xml:space="preserve">

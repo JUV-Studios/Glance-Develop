@@ -2,7 +2,9 @@
     x:Class="ProjectCodeEditor.Views.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:ProjectCodeEditor.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:services="using:ProjectCodeEditor.Services"
@@ -21,10 +23,7 @@
                     </StackPanel>
                 </DataTemplate>
             </HubSection>
-            <HubSection
-                x:Uid="Settings_Editor"
-                MaxWidth="456"
-                DataContext="{x:Bind ViewModel}">
+            <HubSection x:Uid="Settings_Editor" DataContext="{x:Bind ViewModel}">
                 <DataTemplate x:DataType="vmodels:SettingsViewModel">
                     <ScrollViewer
                         HorizontalScrollBarVisibility="Disabled"
@@ -36,7 +35,6 @@
                             HorizontalAlignment="Stretch"
                             Spacing="8">
                             <ToggleSwitch x:Uid="EditorSettingsAutoSave" IsOn="{x:Bind AutoSave, Mode=TwoWay}" />
-                            <ToggleSwitch x:Uid="EditorSettingsTrimWhitespace" IsOn="{x:Bind TrimWhitespace, Mode=TwoWay}" />
                             <ComboBox
                                 x:Uid="FontOption"
                                 HorizontalAlignment="Stretch"
@@ -74,40 +72,42 @@
             <HubSection
                 x:Uid="Settings_About"
                 AutomationProperties.FullDescription="{x:Bind ViewModel.AboutTextForAutomation}"
-                DataContext="{x:Bind ViewModel}">
-                <DataTemplate x:DataType="vmodels:SettingsViewModel">
+                DataContext="{x:Bind}">
+                <DataTemplate x:DataType="local:SettingsPage">
                     <ScrollViewer
                         HorizontalScrollBarVisibility="Disabled"
                         HorizontalScrollMode="Disabled"
                         VerticalScrollBarVisibility="Auto"
                         VerticalScrollMode="Auto">
                         <StackPanel Margin="0,0,16,0" HorizontalAlignment="Stretch">
-                            <TextBlock Text="{x:Bind AboutText}" />
+                            <TextBlock Text="{x:Bind ViewModel.AboutText}" />
                             <TextBlock Loaded="SpecialThanksBlock_Loaded" />
                             <HyperlinkButton x:Uid="TermsOfUseHyperlink" NavigateUri="https://sites.google.com/site/jgveed/legal" />
                             <HyperlinkButton x:Uid="SubscribeHyperlink" NavigateUri="https://www.youtube.com/channel/UCCgDUPx_XgBfgBx-If1uk1g?sub_confirmation=1" />
                             <HyperlinkButton x:Uid="TwitterFollowLink" NavigateUri="https://twitter.com/Jaigane88727011" />
-                            <MenuFlyoutSeparator
+                            <controls:Expander
                                 Margin="0,8,0,8"
-                                Padding="0"
-                                IsTabStop="False" />
-                            <TextBlock x:Uid="DependenciesListBlock" Style="{ThemeResource BaseTextBlockStyle}" />
-                            <ItemsControl
-                                x:Uid="DependenciesList"
-                                IsTabStop="False"
-                                ItemsSource="{x:Bind AppDependencies, Mode=OneTime}"
-                                Loaded="DependenciesList_Loaded">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="vmodels:Dependency">
-                                        <HyperlinkButton Content="{x:Bind DependencyName}" NavigateUri="{x:Bind ProjectUri}" />
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Top"
+                                ExpandDirection="Down"
+                                Header="{x:Bind DependenciesHeaderId, Converter={StaticResource ResourceLocator}}">
+                                <ItemsControl
+                                    x:Uid="DependenciesList"
+                                    Margin="0,12,0,12"
+                                    IsTabStop="False"
+                                    ItemsSource="{x:Bind ViewModel.AppDependencies, Mode=OneTime}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vmodels:Dependency">
+                                            <HyperlinkButton Content="{x:Bind DependencyName}" NavigateUri="{x:Bind ProjectUri}" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </controls:Expander>
                         </StackPanel>
                     </ScrollViewer>
                 </DataTemplate>

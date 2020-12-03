@@ -21,7 +21,10 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Linq;
 using TextEditor.Lexer;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Text;
@@ -109,8 +112,8 @@ namespace TextEditor.UI
 
         public void SelectAll()
         {
-            TextView.TextDocument.Selection.StartPosition = 0;
-            TextView.TextDocument.Selection.EndPosition = Text.Length - 1;
+            TextView.TextDocument.Selection.Expand(Windows.UI.Text.TextRangeUnit.Story);
+            TextView.TextDocument.Selection.MoveEnd(TextRangeUnit.Character, -1);
         }
 
         public void ClearSelection() => TextView.TextDocument.Selection.EndPosition = TextView.TextDocument.Selection.StartPosition;
@@ -129,8 +132,8 @@ namespace TextEditor.UI
                 oldValue.SelectionChanged -= Editor_SelectionChanged;
                 oldValue.TextChanged -= HandleTextViewTextChanged;
                 oldValue.KeyUp -= HandleTextViewKeyUp;
-                oldValue.Paste -= RequestLineNumberRedraw;
-                newValue.KeyDown -= HandleTextViewKeyDown;
+                oldValue.Paste -= TextView_Pasting;
+                oldValue.KeyDown -= HandleTextViewKeyDown;
             }
 
             if (newValue != null)
@@ -141,6 +144,7 @@ namespace TextEditor.UI
 
                 // Set default settings
                 newValue.TextDocument.UndoLimit = 0;
+
                 if (oldValue != null)
                 {
                     newValue.FontFamily = new FontFamily(FontFamily);
@@ -154,8 +158,15 @@ namespace TextEditor.UI
                 // RefreshLineNumbers(1);
 
                 newValue.SelectionChanged += Editor_SelectionChanged;
-                newValue.Paste += RequestLineNumberRedraw;
+                newValue.Paste += TextView_Pasting;
             }
+        }
+
+        private async void TextView_Pasting(object sender, TextControlPasteEventArgs e)
+        {
+            e.Handled = true;
+            var clipboardContent = Clipboard.GetContent();
+            if (clipboardContent.AvailableFormats.Contains("Text")) TextView.TextDocument.Selection.TypeText(await clipboardContent.GetTextAsync());
         }
 
         private void HandleTextViewKeyDown(object sender, KeyRoutedEventArgs e)
@@ -180,12 +191,11 @@ namespace TextEditor.UI
 
         public bool IsSelectionValid => TextSelection.Item1 != TextSelection.Item2 && !string.IsNullOrWhiteSpace(TextView.TextDocument.GetRange(TextSelection.Item1, TextSelection.Item2).Text);
 
-        private void RequestLineNumberRedraw(object sender, object e)
+        /* private void RequestLineNumberRedraw(object sender, object e)
         {
+            
             // RefreshLineNumbers(Text.Count<char>(c => c == '\r'));
         }
-
-        /*
         void BindTextViewStyle() => BindTextViewerScrollViewer();
 
         void BindTextViewerScrollViewer()
@@ -411,7 +421,7 @@ namespace TextEditor.UI
             TextView.SelectionChanged -= Editor_SelectionChanged;
             TextView.TextChanged -= HandleTextViewTextChanged;
             TextView.KeyUp -= HandleTextViewKeyUp;
-            TextView.Paste -= RequestLineNumberRedraw;
+            TextView.Paste -= TextView_Pasting;
             TextView.KeyDown -= HandleTextViewKeyDown;
             SyntaxLanguage = null;
         }

@@ -17,7 +17,27 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;using TextEditor.Lexer;using Windows.UI;namespace TextEditor{    public class SyntaxLanguage    {        public SyntaxLanguage(string name)        {            LanguageName = name;        }        public bool IsPlainText { get; protected set; } = false;        public string LanguageName { get; private set; }
+using System.Collections.Generic;
+using TextEditor.Lexer;
+using Windows.UI;
 
-        public IGrammer Grammer { get; protected set; }        public IDictionary<TokenType, Color> HighlightColors { get; protected set; }        public IndentationProvider IndentationProvider { get; set; }
-    }}
+namespace TextEditor
+{
+    public abstract class SyntaxLanguage
+    {
+        public SyntaxLanguage(string name)
+        {
+            LanguageName = name;
+        }
+
+        public bool IsPlainText { get; protected set; } = false;
+
+        public string LanguageName { get; private set; }
+
+        public IGrammer Grammer { get; protected set; }
+
+        public IDictionary<TokenType, Color> HighlightColors { get; protected set; }
+
+        public IndentationProvider IndentationProvider { get; set; }
+    }
+}

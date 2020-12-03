@@ -26,10 +26,10 @@ namespace ProjectCodeEditor.Helpers
         /// <summary>
         /// Attaches a context menu with a list view
         /// </summary>
+        /// <remarks>Important: Call DetachContextMenu after the list view is removed from the screen to clean up unused memory</remarks>
         /// <param name="listView">The list view that will be handled for item right click</param>
         /// <param name="flyout">The flyout to show when the user right clicks</param>
         /// <param name="shouldShow">A pointer to the function which decides whether to show a context menu or not</param>
-        /// <remarks>Important: Call DetachContextMenu after the list view is removed from the screen to clean up unused memory</remarks>
 
         public static void AttachContextMenu(ListView listView, MenuFlyout flyout, Func<object, bool> shouldShow)
         {
@@ -41,20 +41,17 @@ namespace ProjectCodeEditor.Helpers
         {
             args.Handled = true;
             var val = ContextedListViews[sender as ListView];
-            // Handle keyboard context menu
             ListViewItem target = null;
             object param = null;
-            try
+
+            // Handle keyboard context menu
+            if (args.OriginalSource is ListViewItem item)
             {
-                target = (ListViewItem)args.OriginalSource;
+                target = item;
                 param = target.Content;
             }
-            catch (InvalidCastException)
-            {
-                // Handle mouse and touch context menu
-                if (args.OriginalSource is FrameworkElement element) param = element.DataContext;
-            }
-
+            // Handle mouse and touch context menu
+            else if (args.OriginalSource is FrameworkElement element) param = element.DataContext;
             if (val.Item2(param))
             {
                 if (args.TryGetPosition(sender, out Point location)) val.Item1.ShowAt(sender, location);

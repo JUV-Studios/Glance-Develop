@@ -35,7 +35,7 @@ namespace ProjectCodeEditor.ViewModels
         {
             foreach (var item in viewModel.Instances)
             {
-                if (item.Caption == file.Path)
+                if (item.Content is CodeEditor && item.Caption == file.Path)
                 {
                     if (retInstanceRef) view = item;
                     return true;
@@ -120,6 +120,11 @@ namespace ProjectCodeEditor.ViewModels
             if (!Settings.DialogShown)
             {
                 Settings.DialogShown = true;
+                FolderPicker picker = new()
+                {
+                    SuggestedStartLocation = PickerLocationId.DocumentsLibrary
+                };
+                await picker.PickSingleFolderAsync();
                 Settings.DialogShown = false;
             }
         }

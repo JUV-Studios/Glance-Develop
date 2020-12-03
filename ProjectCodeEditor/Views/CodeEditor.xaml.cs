@@ -4,6 +4,7 @@ using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.Dialogs;
 using ProjectCodeEditor.Services;
 using ProjectCodeEditor.ViewModels;
+using Swordfish.NET.Collections.Auxiliary;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,6 +15,7 @@ using TextEditorUWP.Languages;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.System;
+using Windows.UI.Text;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Automation;
@@ -24,8 +26,6 @@ using Windows.UI.Xaml.Input;
 
 namespace ProjectCodeEditor.Views
 {
-    // TODO: Implement undo/redo
-
     public sealed partial class CodeEditor : UserControl, IDisposable
     {
         private readonly SettingsViewModel AppSettings = Singleton<SettingsViewModel>.Instance;
@@ -58,13 +58,17 @@ namespace ProjectCodeEditor.Views
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("Editor loaded");
-            ViewService.Properties.ViewTitle = ViewModel.WorkingFile.Name;
-            ViewService.KeyShortcutPressed += ViewService_KeyShortcutPressed;
-            ViewService.AppClosingEvent.Add(ViewService_AppClosing);
-            ViewModel.CanInteract = true;
-            ShareCharm.DataRequested += ShareCharm_DataRequested;
-            if (!ViewModel.FileReadData.HasValue) LoadFile();
+            if (ViewModel.Unloaded)
+            {
+                Debug.WriteLine("Editor loaded");
+                ViewModel.Unloaded = false;
+                ViewService.Properties.ViewTitle = ViewModel.WorkingFile.Name;
+                ViewService.KeyShortcutPressed += ViewService_KeyShortcutPressed;
+                ViewService.AppClosingEvent.Add(ViewService_AppClosing);
+                ViewModel.CanInteract = true;
+                ShareCharm.DataRequested += ShareCharm_DataRequested;
+                if (!ViewModel.FileReadData.HasValue) LoadFile();
+            }
         }
 
         private void ViewService_AppClosing()
@@ -75,11 +79,23 @@ namespace ProjectCodeEditor.Views
 
         private void ViewService_KeyShortcutPressed(object sender, KeyShortcutPressedEventArgs e)
         {
-            // Intercept Ctrl+Z via CoreWindow since RichEditBox handles it before other XAML controls
+            // Intercept Ctrl+Z via CoreWindow
             if (e.Accelerator.Modifiers == VirtualKeyModifiers.Control && e.Accelerator.Key == VirtualKey.Z && e.Accelerator.IsEnabled)
             {
                 e.SystemArgs.Handled = true;
                 Undo_Click(null, null);
+            }
+            // Intercept Ctrl+Y via CoreWindow
+            if (e.Accelerator.Modifiers == VirtualKeyModifiers.Control && e.Accelerator.Key == VirtualKey.Y && e.Accelerator.IsEnabled)
+            {
+                e.SystemArgs.Handled = true;
+                Redo_Click(null, null);
+            }
+            // Intercept Ctrl+S via CoreWindow
+            else if (e.Accelerator.Modifiers == VirtualKeyModifiers.Control && e.Accelerator.Key == VirtualKey.S && e.Accelerator.IsEnabled)
+            {
+                e.SystemArgs.Handled = true;
+                ViewModel.Save();
             }
         }
 
@@ -96,6 +112,7 @@ namespace ProjectCodeEditor.Views
                 AutomationProperties.SetName(Editor.TextView, ViewModel.WorkingFile.Name);
                 Editor.Text = ViewModel.FileReadData.Value.Text;
                 ViewModel.IsLoading = false;
+                ViewModel.EditorTextRequested += ViewModel_EditorTextRequested;
                 Editor.TextChanged += Editor_TextChanged;
             }
             catch (FileNotFoundException)
@@ -114,6 +131,8 @@ namespace ProjectCodeEditor.Views
                 AppSettings.DialogShown = false;
             }
         }
+
+        private string ViewModel_EditorTextRequested() => Editor.Text;
 
         private void ShareCharm_DataRequested(DataTransferManager sender, DataRequestedEventArgs args)
         {
@@ -143,31 +162,39 @@ namespace ProjectCodeEditor.Views
 
         private void Editor_TextChanged(object sender, EventArgs e)
         {
-            if (AppSettings.TrimWhitespace && ViewModel.FileReadData.HasValue)
+            string text1, text2, text3 = string.Empty;
+            if (ViewModel.FileReadData.HasValue)
             {
-                if (Editor.Text.TrimEnd() != ViewModel.FileReadData.Value.Text.TrimEnd())
+                text1 = Editor.Text.TrimEnd();
+                text2 = ViewModel.FileReadData.Value.Text.TrimEnd();
+                if (!ViewModel.UndoStack.IsEmpty()) text3 = ViewModel.UndoStack.Peek().TrimEnd();
+
+                if (text1 == text2)
+                {
+                    ViewModel.Saved = true;
+                    ViewModel.ClearHistory();
+                }
+                else if (text1 != text2 && text1 != text3)
                 {
                     ViewModel.PushToUndoStack(Editor.Text);
                     ViewModel.Saved = false;
                 }
-                else ViewModel.Saved = true;
             }
-            else
-            {
-                ViewModel.Saved = false;
-                ViewModel.PushToUndoStack(Editor.Text);
-            }
+            
             if (AppSettings.AutoSave) ViewModel.Save();
         }
 
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
         {
-            if (Editor.IsSelectionValid) Editor.ClearSelection();
-            Debug.WriteLine("Editor unloaded");
-            ViewService.Properties.ViewTitle = string.Empty;
-            ViewService.KeyShortcutPressed -= ViewService_KeyShortcutPressed;
-            ViewModel.CanInteract = false;
-            ShareCharm.DataRequested -= ShareCharm_DataRequested;
+            if (!ViewModel.Unloaded)
+            {
+                ViewModel.Unloaded = true;
+                Debug.WriteLine("Editor unloaded");
+                ViewService.Properties.ViewTitle = string.Empty;
+                ViewService.KeyShortcutPressed -= ViewService_KeyShortcutPressed;
+                ViewModel.CanInteract = false;
+                ShareCharm.DataRequested -= ShareCharm_DataRequested;
+            }
         }
 
         public async void Dispose()
@@ -179,30 +206,31 @@ namespace ProjectCodeEditor.Views
                 ViewModel.Save();
                 Close();
             }
-            else if (!AppSettings.DialogShown)
+            else
             {
-                AppSettings.DialogShown = true;
                 var dialog = Singleton<UnsavedChangesDialog>.Instance;
-                await dialog.ShowAsync();
-                if (dialog.Result == ContentDialogResult.Primary)
+                if (await dialog.Show())
+                {
+                    if (dialog.Result == ContentDialogResult.Primary)
+                    {
+                        ViewModel.Save();
+                        Close();
+                    }
+                    else if (dialog.Result == ContentDialogResult.Secondary) Close();
+                    else ViewModel.TabClosing = false;
+                }
+                else
                 {
                     ViewModel.Save();
                     Close();
                 }
-                else if (dialog.Result == ContentDialogResult.Secondary) Close();
-                else ViewModel.TabClosing = false;
-                AppSettings.DialogShown = false;
-            }
-            else
-            {
-                ViewModel.Save();
-                Close();
             }
         }
 
         private void Close()
         {
             Editor.TextChanged -= Editor_TextChanged;
+            ViewModel.EditorTextRequested -= ViewModel_EditorTextRequested;
             Editor.Dispose();
             if (!ViewService.Properties.AppClosing)
             {
@@ -266,18 +294,30 @@ namespace ProjectCodeEditor.Views
 
         private async void Find_Click(object sender, RoutedEventArgs e)
         {
-            AppSettings.DialogShown = true;
             var findDialog = Singleton<FindDialog>.Instance;
-            await findDialog.ShowAsync();
-            if (findDialog.Result == ContentDialogResult.Primary) Editor.FindText(findDialog.FindText);
-            AppSettings.DialogShown = false;
+            if (await findDialog.Show() && findDialog.Result == ContentDialogResult.Primary) Editor.FindText(findDialog.FindText);
         }
 
         private void StandardUICommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args) => args.CanExecute = ViewModel.CanInteract;
 
         private void Undo_Click(XamlUICommand sender, ExecuteRequestedEventArgs args)
         {
-            if (ViewModel.CanUndo) Editor.Text = ViewModel.Undo();
+            if (ViewModel.CanUndo)
+            {
+                Editor.Text = ViewModel.Undo();
+                Editor.Text = Editor.Text.TrimEnd();
+                Editor.TextView.TextDocument.Selection.SetIndex(TextRangeUnit.Character, -1, false);
+            }
+        }
+
+        private void Redo_Click(XamlUICommand sender, ExecuteRequestedEventArgs args)
+        {
+            if (ViewModel.CanRedo)
+            {
+                Editor.Text = ViewModel.Redo();
+                Editor.Text = Editor.Text.TrimEnd();
+                Editor.TextView.TextDocument.Selection.SetIndex(TextRangeUnit.Character, -1, false);
+            }
         }
     }
 }

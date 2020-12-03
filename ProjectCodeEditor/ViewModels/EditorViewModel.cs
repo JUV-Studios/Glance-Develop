@@ -22,6 +22,8 @@ namespace ProjectCodeEditor.ViewModels
 
     public sealed class EditorViewModel : ObservableObject
     {
+        public event Func<string> EditorTextRequested;
+
         public StorageFile WorkingFile { get; init; }
 
         private readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
@@ -33,6 +35,8 @@ namespace ProjectCodeEditor.ViewModels
             get => _Saved;
             set => SetProperty(ref _Saved, value);
         }
+
+        internal bool Unloaded = true;
 
         private bool _IsLoading = true;
 
@@ -50,8 +54,6 @@ namespace ProjectCodeEditor.ViewModels
             set => SetProperty(ref _CanInteract, value);
         }
 
-        public bool CanUndo => !UndoStack.IsEmpty();
-
         private SyntaxLanguage _CodeLanguage;
 
         public SyntaxLanguage CodeLanguage
@@ -63,9 +65,68 @@ namespace ProjectCodeEditor.ViewModels
             }
         }
 
-        private readonly Stack<string> UndoStack = new();
+        internal TextPlusEncoding? FileReadData;
+
+        internal WhatToShare ShareOption = WhatToShare.File;
+
+        internal bool TabClosing = false;
+
+        internal bool HistoryCleared = false;
+
+        #region History
+
+        public bool CanUndo => !UndoStack.IsEmpty();
+
+        public bool CanRedo => !RedoStack.IsEmpty();
+
+        internal readonly Stack<string> UndoStack = new();
+
+        internal readonly Stack<string> RedoStack = new();
+
+        internal void PushToUndoStack(string val)
+        {
+            UndoStack.Push(val);
+            OnPropertyChanged(nameof(CanUndo));
+            HistoryCleared = false;
+        }
+
+        internal string Undo()
+        {
+            string retVal;
+            // Remove current one first
+            RedoStack.Push(UndoStack.Pop());
+            // Return second one
+            if (UndoStack.IsEmpty()) retVal = FileReadData.Value.Text;
+            else retVal = UndoStack.Pop();
+            OnPropertyChanged(nameof(CanRedo));
+            OnPropertyChanged(nameof(CanUndo));
+            return retVal;
+        }
+
+        internal string Redo()
+        {
+            string retVal;
+            retVal = RedoStack.Pop();
+            OnPropertyChanged(nameof(CanRedo));
+            OnPropertyChanged(nameof(CanUndo));
+            return retVal;
+        }
+
+        public void ClearHistory()
+        {
+            UndoStack.Clear();
+            RedoStack.Clear();
+            OnPropertyChanged(nameof(CanRedo));
+            OnPropertyChanged(nameof(CanUndo));
+            HistoryCleared = true;
+        }
+
+        #endregion
+
+        #region Saving
 
         private FileSavePicker _SaveAsPicker = null;
+
         private FileSavePicker SaveAsPicker
         {
             get
@@ -88,44 +149,6 @@ namespace ProjectCodeEditor.ViewModels
 
                 return _SaveAsPicker;
             }
-        }
-
-        internal TextPlusEncoding? FileReadData;
-
-        internal WhatToShare ShareOption = WhatToShare.File;
-
-        internal bool TabClosing = false;
-
-        internal void PushToUndoStack(string val)
-        {
-            bool add = false;
-            if (UndoStack.IsEmpty()) add = true;
-            else
-            {
-                if (Singleton<SettingsViewModel>.Instance.TrimWhitespace)
-                {
-                    if (UndoStack.Peek().TrimEnd() != val.TrimEnd()) add = true;
-                }
-                else if (UndoStack.Peek() != val) add = true;
-            }
-
-            if (add)
-            {
-                UndoStack.Push(val);
-                OnPropertyChanged(nameof(CanUndo));
-            }
-        }
-
-        internal string Undo()
-        {
-            string retVal;
-            // Remove current one first
-            UndoStack.Pop();
-            // Return second one
-            if (UndoStack.IsEmpty()) retVal = FileReadData.Value.Text;
-            else retVal = UndoStack.Pop();
-            OnPropertyChanged(nameof(CanUndo));
-            return retVal;
         }
 
         /// <summary>
@@ -157,6 +180,10 @@ namespace ProjectCodeEditor.ViewModels
             {
                 if (!TabClosing) result = false;
             }
+            catch (FileLoadException ex)
+            {
+                if (!Singleton<SettingsViewModel>.Instance.AutoSave) throw ex;
+            }
             finally
             {
                 _semaphoreSlim.Release();
@@ -168,9 +195,9 @@ namespace ProjectCodeEditor.ViewModels
         private async Task<bool?> SaveToFileAsync(StorageFile file)
         {
             string text;
-            if (UndoStack.IsEmpty()) return null;
-            if (Singleton<SettingsViewModel>.Instance.TrimWhitespace) text = UndoStack.Peek().TrimEnd();
-            else text = UndoStack.Peek();
+            if (UndoStack.IsEmpty() && !HistoryCleared) return null;
+            else if (HistoryCleared) text = EditorTextRequested();
+            else text = UndoStack.Peek().TrimEnd();
             return await SaveAsync(file, text);
         }
 
@@ -179,7 +206,8 @@ namespace ProjectCodeEditor.ViewModels
             if (!Saved)
             {
                 var result = await SaveToFileAsync(WorkingFile);
-                if (result == false || result == null) SaveAs();
+                if (result == null) Saved = true;
+                else if (result == false && !TabClosing) SaveAs();
             }
         }
 
@@ -190,9 +218,13 @@ namespace ProjectCodeEditor.ViewModels
                 Singleton<SettingsViewModel>.Instance.DialogShown = true;
                 var file = await SaveAsPicker.PickSaveFileAsync();
                 if (file != null) await SaveToFileAsync(file);
-                Singleton<SettingsViewModel>.Instance   .DialogShown = false;
+                Singleton<SettingsViewModel>.Instance.DialogShown = false;
             }
         }
+
+        #endregion
+
+        #region Sharing
 
         public void ShareAsFile()
         {
@@ -211,5 +243,7 @@ namespace ProjectCodeEditor.ViewModels
             ShareOption = WhatToShare.Selection;
             DataTransferManager.ShowShareUI();
         }
+        
+        #endregion
     }
 }

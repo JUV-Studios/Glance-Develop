@@ -53,6 +53,8 @@ namespace ProjectCodeEditor.ViewModels
             set => SetProperty(ref _CompactOverlayBtnLabel, value);
         }
 
+        public bool CanClose() => IsCurrentClosable;
+
         public bool IsCurrentClosable => _SelectedItem.Content is IDisposable;
 
         public void AddLayout(ShellView view, bool multiple = false)
@@ -72,10 +74,10 @@ namespace ProjectCodeEditor.ViewModels
 
             AddLayout(new()
             {
-                Title = "SettingsTitle".GetLocalized(),
+                Title = "SettingsHub/Header".GetLocalized(),
                 Caption = "SettingsCaption".GetLocalized(),
                 Content = new SettingsPage(),
-            }, true);
+            }, true); ;
 
             ViewService.KeyShortcutPressed += ViewService_KeyShortcutPressed;
             ViewService.ViewModeChanged += ViewService_ViewModeChanged;
@@ -117,9 +119,7 @@ namespace ProjectCodeEditor.ViewModels
             {
                 try
                 {
-                    var setting = Instances[Instances.IndexOf(e) - 1];
-                    if (setting.Content is SettingsPage) SelectedItem = Instances.First();
-                    else SelectedItem = setting;
+                    SelectedItem = Instances[Instances.IndexOf(e) - 1];
                 }
                 catch (ArgumentOutOfRangeException)
                 {

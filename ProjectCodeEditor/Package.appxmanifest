@@ -4,14 +4,15 @@
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
   xmlns:genTemplate="http://schemas.microsoft.com/appx/developer/windowsTemplateStudio"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap mp rescap genTemplate">
+  IgnorableNamespaces="uap uap3 mp rescap genTemplate">
 
   <Identity
     Name="JUVStudios.DevelopApp"
     Publisher="CN=JUV Studios"
-    Version="0.0.1.5" />
+    Version="0.0.2.5" />
 
   <mp:PhoneIdentity PhoneProductId="8982C99F-A50D-47B3-B079-5A9077C936D0" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -26,12 +27,12 @@
   </Dependencies>
 
   <Resources>
-    <Resource Language="x-generate"/>
+    <Resource Language="x-generate" />
   </Resources>
 
   <Applications>
     <Application Id="App"
-      Executable="$targetnametoken$.exe"
+      Executable="ProjectCodeEditor.exe"
       EntryPoint="ProjectCodeEditor.App">
       <uap:VisualElements
         DisplayName="Develop"
@@ -96,7 +97,11 @@
             <uap:InfoTip>Edit this text file with Develop</uap:InfoTip>
           </uap:FileTypeAssociation>
         </uap:Extension>
-        <uap:Extension Category="windows.search"/>
+        <uap3:Extension Category="windows.appExtensionHost">
+          <uap3:AppExtensionHost>
+            <uap3:Name>com.juvstudios.develop</uap3:Name>
+          </uap3:AppExtensionHost>
+        </uap3:Extension>
       </Extensions>
     </Application>
   </Applications>
@@ -104,10 +109,6 @@
   <Capabilities>
     <Capability Name="internetClient" />
     <rescap:Capability Name="confirmAppClose"/>
-    <uap:Capability Name="documentsLibrary"/>
-    <Capability Name="privateNetworkClientServer"/>
-    <Capability Name="internetClientServer"/>
-
   </Capabilities>
 
   <genTemplate:Metadata>

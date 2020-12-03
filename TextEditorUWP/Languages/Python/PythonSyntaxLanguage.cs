@@ -18,7 +18,9 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using TextEditor.Lexer;
+using TextEditorUWP.Languages;
 using Windows.UI;
 
 namespace TextEditor.Languages
