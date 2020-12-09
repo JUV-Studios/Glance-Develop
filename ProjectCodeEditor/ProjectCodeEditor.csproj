@@ -191,13 +191,13 @@
     <Compile Include="Dialogs\FindDialog.xaml.cs">
       <DependentUpon>FindDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\IModalDialog.cs" />
     <Compile Include="Dialogs\UnsavedChangesDialog.xaml.cs">
       <DependentUpon>UnsavedChangesDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helpers\AccessibilityHelper.cs" />
     <Compile Include="Helpers\JumpListHelper.cs" />
     <Compile Include="Helpers\NotificationHelper.cs" />
+    <Compile Include="Helpers\SmartTextForegroundConverter.cs" />
     <Compile Include="Models\ActionOption.cs" />
     <Compile Include="Models\RecentFile.cs" />
     <Compile Include="Models\ShellView.cs" />

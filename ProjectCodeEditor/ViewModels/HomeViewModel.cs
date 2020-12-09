@@ -42,6 +42,18 @@ namespace ProjectCodeEditor.ViewModels
             Recents.RecentFiles.CollectionChanged += RecentFiles_CollectionChanged;
         }
 
+        internal bool ShowContextFlyoutForRecentList(object val)
+        {
+            if (val == null) return false;
+            if (val is RecentFile file && file != null)
+            {
+                ContextedRecentFile = file;
+                return true;
+            }
+
+            return false;
+        }
+
         private void RecentFiles_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) => OnPropertyChanged(nameof(RecentFilesVisibility));
     }
 }

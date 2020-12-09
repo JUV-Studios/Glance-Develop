@@ -20,8 +20,6 @@ namespace ProjectCodeEditor.Views
     /// </summary>
     public sealed partial class SettingsPage : Page
     {
-        public readonly SettingsViewModel ViewModel = Singleton<SettingsViewModel>.Instance;
-
         public readonly string DependenciesHeaderId = "DependenciesListBlock/Text";
 
         public SettingsPage()
@@ -33,7 +31,7 @@ namespace ProjectCodeEditor.Views
         {
             args.Handled = true;
             string input = args.Text.Trim();
-            var contains = ViewModel.InstalledFonts.Where(i => i.Trim() == input.Trim());
+            var contains = App.AppSettings.InstalledFonts.Where(i => i.Trim() == input.Trim());
             if (!contains.IsEmpty()) sender.SelectedValue = args.Text.Trim();
         }
 

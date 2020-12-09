@@ -5,6 +5,7 @@ using ProjectCodeEditor.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TextEditorUWP.Languages;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 
@@ -14,7 +15,6 @@ namespace ProjectCodeEditor.ViewModels
     {
         private static readonly ShellViewModel viewModel = Singleton<ShellViewModel>.Instance;
         private static FileSavePicker savePicker = null;
-        private static readonly SettingsViewModel Settings = Singleton<SettingsViewModel>.Instance;
 
         public static ShellView CreateEditorStandalone(StorageFile file)
         {
@@ -68,26 +68,26 @@ namespace ProjectCodeEditor.ViewModels
 
         public static async void OpenFile()
         {
-            if (!Settings.DialogShown)
+            if (!App.AppSettings.DialogShown)
             {
-                Settings.DialogShown = true;
+                App.AppSettings.DialogShown = true;
                 var picker = new FileOpenPicker()
                 {
                     SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
                     ViewMode = PickerViewMode.List
                 };
-                foreach (var fileType in Settings.SupportedFileTypes) picker.FileTypeFilter.Add(fileType);
+                foreach (var fileType in App.AppSettings.SupportedFileTypes) picker.FileTypeFilter.Add(fileType);
                 var files = await picker.PickMultipleFilesAsync();
                 if (files.Count != 0) AddFiles(files);
-                Settings.DialogShown = false;
+                App.AppSettings.DialogShown = false;
             }
         }
 
         public static async void NewFile()
         {
-            if (!Settings.DialogShown)
+            if (!App.AppSettings.DialogShown)
             {
-                Settings.DialogShown = true;
+                App.AppSettings.DialogShown = true;
                 if (savePicker == null)
                 {
                     savePicker = new FileSavePicker()
@@ -97,12 +97,12 @@ namespace ProjectCodeEditor.ViewModels
                         DefaultFileExtension = ".md",
                     };
 
-                    foreach (var fileType in Settings.SupportedFileTypes) savePicker.FileTypeChoices.Add(GetFileTypeDescription(fileType), new string[] { fileType });
+                    foreach (var fileType in App.AppSettings.SupportedFileTypes) savePicker.FileTypeChoices.Add(GetFileTypeDescription(fileType), new string[] { fileType });
                 }
 
                 var file = await savePicker.PickSaveFileAsync();
                 if (file != null) AddFiles(new StorageFile[] { file });
-                Settings.DialogShown = false;
+                App.AppSettings.DialogShown = false;
             }
         }
 
@@ -110,22 +110,22 @@ namespace ProjectCodeEditor.ViewModels
         {
             string fileTypeLower = fileType.ToLower();
             string prefix;
-            if (CodeEditor.CodeLanguages.ContainsKey(fileTypeLower)) prefix = CodeEditor.CodeLanguages[fileTypeLower].Value.LanguageName;
+            if (LanguageProvider.CodeLanguages.ContainsKey(fileTypeLower)) prefix = LanguageProvider.CodeLanguages[fileTypeLower].Value.LanguageName;
             else prefix = fileTypeLower.Substring(1);
             return $"{prefix} {"FileSubItem/Text".GetLocalized().ToLower()}";
         }
 
         public static async void OpenProject()
         {
-            if (!Settings.DialogShown)
+            if (!App.AppSettings.DialogShown)
             {
-                Settings.DialogShown = true;
+                App.AppSettings.DialogShown = true;
                 FolderPicker picker = new()
                 {
                     SuggestedStartLocation = PickerLocationId.DocumentsLibrary
                 };
                 await picker.PickSingleFolderAsync();
-                Settings.DialogShown = false;
+                App.AppSettings.DialogShown = false;
             }
         }
     }

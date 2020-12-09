@@ -6,6 +6,7 @@ using ProjectCodeEditor.Models;
 using ProjectCodeEditor.Services;
 using Swordfish.NET.Collections.Auxiliary;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -22,36 +23,58 @@ namespace ProjectCodeEditor.ViewModels
 
     public sealed class EditorViewModel : ObservableObject
     {
-        public event Func<string> EditorTextRequested;
-
         public StorageFile WorkingFile { get; init; }
 
         private readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
 
-        private bool _Saved = true;
+        private BitArray Flags = new(16);
 
         public bool Saved
         {
-            get => _Saved;
-            set => SetProperty(ref _Saved, value);
+            get => Flags[0];
+            set
+            {
+                Flags[0] = value;
+                OnPropertyChanged(nameof(Saved));
+            }
         }
-
-        internal bool Unloaded = true;
-
-        private bool _IsLoading = true;
 
         public bool IsLoading
         {
-            get => _IsLoading;
-            set => SetProperty(ref _IsLoading, value);
+            get => Flags[1];
+            set
+            {
+                Flags[1] = value;
+                OnPropertyChanged(nameof(IsLoading));
+            }
         }
-
-        private bool _CanInteract = false;
 
         public bool CanInteract
         {
-            get => _CanInteract;
-            set => SetProperty(ref _CanInteract, value);
+            get => Flags[2];
+            set
+            {
+                Flags[2] = value;
+                OnPropertyChanged(nameof(CanInteract));
+            }
+        }
+
+        internal bool Unloaded
+        {
+            get => Flags[3];
+            set => Flags[3] = value;
+        }
+
+        internal bool TabClosing
+        {
+            get => Flags[4];
+            set => Flags[4] = value;
+        }
+
+        internal bool HistoryCleared
+        {
+            get => Flags[5];
+            set => Flags[5] = value;
         }
 
         private SyntaxLanguage _CodeLanguage;
@@ -61,7 +84,7 @@ namespace ProjectCodeEditor.ViewModels
             get => _CodeLanguage;
             set
             {
-                if (value != null) SetProperty(ref _CodeLanguage, value);
+                if (_CodeLanguage != value) SetProperty(ref _CodeLanguage, value);
             }
         }
 
@@ -69,25 +92,30 @@ namespace ProjectCodeEditor.ViewModels
 
         internal WhatToShare ShareOption = WhatToShare.File;
 
-        internal bool TabClosing = false;
-
-        internal bool HistoryCleared = false;
-
         #region History
 
         public bool CanUndo => !UndoStack.IsEmpty();
 
         public bool CanRedo => !RedoStack.IsEmpty();
 
+        public bool CanClearHistory => RedoStack.IsEmpty() || UndoStack.IsEmpty();
+
         internal readonly Stack<string> UndoStack = new();
 
         internal readonly Stack<string> RedoStack = new();
 
+        private void UpdateHistoryProperties()
+        {
+            OnPropertyChanged(nameof(CanUndo));
+            OnPropertyChanged(nameof(CanRedo));
+            OnPropertyChanged(nameof(CanClearHistory));
+        }
+
         internal void PushToUndoStack(string val)
         {
             UndoStack.Push(val);
-            OnPropertyChanged(nameof(CanUndo));
             HistoryCleared = false;
+            UpdateHistoryProperties();
         }
 
         internal string Undo()
@@ -98,8 +126,7 @@ namespace ProjectCodeEditor.ViewModels
             // Return second one
             if (UndoStack.IsEmpty()) retVal = FileReadData.Value.Text;
             else retVal = UndoStack.Pop();
-            OnPropertyChanged(nameof(CanRedo));
-            OnPropertyChanged(nameof(CanUndo));
+            UpdateHistoryProperties();
             return retVal;
         }
 
@@ -107,8 +134,7 @@ namespace ProjectCodeEditor.ViewModels
         {
             string retVal;
             retVal = RedoStack.Pop();
-            OnPropertyChanged(nameof(CanRedo));
-            OnPropertyChanged(nameof(CanUndo));
+            UpdateHistoryProperties();
             return retVal;
         }
 
@@ -116,8 +142,7 @@ namespace ProjectCodeEditor.ViewModels
         {
             UndoStack.Clear();
             RedoStack.Clear();
-            OnPropertyChanged(nameof(CanRedo));
-            OnPropertyChanged(nameof(CanUndo));
+            UpdateHistoryProperties();
             HistoryCleared = true;
         }
 
@@ -196,7 +221,7 @@ namespace ProjectCodeEditor.ViewModels
         {
             string text;
             if (UndoStack.IsEmpty() && !HistoryCleared) return null;
-            else if (HistoryCleared) text = EditorTextRequested();
+            else if (HistoryCleared) text = string.Empty;
             else text = UndoStack.Peek().TrimEnd();
             return await SaveAsync(file, text);
         }

@@ -9,6 +9,7 @@
     xmlns:local="using:ProjectCodeEditor.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:root="using:ProjectCodeEditor"
     xmlns:services="using:ProjectCodeEditor.Services"
     d:DesignHeight="300"
     d:DesignWidth="400"
@@ -73,7 +74,10 @@
                             Kind="Redo" />
                     </MenuFlyoutItem.Command>
                 </MenuFlyoutItem>
-                <MenuFlyoutItem x:Uid="ClearHistoryItem" Click="{x:Bind ViewModel.ClearHistory}" />
+                <MenuFlyoutItem
+                    x:Uid="ClearHistoryItem"
+                    Click="{x:Bind ViewModel.ClearHistory}"
+                    IsEnabled="{x:Bind ViewModel.CanClearHistory, Mode=OneWay}" />
                 <MenuFlyoutSeparator />
                 <MenuFlyoutItem
                     x:Uid="GoToLineItem"
@@ -125,11 +129,10 @@
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
             ContextMenu="{StaticResource EditorMenu}"
-            FontFamily="{x:Bind AppSettings.FontFamily, Mode=OneWay}"
-            FontSize="{x:Bind AppSettings.FontSize, Mode=OneWay}"
-            IsTabStop="False"
+            FontFamily="{x:Bind root:App.AppSettings.FontFamily, Mode=OneWay}"
+            FontSize="{x:Bind root:App.AppSettings.FontSize, Mode=OneWay}"
             SyntaxLanguage="{x:Bind ViewModel.CodeLanguage, Mode=OneWay}"
-            TabSize="{x:Bind AppSettings.TabSize, Mode=OneWay}"
+            TabSize="{x:Bind root:App.AppSettings.TabSize, Mode=OneWay}"
             Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibility}}">
             <editor:SyntaxEditor.KeyboardAccelerators>
                 <KeyboardAccelerator

@@ -109,6 +109,7 @@
   <Capabilities>
     <Capability Name="internetClient" />
     <rescap:Capability Name="confirmAppClose"/>
+    <uap:Capability Name="userAccountInformation"/>
   </Capabilities>
 
   <genTemplate:Metadata>

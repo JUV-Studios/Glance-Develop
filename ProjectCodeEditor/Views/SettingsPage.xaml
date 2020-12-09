@@ -7,6 +7,7 @@
     xmlns:local="using:ProjectCodeEditor.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:root="using:ProjectCodeEditor"
     xmlns:services="using:ProjectCodeEditor.Services"
     xmlns:vmodels="using:ProjectCodeEditor.ViewModels"
     mc:Ignorable="d">
@@ -16,14 +17,14 @@
             x:Uid="SettingsHub"
             Margin="{x:Bind services:ViewService.Properties.RecommendedPageMargin, Mode=OneWay}"
             Loaded="Layout_Loaded">
-            <HubSection x:Uid="Settings_General" DataContext="{x:Bind ViewModel}">
+            <HubSection x:Uid="Settings_General" DataContext="{x:Bind root:App.AppSettings}">
                 <DataTemplate x:DataType="vmodels:SettingsViewModel">
                     <StackPanel HorizontalAlignment="Stretch" Spacing="8">
                         <ToggleSwitch x:Uid="EditorSettingsDisableSound" IsOn="{x:Bind DisableSound, Mode=TwoWay}" />
                     </StackPanel>
                 </DataTemplate>
             </HubSection>
-            <HubSection x:Uid="Settings_Editor" DataContext="{x:Bind ViewModel}">
+            <HubSection x:Uid="Settings_Editor" DataContext="{x:Bind root:App.AppSettings}">
                 <DataTemplate x:DataType="vmodels:SettingsViewModel">
                     <ScrollViewer
                         HorizontalScrollBarVisibility="Disabled"
@@ -71,7 +72,7 @@
             </HubSection>
             <HubSection
                 x:Uid="Settings_About"
-                AutomationProperties.FullDescription="{x:Bind ViewModel.AboutTextForAutomation}"
+                AutomationProperties.FullDescription="{x:Bind root:App.AppSettings.AboutTextForAutomation}"
                 DataContext="{x:Bind}">
                 <DataTemplate x:DataType="local:SettingsPage">
                     <ScrollViewer
@@ -80,7 +81,7 @@
                         VerticalScrollBarVisibility="Auto"
                         VerticalScrollMode="Auto">
                         <StackPanel Margin="0,0,16,0" HorizontalAlignment="Stretch">
-                            <TextBlock Text="{x:Bind ViewModel.AboutText}" />
+                            <TextBlock Text="{x:Bind root:App.AppSettings.AboutText}" />
                             <TextBlock Loaded="SpecialThanksBlock_Loaded" />
                             <HyperlinkButton x:Uid="TermsOfUseHyperlink" NavigateUri="https://sites.google.com/site/jgveed/legal" />
                             <HyperlinkButton x:Uid="SubscribeHyperlink" NavigateUri="https://www.youtube.com/channel/UCCgDUPx_XgBfgBx-If1uk1g?sub_confirmation=1" />
@@ -95,7 +96,7 @@
                                     x:Uid="DependenciesList"
                                     Margin="0,12,0,12"
                                     IsTabStop="False"
-                                    ItemsSource="{x:Bind ViewModel.AppDependencies, Mode=OneTime}">
+                                    ItemsSource="{x:Bind root:App.AppSettings.AppDependencies, Mode=OneTime}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <StackPanel />

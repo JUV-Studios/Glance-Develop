@@ -57,19 +57,7 @@ namespace ProjectCodeEditor.Views
         private void RecentFilesList_Loaded(object sender, RoutedEventArgs e)
         {
             var target = sender as ListView;
-            AccessibilityHelper.AttachContextMenu(target, RecentFileContextMenu, ShowContextFlyoutForRecentList);
-        }
-
-        private bool ShowContextFlyoutForRecentList(object val)
-        {
-            if (val == null) return false;
-            if (val is RecentFile file && file != null)
-            {
-                ViewModel.ContextedRecentFile = file;
-                return true;
-            }
-
-            return false;
+            AccessibilityHelper.AttachContextMenu(target, Resources["RecentFileContextMenu"] as MenuFlyout, ViewModel.ShowContextFlyoutForRecentList);
         }
 
         private void RecentFilesList_Unloaded(object sender, RoutedEventArgs e)

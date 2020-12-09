@@ -33,8 +33,11 @@ namespace ProjectCodeEditor.Helpers
 
         public static void AttachContextMenu(ListView listView, MenuFlyout flyout, Func<object, bool> shouldShow)
         {
-            ContextedListViews.Add(listView, new(flyout, shouldShow));
-            listView.ContextRequested += ListView_ContextRequested;
+            if (!ContextedListViews.ContainsKey(listView))
+            {
+                ContextedListViews.Add(listView, new(flyout, shouldShow));
+                listView.ContextRequested += ListView_ContextRequested;
+            }
         }
 
         private static void ListView_ContextRequested(UIElement sender, ContextRequestedEventArgs args)

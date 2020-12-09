@@ -25,6 +25,7 @@
     xmlns:uix="using:TextEditor.UI">
 
     <Style TargetType="uix:SyntaxEditor">
+        <Setter Property="IsTabStop" Value="False" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="uix:SyntaxEditor">

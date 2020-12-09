@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using TextEditor.Lexer;
+using TextEditorUWP.Languages;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
 using Windows.UI;
@@ -51,7 +52,7 @@ namespace TextEditor.UI
             // this.Loaded += (s, e) => { BindTextViewerScrollViewer(); };
         }
 
-        public UISettings UserInterfaceSettings { get; set; }
+        public readonly UISettings UserInterfaceSettings = new UISettings();
     
         public event EventHandler TextChanged;
 
@@ -108,44 +109,14 @@ namespace TextEditor.UI
             }
         }
 
-        #region Interaction
-
-        public void SelectAll()
-        {
-            TextView.TextDocument.Selection.Expand(Windows.UI.Text.TextRangeUnit.Story);
-            TextView.TextDocument.Selection.MoveEnd(TextRangeUnit.Character, -1);
-        }
-
-        public void ClearSelection() => TextView.TextDocument.Selection.EndPosition = TextView.TextDocument.Selection.StartPosition;
-
-        public void FindText(string text)
-        {
-
-        }
-
-        #endregion
-
         private void OnTextViewChanged(RichEditBox oldValue, RichEditBox newValue)
         {
-            if (oldValue != null)
+            var isOldNull = DetachEvents(oldValue);
+            if (AttachEvents(newValue))
             {
-                oldValue.SelectionChanged -= Editor_SelectionChanged;
-                oldValue.TextChanged -= HandleTextViewTextChanged;
-                oldValue.KeyUp -= HandleTextViewKeyUp;
-                oldValue.Paste -= TextView_Pasting;
-                oldValue.KeyDown -= HandleTextViewKeyDown;
-            }
-
-            if (newValue != null)
-            {
-                newValue.TextChanged += HandleTextViewTextChanged;
-                newValue.KeyUp += HandleTextViewKeyUp;
-                newValue.KeyDown += HandleTextViewKeyDown;
-
                 // Set default settings
                 newValue.TextDocument.UndoLimit = 0;
-
-                if (oldValue != null)
+                if (!isOldNull)
                 {
                     newValue.FontFamily = new FontFamily(FontFamily);
                     newValue.FontSize = FontSize;
@@ -153,12 +124,6 @@ namespace TextEditor.UI
                     if (SyntaxLanguage?.IndentationProvider != null) SyntaxLanguage.IndentationProvider.TabWidth = TabSize;
                     TextView.TextDocument.DefaultTabStop = TabSize + 4;
                 }
-
-                // BindTextViewStyle();
-                // RefreshLineNumbers(1);
-
-                newValue.SelectionChanged += Editor_SelectionChanged;
-                newValue.Paste += TextView_Pasting;
             }
         }
 
@@ -191,58 +156,26 @@ namespace TextEditor.UI
 
         public bool IsSelectionValid => TextSelection.Item1 != TextSelection.Item2 && !string.IsNullOrWhiteSpace(TextView.TextDocument.GetRange(TextSelection.Item1, TextSelection.Item2).Text);
 
-        /* private void RequestLineNumberRedraw(object sender, object e)
+        public string Text
         {
-            
-            // RefreshLineNumbers(Text.Count<char>(c => c == '\r'));
-        }
-        void BindTextViewStyle() => BindTextViewerScrollViewer();
-
-        void BindTextViewerScrollViewer()
-        {
-            if (ShowLineNumbers)
+            get
             {
-                if (VisualTreeHelper.GetChild(TextView, 0) is Grid g)
+                string text = string.Empty;
+
+                if (TextView != null)
+                    TextView.Document.GetText(TextGetOptions.None, out text);
+
+                return text;
+            }
+            set
+            {
+                if (TextView != null)
                 {
-                    int max = VisualTreeHelper.GetChildrenCount(g);
-                    for (int i = 0; i < max; i++)
-                    {
-                        if (VisualTreeHelper.GetChild(g, i) is ScrollViewer ele && scrollViewer != null)
-                        {
-                            ele.ViewChanged += (s, e) =>
-                            {
-                                RefreshLineNumbers(Text.Count<char>(c => c == '\r'));
-                                scrollViewer.ChangeView(ele.HorizontalOffset, ele.VerticalOffset, null, true);
-                            };
-                        }
-                    }
+                    // RefreshLineNumbers(value.Count<char>(c => c == '\r'));
+                    TextView.Document.SetText(TextSetOptions.None, value);
                 }
             }
         }
-        
-        #endregion
-        
-        #region Line Number
-
-        public static readonly DependencyProperty LineNumberBlockProperty =
-            DependencyProperty.Register("LineNumberBlock", typeof(TextBlock), typeof(SyntaxEditor), new PropertyMetadata(null));
-
-        public TextBlock LineNumberBlock
-        {
-            get { return (TextBlock)GetValue(LineNumberBlockProperty); }
-            set { SetValue(LineNumberBlockProperty, value); }
-        }
-
-        void RefreshLineNumbers(int stop)
-        {
-            var builder = new StringBuilder();
-            for (int i = 1; i <= stop; i++)
-                builder.AppendLine(i.ToString());
-
-            LineNumberBlock.Text = builder.ToString();
-        }
-
-        */
 
         #endregion
 
@@ -250,7 +183,7 @@ namespace TextEditor.UI
 
         public static readonly DependencyProperty SyntaxLanguageProperty =
             DependencyProperty.Register("SyntaxLanguage", typeof(SyntaxLanguage), typeof(SyntaxEditor),
-                                        new PropertyMetadata(null, OnSyntaxLanguagePropertyChanged));
+                                        new PropertyMetadata(new PlainTextLanguage(), OnSyntaxLanguagePropertyChanged));
 
         private static void OnSyntaxLanguagePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -313,27 +246,6 @@ namespace TextEditor.UI
 
         #endregion
 
-        public string Text
-        {
-            get
-            {
-                string text = string.Empty;
-
-                if (TextView != null)
-                    TextView.Document.GetText(TextGetOptions.None, out text);
-
-                return text;
-            }
-            set
-            {
-                if (TextView != null)
-                {
-                    // RefreshLineNumbers(value.Count<char>(c => c == '\r'));
-                    TextView.Document.SetText(TextSetOptions.None, value);
-                }
-            }
-        }
-
         #region Indentation
 
         private void HandleTextViewKeyUp(object sender, KeyRoutedEventArgs e)
@@ -375,18 +287,19 @@ namespace TextEditor.UI
 
         #endregion
 
-        // ScrollViewer scrollViewer;
+        #region Interaction
 
-        protected override void OnApplyTemplate()
+        public void SelectAll()
         {
-            base.OnApplyTemplate();
+            TextView.TextDocument.Selection.Expand(TextRangeUnit.Story);
+            TextView.TextDocument.Selection.MoveEnd(TextRangeUnit.Character, -1);
+        }
 
-            /* if (TextView != null)            
-                BindTextViewStyle(); 
+        public void ClearSelection() => TextView.TextDocument.Selection.EndPosition = TextView.TextDocument.Selection.StartPosition;
 
-            scrollViewer = GetTemplateChild("PART_ScrollViewer") as ScrollViewer;
+        public void FindText(string text)
+        {
 
-            Debug.Assert(scrollViewer != null); */
         }
 
         public void ScrollToLine(int line)
@@ -406,24 +319,45 @@ namespace TextEditor.UI
                 size += 1;
             }
 
-            TextView.TextChanged -= HandleTextViewTextChanged;
-            TextView.KeyUp -= HandleTextViewKeyUp;
-            TextView.KeyDown -= HandleTextViewKeyDown;
             TextView.Focus(FocusState.Keyboard);
             TextView.TextDocument.Selection.SetRange(rangeToSelect.StartPosition, rangeToSelect.EndPosition - 1);
-            TextView.TextChanged += HandleTextViewTextChanged;
-            TextView.KeyUp += HandleTextViewKeyUp;
-            TextView.KeyDown += HandleTextViewKeyDown;
         }
+
+        #endregion
 
         public void Dispose()
         {
-            TextView.SelectionChanged -= Editor_SelectionChanged;
-            TextView.TextChanged -= HandleTextViewTextChanged;
-            TextView.KeyUp -= HandleTextViewKeyUp;
-            TextView.Paste -= TextView_Pasting;
-            TextView.KeyDown -= HandleTextViewKeyDown;
-            SyntaxLanguage = null;
+            if (DetachEvents(TextView)) SyntaxLanguage = null;
+        }
+
+        public bool AttachEvents(RichEditBox editBox)
+        {
+            if (editBox != null)
+            {
+                editBox.TextChanged += HandleTextViewTextChanged;
+                editBox.KeyUp += HandleTextViewKeyUp;
+                editBox.KeyDown += HandleTextViewKeyDown;
+                editBox.SelectionChanged += Editor_SelectionChanged;
+                editBox.Paste += TextView_Pasting;
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool DetachEvents(RichEditBox editBox)
+        {
+            if (editBox != null)
+            {
+                editBox.SelectionChanged -= Editor_SelectionChanged;
+                editBox.TextChanged -= HandleTextViewTextChanged;
+                editBox.KeyUp -= HandleTextViewKeyUp;
+                editBox.Paste -= TextView_Pasting;
+                editBox.KeyDown -= HandleTextViewKeyDown;
+                return true;
+            }
+
+            return false;
         }
     }
 }

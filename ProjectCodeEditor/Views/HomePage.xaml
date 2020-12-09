@@ -16,7 +16,7 @@
     mc:Ignorable="d">
 
     <UserControl.Resources>
-        <MenuFlyout x:Name="RecentFileContextMenu">
+        <MenuFlyout x:Key="RecentFileContextMenu">
             <MenuFlyoutItem IsEnabled="{x:Bind dataTransfer:DataTransferManager.IsSupported()}">
                 <MenuFlyoutItem.Command>
                     <StandardUICommand

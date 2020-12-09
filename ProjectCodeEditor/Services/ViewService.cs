@@ -101,7 +101,7 @@ namespace ProjectCodeEditor.Services
             SetPageMargin();
             Size minSize = new(500, 500);
             ApplicationView.SetPreferredMinSize(minSize);
-            ApplicationViewCore.TitleBar.ExtendViewIntoTitleBar = false;
+            ApplicationViewCore.TitleBar.ExtendViewIntoTitleBar = true;
             ApplicationViewCore.TitleBar.LayoutMetricsChanged += TitleBar_LayoutMetricsChanged;
             ApplicationViewCore.CoreWindow.Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
             ThemeManager.ThemeChanged += Instance_ThemeChanged;
@@ -190,16 +190,8 @@ namespace ProjectCodeEditor.Services
 
         public static async void ToggleCompactOverlay()
         {
-            if (ApplicationView.ViewMode == ApplicationViewMode.Default)
-            {
-                ApplicationViewCore.TitleBar.ExtendViewIntoTitleBar = true;
-                await ApplicationView.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, CompactOverlayPreferences);
-            }
-            else
-            {
-                ApplicationViewCore.TitleBar.ExtendViewIntoTitleBar = false;
-                await ApplicationView.TryEnterViewModeAsync(ApplicationViewMode.Default);
-            }
+            if (ApplicationView.ViewMode == ApplicationViewMode.Default) await ApplicationView.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, CompactOverlayPreferences);
+            else await ApplicationView.TryEnterViewModeAsync(ApplicationViewMode.Default, CompactOverlayPreferences);
         }
     }
 }

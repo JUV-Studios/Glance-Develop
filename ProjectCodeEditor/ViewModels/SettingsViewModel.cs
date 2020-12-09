@@ -4,8 +4,10 @@ using Microsoft.Toolkit.Uwp.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Storage;
+using Windows.System;
 using Windows.UI.Xaml;
 
 namespace ProjectCodeEditor.ViewModels
@@ -14,24 +16,43 @@ namespace ProjectCodeEditor.ViewModels
 
     public sealed class SettingsViewModel : ObservableObject
     {
-        public readonly ApplicationDataContainer AppSettings = ApplicationData.Current.LocalSettings;
-
         public readonly string[] SupportedFileTypes = File.ReadAllLines(Path.Combine(Package.Current.InstalledPath, "Assets", "FileTypes"));
 
         public readonly string[] InstalledFonts = CanvasTextFormat.GetSystemFontFamilies();
+
+        private readonly ApplicationDataContainer SettingsContainer = ApplicationData.Current.LocalSettings;
+
+        public async Task<string> UniqueUserId()
+        {
+            string accountId;
+            if (SettingsContainer.Values.ContainsKey("UserId")) accountId = SettingsContainer.Values["UserId"].ToString();
+            else
+            {
+                if (App.CurrentUser != null)
+                {
+                    accountId = (await App.CurrentUser.GetPropertyAsync(KnownUserProperties.AccountName)).ToString();
+                    if (string.IsNullOrEmpty(accountId)) accountId = (await App.CurrentUser.GetPropertyAsync(KnownUserProperties.FirstName)).ToString();
+                }
+                // This user wants some privacy. Let's not try to enumerate users which will need capability
+                else accountId = Guid.NewGuid().ToString();
+                SettingsContainer.Values["UserId"] = accountId;
+            }
+
+            return accountId;
+        }
 
         public string FontFamily
         {
             get
             {
-                if (AppSettings.Values.ContainsKey(nameof(FontFamily))) return AppSettings.Values[nameof(FontFamily)].ToString();
+                if (SettingsContainer.Values.ContainsKey(nameof(FontFamily))) return SettingsContainer.Values[nameof(FontFamily)].ToString();
                 else return "Consolas";
             }
             set
             {
                 if (FontFamily != value)
                 {
-                    AppSettings.Values[nameof(FontFamily)] = value;
+                    SettingsContainer.Values[nameof(FontFamily)] = value;
                     OnPropertyChanged(nameof(FontFamily));
                 }
             }
@@ -41,14 +62,14 @@ namespace ProjectCodeEditor.ViewModels
         {
             get
             {
-                if (AppSettings.Values.ContainsKey(nameof(TabSize))) return Convert.ToInt32(AppSettings.Values[nameof(TabSize)]);
+                if (SettingsContainer.Values.ContainsKey(nameof(TabSize))) return Convert.ToInt32(SettingsContainer.Values[nameof(TabSize)]);
                 else return 4;
             }
             set
             {
                 if (TabSize != value)
                 {
-                    AppSettings.Values[nameof(TabSize)] = value;
+                    SettingsContainer.Values[nameof(TabSize)] = value;
                     OnPropertyChanged(nameof(TabSize));
                 }
             }
@@ -58,14 +79,14 @@ namespace ProjectCodeEditor.ViewModels
         {
             get
             {
-                if (AppSettings.Values.ContainsKey(nameof(FontSize))) return Convert.ToUInt32(AppSettings.Values[nameof(FontSize)]);
+                if (SettingsContainer.Values.ContainsKey(nameof(FontSize))) return Convert.ToUInt32(SettingsContainer.Values[nameof(FontSize)]);
                 else return 18;
             }
             set
             {
                 if (TabSize != value)
                 {
-                    AppSettings.Values[nameof(FontSize)] = value;
+                    SettingsContainer.Values[nameof(FontSize)] = value;
                     OnPropertyChanged(nameof(FontSize));
                 }
             }
@@ -75,14 +96,14 @@ namespace ProjectCodeEditor.ViewModels
         {
             get
             {
-                if (AppSettings.Values.ContainsKey(nameof(AutoSave))) return Convert.ToBoolean(AppSettings.Values[nameof(AutoSave)]);
+                if (SettingsContainer.Values.ContainsKey(nameof(AutoSave))) return Convert.ToBoolean(SettingsContainer.Values[nameof(AutoSave)]);
                 else return false;
             }
             set
             {
                 if (AutoSave != value)
                 {
-                    AppSettings.Values[nameof(AutoSave)] = value;
+                    SettingsContainer.Values[nameof(AutoSave)] = value;
                     OnPropertyChanged(nameof(AutoSave));
                 }
             }
@@ -93,7 +114,7 @@ namespace ProjectCodeEditor.ViewModels
             get
             {
                 bool value;
-                if (AppSettings.Values.ContainsKey(nameof(DisableSound))) value = Convert.ToBoolean(AppSettings.Values[nameof(DisableSound)]);
+                if (SettingsContainer.Values.ContainsKey(nameof(DisableSound))) value = Convert.ToBoolean(SettingsContainer.Values[nameof(DisableSound)]);
                 else value = false;
                 return value;
             }
@@ -101,7 +122,7 @@ namespace ProjectCodeEditor.ViewModels
             {
                 if (DisableSound != value)
                 {
-                    AppSettings.Values[nameof(DisableSound)] = value;
+                    SettingsContainer.Values[nameof(DisableSound)] = value;
                     OnPropertyChanged(nameof(DisableSound));
                     ElementSoundPlayer.State = !value ? ElementSoundPlayerState.On : ElementSoundPlayerState.Off;
                 }

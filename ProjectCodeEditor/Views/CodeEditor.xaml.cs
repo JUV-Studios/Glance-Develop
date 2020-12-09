@@ -28,14 +28,6 @@ namespace ProjectCodeEditor.Views
 {
     public sealed partial class CodeEditor : UserControl, IDisposable
     {
-        private readonly SettingsViewModel AppSettings = Singleton<SettingsViewModel>.Instance;
-
-        public static Dictionary<string, Lazy<SyntaxLanguage>> CodeLanguages = new()
-        {
-            { ".py", new(new TextEditor.Languages.PythonSyntaxLanguage()) },
-            { ".txt", new(new PlainTextLanguage()) },
-        };
-
         public EditorViewModel ViewModel { get; private set; }
 
         private readonly DataTransferManager ShareCharm = DataTransferManager.GetForCurrentView();
@@ -104,21 +96,18 @@ namespace ProjectCodeEditor.Views
             try
             {
                 ViewModel.FileReadData = await FileService.ReadTextFileAsync(ViewModel.WorkingFile);
-                Editor.UserInterfaceSettings = Singleton<UISettings>.Instance;
                 string format = ViewModel.WorkingFile.FileType.ToLower();
-                if (CodeLanguages.TryGetValue(format, out Lazy<SyntaxLanguage> syntaxLang)) ViewModel.CodeLanguage = syntaxLang.Value;
-                else ViewModel.CodeLanguage = CodeLanguages[".txt"].Value;
+                if (LanguageProvider.CodeLanguages.TryGetValue(format, out Lazy<SyntaxLanguage> syntaxLang)) ViewModel.CodeLanguage = syntaxLang.Value;
                 AutomationProperties.SetHelpText(Editor.TextView, "EditorAutomationEscHelp".GetLocalized());
                 AutomationProperties.SetName(Editor.TextView, ViewModel.WorkingFile.Name);
                 Editor.Text = ViewModel.FileReadData.Value.Text;
                 ViewModel.IsLoading = false;
-                ViewModel.EditorTextRequested += ViewModel_EditorTextRequested;
                 Editor.TextChanged += Editor_TextChanged;
             }
             catch (FileNotFoundException)
             {
                 Close();
-                AppSettings.DialogShown = true;
+                App.AppSettings.DialogShown = true;
                 ContentDialog dialog = new()
                 {
                     Title = string.Format("NoFileOpenDialogTitle".GetLocalized(), ViewModel.WorkingFile.Name),
@@ -128,7 +117,7 @@ namespace ProjectCodeEditor.Views
                 };
 
                 await dialog.ShowAsync();
-                AppSettings.DialogShown = false;
+                App.AppSettings.DialogShown = false;
             }
         }
 
@@ -181,7 +170,7 @@ namespace ProjectCodeEditor.Views
                 }
             }
             
-            if (AppSettings.AutoSave) ViewModel.Save();
+            if (App.AppSettings.AutoSave) ViewModel.Save();
         }
 
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
@@ -201,36 +190,35 @@ namespace ProjectCodeEditor.Views
         {
             ViewModel.TabClosing = true;
             if (ViewModel.Saved) Close();
-            else if (AppSettings.AutoSave)
+            else if (App.AppSettings.AutoSave)
             {
                 ViewModel.Save();
                 Close();
             }
             else
             {
-                var dialog = Singleton<UnsavedChangesDialog>.Instance;
-                if (await dialog.Show())
+                if (!App.AppSettings.DialogShown)
                 {
-                    if (dialog.Result == ContentDialogResult.Primary)
-                    {
-                        ViewModel.Save();
-                        Close();
-                    }
+                    App.AppSettings.DialogShown = true;
+                    var dialog = Singleton<UnsavedChangesDialog>.Instance;
+                    await dialog.ShowAsync();
+                    App.AppSettings.DialogShown = false;
+                    if (dialog.Result == ContentDialogResult.Primary) ViewModel.Save();
                     else if (dialog.Result == ContentDialogResult.Secondary) Close();
-                    else ViewModel.TabClosing = false;
+                    else
+                    {
+                        ViewModel.TabClosing = false;
+                        return;
+                    }
                 }
-                else
-                {
-                    ViewModel.Save();
-                    Close();
-                }
+                else ViewModel.Save();
+                Close();
             }
         }
 
         private void Close()
         {
             Editor.TextChanged -= Editor_TextChanged;
-            ViewModel.EditorTextRequested -= ViewModel_EditorTextRequested;
             Editor.Dispose();
             if (!ViewService.Properties.AppClosing)
             {
@@ -241,7 +229,8 @@ namespace ProjectCodeEditor.Views
 
         private async void GoTo_Click(object sender, RoutedEventArgs e)
         {
-            AppSettings.DialogShown = true;
+            App.AppSettings.DialogShown = true;
+            Editor.DetachEvents(Editor.TextView);
             var documentText = Editor.Text;
             var lines = documentText.Split("\r");
             var lineBox = new NumberBox()
@@ -276,7 +265,8 @@ namespace ProjectCodeEditor.Views
                 Editor.ScrollToLine(lineVal);
             }
 
-            AppSettings.DialogShown = false;
+            Editor.AttachEvents(Editor.TextView);
+            App.AppSettings.DialogShown = false;
         }
 
         private void Replace_Click(object sender, RoutedEventArgs e)
@@ -294,8 +284,15 @@ namespace ProjectCodeEditor.Views
 
         private async void Find_Click(object sender, RoutedEventArgs e)
         {
-            var findDialog = Singleton<FindDialog>.Instance;
-            if (await findDialog.Show() && findDialog.Result == ContentDialogResult.Primary) Editor.FindText(findDialog.FindText);
+            if (!App.AppSettings.DialogShown)
+            {
+                App.AppSettings.DialogShown = true;
+                var findDialog = Singleton<FindDialog>.Instance;
+                await findDialog.ShowAsync();
+                if (findDialog.Result == ContentDialogResult.Primary) Editor.FindText(findDialog.FindText);
+                App.AppSettings.DialogShown = false;
+            }
+
         }
 
         private void StandardUICommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args) => args.CanExecute = ViewModel.CanInteract;
@@ -304,9 +301,8 @@ namespace ProjectCodeEditor.Views
         {
             if (ViewModel.CanUndo)
             {
-                Editor.Text = ViewModel.Undo();
-                Editor.Text = Editor.Text.TrimEnd();
-                Editor.TextView.TextDocument.Selection.SetIndex(TextRangeUnit.Character, -1, false);
+                Editor.Text = ViewModel.Undo().TrimEnd();
+                Editor.TextView.TextDocument.Selection.EndKey(TextRangeUnit.Story, false);
             }
         }
 
@@ -314,9 +310,8 @@ namespace ProjectCodeEditor.Views
         {
             if (ViewModel.CanRedo)
             {
-                Editor.Text = ViewModel.Redo();
-                Editor.Text = Editor.Text.TrimEnd();
-                Editor.TextView.TextDocument.Selection.SetIndex(TextRangeUnit.Character, -1, false);
+                Editor.Text = ViewModel.Redo().TrimEnd();
+                Editor.TextView.TextDocument.Selection.EndKey(TextRangeUnit.Story, false);
             }
         }
     }
