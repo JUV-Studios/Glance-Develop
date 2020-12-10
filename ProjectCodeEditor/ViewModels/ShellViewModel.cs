@@ -115,17 +115,7 @@ namespace ProjectCodeEditor.ViewModels
 
         internal void RemoveInstance(ShellView e)
         {
-            if (_SelectedItem == e)
-            {
-                try
-                {
-                    SelectedItem = Instances[Instances.IndexOf(e) - 1];
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-
-                }
-            }
+            if (_SelectedItem == e) { SelectedItem = Instances[Instances.IndexOf(e) - 1]; }
 
             Instances.Remove(e);
             GC.Collect();

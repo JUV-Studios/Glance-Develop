@@ -1,6 +1,7 @@
 ﻿using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
+using Microsoft.Toolkit.Uwp.Extensions;
 using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.Helpers;
 using ProjectCodeEditor.Services;
@@ -23,6 +24,8 @@ namespace ProjectCodeEditor
 #if DEBUG
         private readonly Stopwatch LaunchStopwatch = new();
 #endif
+        private bool AlreadyActivated = false;
+
         public static User CurrentUser;
 
         public static readonly SettingsViewModel AppSettings = Singleton<SettingsViewModel>.Instance;
@@ -45,13 +48,17 @@ namespace ProjectCodeEditor
         public async Task ActivateAsync(object activationArgs)
         {
             Frame frame = null;
+            ShellViewModel viewModel = Singleton<ShellViewModel>.Instance;
             if (activationArgs is IActivatedEventArgs activation)
             {
-                // Initialize services that you need before app activation
-                // take into account that the splash screen is shown while this code runs.
-                await Singleton<RecentsViewModel>.Instance.LoadRecentsAsync();
-                await JumpListHelper.InitializeAsync();
-                ViewService.Initialize();
+                if (!AlreadyActivated)
+                {
+                    // Initialize services that you need before app activation
+                    // take into account that the splash screen is shown while this code runs.
+                    await Singleton<RecentsViewModel>.Instance.LoadRecentsAsync();
+                    await JumpListHelper.InitializeAsync();
+                    ViewService.Initialize();
+                }
 
                 // Do not repeat app initialization when the Window already has content,
                 // just ensure that the window is active
@@ -75,10 +82,8 @@ namespace ProjectCodeEditor
 
                 // Ensure the current window is active
                 Window.Current.Activate();
-
                 if (activationArgs is FileActivatedEventArgs fileActivationArgs)
                 {
-                    ShellViewModel viewModel = Singleton<ShellViewModel>.Instance;
                     var filesArray = new StorageFile[fileActivationArgs.Files.Count];
                     for (int i = 0; i < fileActivationArgs.Files.Count; i++)
                     {
@@ -88,12 +93,16 @@ namespace ProjectCodeEditor
                     Interactions.AddFiles(filesArray);
                 }
 
-                AppCenter.SetUserId(await AppSettings.UniqueUserId());
-                AppCenter.Start("dd9a81de-fe79-4ab8-be96-8f96c346c88e", typeof(Analytics), typeof(Crashes));
+                if (!AlreadyActivated)
+                {
+                    AppCenter.SetUserId(await AppSettings.UniqueUserId());
+                    AppCenter.Start("dd9a81de-fe79-4ab8-be96-8f96c346c88e", typeof(Analytics), typeof(Crashes));
 #if DEBUG
-                LaunchStopwatch.Stop();
-                Debug.WriteLine($"Develop took {LaunchStopwatch.ElapsedMilliseconds} ms to launch");
+                    LaunchStopwatch.Stop();
+                    Debug.WriteLine($"Develop took {LaunchStopwatch.ElapsedMilliseconds} ms to launch");
 #endif
+                    AlreadyActivated = true;
+                }
             }
         }
     }

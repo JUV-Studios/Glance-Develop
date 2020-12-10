@@ -1,7 +1,6 @@
 ﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Uwp.UI.Helpers;
 using ProjectCodeEditor.Core.Helpers;
-using ProjectCodeEditor.Helpers;
 using ProjectCodeEditor.ViewModels;
 using Swordfish.NET.Collections.Auxiliary;
 using System;
@@ -89,7 +88,7 @@ namespace ProjectCodeEditor.Services
         /// Only use for saving data before close. Don't update the UI
         /// </summary>
         /// 
-        public static readonly List<Action> AppClosingEvent = new();
+        public static readonly HashSet<Action> AppClosingEvent = new();
 
         private static readonly ViewModePreferences CompactOverlayPreferences = ViewModePreferences.CreateDefault(ApplicationViewMode.CompactOverlay);
 
@@ -170,7 +169,7 @@ namespace ProjectCodeEditor.Services
         {
             ApplicationView.TitleBar.BackgroundColor = Singleton<UISettings>.Instance.GetColorValue(UIColorType.Background);
             ApplicationView.TitleBar.ForegroundColor = Singleton<UISettings>.Instance.GetColorValue(UIColorType.Foreground);
-            ApplicationView.TitleBar.ButtonBackgroundColor = ApplicationView.TitleBar.BackgroundColor;
+            ApplicationView.TitleBar.ButtonBackgroundColor = Colors.Transparent;
             ApplicationView.TitleBar.ButtonForegroundColor = ApplicationView.TitleBar.ForegroundColor;
         }
 

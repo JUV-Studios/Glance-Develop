@@ -1,18 +1,17 @@
-﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Uwp.Extensions;
+﻿using Microsoft.Toolkit.Uwp.Extensions;
 using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.Helpers;
 using ProjectCodeEditor.Models;
 using ProjectCodeEditor.Services;
 using Swordfish.NET.Collections.Auxiliary;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using TextEditor;
+using TextEditorUWP.Languages;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -21,60 +20,51 @@ namespace ProjectCodeEditor.ViewModels
 {
     internal enum WhatToShare : byte { File, Text, Selection }
 
-    public sealed class EditorViewModel : ObservableObject
+    public sealed class EditorViewModel : FlagsModel
     {
-        public StorageFile WorkingFile { get; init; }
+        public event Action HistoryItemDone;
+
+        public EditorViewModel(StorageFile file) : base(16)
+        {
+            Singleton<RecentsViewModel>.Instance.AddRecentFile(file);
+            WorkingFile = file;
+            IsLoading = true;
+            Unloaded = true;
+            Saved = true;
+        }
+
+        public readonly StorageFile WorkingFile;
 
         private readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
 
-        private BitArray Flags = new(16);
-
         public bool Saved
         {
-            get => Flags[0];
-            set
-            {
-                Flags[0] = value;
-                OnPropertyChanged(nameof(Saved));
-            }
+            get => GetFlag(0);
+            set => SetFlag(0, value);
         }
 
         public bool IsLoading
         {
-            get => Flags[1];
-            set
-            {
-                Flags[1] = value;
-                OnPropertyChanged(nameof(IsLoading));
-            }
-        }
-
-        public bool CanInteract
-        {
-            get => Flags[2];
-            set
-            {
-                Flags[2] = value;
-                OnPropertyChanged(nameof(CanInteract));
-            }
+            get => GetFlag(1);
+            set => SetFlag(1, value);
         }
 
         internal bool Unloaded
         {
-            get => Flags[3];
-            set => Flags[3] = value;
+            get => GetFlag(2);
+            set => SetFlag(2, value);
         }
 
         internal bool TabClosing
         {
-            get => Flags[4];
-            set => Flags[4] = value;
+            get => GetFlag(3);
+            set => SetFlag(3, value);
         }
 
         internal bool HistoryCleared
         {
-            get => Flags[5];
-            set => Flags[5] = value;
+            get => GetFlag(4);
+            set => SetFlag(4, value);
         }
 
         private SyntaxLanguage _CodeLanguage;
@@ -82,9 +72,41 @@ namespace ProjectCodeEditor.ViewModels
         public SyntaxLanguage CodeLanguage
         {
             get => _CodeLanguage;
+            set => SetProperty(ref _CodeLanguage, value);
+        }
+
+        private string _UserContent;
+
+        public string UserContent
+        {
+            get => _UserContent;
             set
             {
-                if (_CodeLanguage != value) SetProperty(ref _CodeLanguage, value);
+                if (_UserContent == null)
+                {
+                    SetProperty(ref _UserContent, value);
+                    return;
+                }
+                else
+                {
+                    if (value.TrimEnd() == FileReadData.Value.Text.TrimEnd())
+                    {
+                        SetProperty(ref _UserContent, value);
+                        Saved = true;
+                    }
+                    else if (value.TrimEnd() != _UserContent.TrimEnd())
+                    {
+                        SetProperty(ref _UserContent, value);
+                        Saved = false;
+
+                        // Undo/Redo support
+                        UndoStack.Push(value);
+                        HistoryCleared = false;
+                        UpdateHistoryProperties();
+
+                        if (App.AppSettings.AutoSave) Save();
+                    }
+                }
             }
         }
 
@@ -92,34 +114,39 @@ namespace ProjectCodeEditor.ViewModels
 
         internal WhatToShare ShareOption = WhatToShare.File;
 
+        public async Task LoadFileAsync()
+        {
+            FileReadData = await FileService.ReadTextFileAsync(WorkingFile);
+            UserContent = FileReadData.Value.Text;
+            string fileFormat = WorkingFile.FileType.ToLower();
+            if (LanguageProvider.CodeLanguages.TryGetValue(fileFormat, out Lazy<SyntaxLanguage> syntaxLang)) CodeLanguage = syntaxLang.Value;
+            else CodeLanguage = LanguageProvider.CodeLanguages[".txt"].Value;
+            IsLoading = false;
+        }
+
         #region History
 
         public bool CanUndo => !UndoStack.IsEmpty();
 
         public bool CanRedo => !RedoStack.IsEmpty();
 
-        public bool CanClearHistory => RedoStack.IsEmpty() || UndoStack.IsEmpty();
+        public bool CanClearHistory => CanUndo || CanRedo;
 
-        internal readonly Stack<string> UndoStack = new();
+        private readonly Stack<string> UndoStack = new();
 
-        internal readonly Stack<string> RedoStack = new();
+        private readonly Stack<string> RedoStack = new();
 
         private void UpdateHistoryProperties()
         {
             OnPropertyChanged(nameof(CanUndo));
             OnPropertyChanged(nameof(CanRedo));
             OnPropertyChanged(nameof(CanClearHistory));
+            HistoryItemDone?.Invoke();
         }
 
-        internal void PushToUndoStack(string val)
+        public void Undo()
         {
-            UndoStack.Push(val);
-            HistoryCleared = false;
-            UpdateHistoryProperties();
-        }
-
-        internal string Undo()
-        {
+            if (!CanUndo) return;
             string retVal;
             // Remove current one first
             RedoStack.Push(UndoStack.Pop());
@@ -127,15 +154,14 @@ namespace ProjectCodeEditor.ViewModels
             if (UndoStack.IsEmpty()) retVal = FileReadData.Value.Text;
             else retVal = UndoStack.Pop();
             UpdateHistoryProperties();
-            return retVal;
+            UserContent = retVal;
         }
 
-        internal string Redo()
+        public void Redo()
         {
-            string retVal;
-            retVal = RedoStack.Pop();
+            if (!CanRedo) return;
+            UserContent = RedoStack.Pop();
             UpdateHistoryProperties();
-            return retVal;
         }
 
         public void ClearHistory()
@@ -209,6 +235,10 @@ namespace ProjectCodeEditor.ViewModels
             {
                 if (!Singleton<SettingsViewModel>.Instance.AutoSave) throw ex;
             }
+            catch (UnauthorizedAccessException)
+            {
+                if (!TabClosing) result = false;
+            }
             finally
             {
                 _semaphoreSlim.Release();
@@ -221,7 +251,7 @@ namespace ProjectCodeEditor.ViewModels
         {
             string text;
             if (UndoStack.IsEmpty() && !HistoryCleared) return null;
-            else if (HistoryCleared) text = string.Empty;
+            else if (HistoryCleared) text = UserContent;
             else text = UndoStack.Peek().TrimEnd();
             return await SaveAsync(file, text);
         }
@@ -268,7 +298,7 @@ namespace ProjectCodeEditor.ViewModels
             ShareOption = WhatToShare.Selection;
             DataTransferManager.ShowShareUI();
         }
-        
+
         #endregion
     }
 }

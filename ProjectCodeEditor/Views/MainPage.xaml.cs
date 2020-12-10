@@ -13,8 +13,6 @@ namespace ProjectCodeEditor.Views
     {
         public readonly ShellViewModel ViewModel = Singleton<ShellViewModel>.Instance;
 
-        public readonly SettingsViewModel AppSettings = Singleton<SettingsViewModel>.Instance;
-
         public readonly string OpenLabelId = "OpenOption/Label";
 
         public MainPage() => InitializeComponent();

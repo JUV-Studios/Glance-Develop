@@ -195,6 +195,7 @@
       <DependentUpon>UnsavedChangesDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helpers\AccessibilityHelper.cs" />
+    <Compile Include="Helpers\FlagsModel.cs" />
     <Compile Include="Helpers\JumpListHelper.cs" />
     <Compile Include="Helpers\NotificationHelper.cs" />
     <Compile Include="Helpers\SmartTextForegroundConverter.cs" />

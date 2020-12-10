@@ -21,10 +21,8 @@
 
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using TextEditor.Lexer;
-using TextEditorUWP.Languages;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
 using Windows.UI;
@@ -54,8 +52,6 @@ namespace TextEditor.UI
 
         public readonly UISettings UserInterfaceSettings = new UISettings();
     
-        public event EventHandler TextChanged;
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         #region Text View
@@ -99,7 +95,7 @@ namespace TextEditor.UI
         {
             get
             {
-                if (SyntaxLanguage.IndentationProvider != null) return SyntaxLanguage.IndentationProvider.TabWidth;
+                if (SyntaxLanguage?.IndentationProvider != null) return SyntaxLanguage.IndentationProvider.TabWidth;
                 else return Convert.ToInt32(TextView.TextDocument.DefaultTabStop) - 4;
             }
             set
@@ -169,10 +165,9 @@ namespace TextEditor.UI
             }
             set
             {
-                if (TextView != null)
+                if (TextView != null && Text != value)
                 {
-                    // RefreshLineNumbers(value.Count<char>(c => c == '\r'));
-                    TextView.Document.SetText(TextSetOptions.None, value);
+                    TextView.TextDocument.SetText(TextSetOptions.None, value);
                 }
             }
         }
@@ -183,7 +178,7 @@ namespace TextEditor.UI
 
         public static readonly DependencyProperty SyntaxLanguageProperty =
             DependencyProperty.Register("SyntaxLanguage", typeof(SyntaxLanguage), typeof(SyntaxEditor),
-                                        new PropertyMetadata(new PlainTextLanguage(), OnSyntaxLanguagePropertyChanged));
+                                        new PropertyMetadata(null, OnSyntaxLanguagePropertyChanged));
 
         private static void OnSyntaxLanguagePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -222,26 +217,26 @@ namespace TextEditor.UI
         int textLength = 0;
         public void HandleTextViewTextChanged(object sender, RoutedEventArgs e)
         {
-            TextChanged?.Invoke(this, new EventArgs());
-            if (tokenizer == null) return;
-
-            var editor = (RichEditBox)sender;
-            string text = Text;
-
-            if (text.Length == textLength) return;
-            textLength = text.Length;
-
-            editor.Document.GetRange(0, int.MaxValue).CharacterFormat.ForegroundColor = UserInterfaceSettings.GetColorValue(UIColorType.Foreground);
-            var t = tokenizer.Tokenize(text);
-            var highlightColors = SyntaxLanguage.HighlightColors;
-
-            while (t.MoveNext())
+            if (tokenizer != null)
             {
-                if (highlightColors.TryGetValue(t.Current.Type, out Color foregroundColor))
+                // Syntax highliting
+                var editor = (RichEditBox)sender;
+                if (Text.Length == textLength) return;
+                textLength = Text.Length;
+                editor.Document.GetRange(0, int.MaxValue).CharacterFormat.ForegroundColor = UserInterfaceSettings.GetColorValue(UIColorType.Foreground);
+                var t = tokenizer.Tokenize(Text);
+                var highlightColors = SyntaxLanguage.HighlightColors;
+
+                while (t.MoveNext())
                 {
-                    editor.Document.GetRange(t.Current.StartIndex, t.Current.StartIndex + t.Current.Length).CharacterFormat.ForegroundColor = foregroundColor;
+                    if (highlightColors.TryGetValue(t.Current.Type, out Color foregroundColor))
+                    {
+                        editor.Document.GetRange(t.Current.StartIndex, t.Current.StartIndex + t.Current.Length).CharacterFormat.ForegroundColor = foregroundColor;
+                    }
                 }
             }
+
+            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Text)));
         }
 
         #endregion
@@ -302,25 +297,14 @@ namespace TextEditor.UI
 
         }
 
-        public void ScrollToLine(int line)
+        public void ScrollToLine(int line, bool extend = false)
         {
-            ITextRange rangeToSelect = null;
-            int size = 0;
-            while (Text.Length > size)
-            {
-                var range = TextView.TextDocument.GetRange(size, size + 1);
-                size += range.Expand(TextRangeUnit.Line);
-                var lineIndex = range.GetIndex(TextRangeUnit.Line);
-                if (line == lineIndex)
-                {
-                    rangeToSelect = range;
-                    break;
-                }
-                size += 1;
-            }
-
             TextView.Focus(FocusState.Keyboard);
-            TextView.TextDocument.Selection.SetRange(rangeToSelect.StartPosition, rangeToSelect.EndPosition - 1);
+            TextView.TextDocument.Selection.HomeKey(TextRangeUnit.Story, false);
+            if (line > 1)
+            {
+                TextView.TextDocument.Selection.MoveStart(TextRangeUnit.Line, line - 1);
+            }
         }
 
         #endregion
