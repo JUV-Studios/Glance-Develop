@@ -1,5 +1,6 @@
 ﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Uwp.Extensions;
+using Microsoft.Toolkit.Uwp.Helpers;
 using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.Models;
 using ProjectCodeEditor.Services;
@@ -7,6 +8,7 @@ using ProjectCodeEditor.Views;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Windows.ApplicationModel.Core;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -17,17 +19,19 @@ namespace ProjectCodeEditor.ViewModels
     {
         public ObservableCollection<ShellView> Instances = new();
 
-        private ShellView _SelectedItem;
+        private int _SelectedIndex;
 
-        public ShellView SelectedItem
+        public int SelectedIndex
         {
-            get => _SelectedItem;
+            get => _SelectedIndex;
             set
             {
-                SetProperty(ref _SelectedItem, value);
-                OnPropertyChanged(nameof(IsCurrentClosable));
+                SetProperty(ref _SelectedIndex, value);
+                OnPropertyChanged(nameof(CurrentContent));
             }
         }
+
+        public UIElement CurrentContent => Instances[SelectedIndex].Content;
 
         private SymbolIconSource _FullScreenBtnSrc;
 
@@ -53,33 +57,16 @@ namespace ProjectCodeEditor.ViewModels
             set => SetProperty(ref _CompactOverlayBtnLabel, value);
         }
 
-        public bool CanClose() => IsCurrentClosable;
-
-        public bool IsCurrentClosable => _SelectedItem.Content is IDisposable;
-
         public void AddLayout(ShellView view, bool multiple = false)
         {
             Instances.Add(view);
-            if (!multiple) SelectedItem = Instances.Last();
+            if (!multiple) SelectedIndex = Instances.Count - 1;
         }
 
         public ShellViewModel()
         {
-            AddLayout(new()
-            {
-                Title = "HubTitle".GetLocalized(),
-                Caption = "HubCaption".GetLocalized(),
-                Content = new HomePage()
-            });
-
-            AddLayout(new()
-            {
-                Title = "SettingsHub/Header".GetLocalized(),
-                Caption = "SettingsCaption".GetLocalized(),
-                Content = new SettingsPage(),
-            }, true); ;
-
-            ViewService.KeyShortcutPressed += ViewService_KeyShortcutPressed;
+            AddLayout(new("HubTitle".GetLocalized(), "HubCaption".GetLocalized(), new Microsoft.UI.Xaml.Controls.SymbolIconSource() { Symbol = Symbol.Home }, new HomePage()));
+            AddLayout(new("SettingsHub/Header".GetLocalized(), "SettingsCaption".GetLocalized(), new Microsoft.UI.Xaml.Controls.SymbolIconSource() { Symbol = Symbol.Setting }, new SettingsPage()), true);
             ViewService.ViewModeChanged += ViewService_ViewModeChanged;
             ElementSoundPlayer.State = !Singleton<SettingsViewModel>.Instance.DisableSound ? ElementSoundPlayerState.On : ElementSoundPlayerState.Off;
             ViewService.RaiseViewModeChanged();
@@ -102,34 +89,17 @@ namespace ProjectCodeEditor.ViewModels
             else CompactOverlayBtnLabel = "PipOptionOffText".GetLocalized();
         }
 
-        private void ViewService_KeyShortcutPressed(object sender, KeyShortcutPressedEventArgs e)
+        public void CloseInstance(ShellView view)
         {
-            if (e.Accelerator.Modifiers == VirtualKeyModifiers.Control && e.Accelerator.Key == VirtualKey.Tab && e.Accelerator.IsEnabled)
-            {
-                e.SystemArgs.Handled = true;
-                FastSwitch();
-            }
+            if (view.CanClose) (view.Content as IDisposable).Dispose();
         }
-
-        public void CloseCurrentInstance() => (_SelectedItem.Content as IDisposable).Dispose();
 
         internal void RemoveInstance(ShellView e)
         {
-            if (_SelectedItem == e) { SelectedItem = Instances[Instances.IndexOf(e) - 1]; }
-
+            if (Instances.IndexOf(e) == SelectedIndex) SelectedIndex = 0;
             Instances.Remove(e);
             GC.Collect();
             GC.WaitForPendingFinalizers();
-        }
-
-        private void FastSwitch()
-        {
-            var index = Instances.IndexOf(SelectedItem);
-            if (Instances.Count != 1)
-            {
-                if (index == Instances.Count - 1) SelectedItem = Instances.First();
-                else SelectedItem = Instances[index + 1];
-            }
         }
     }
 }

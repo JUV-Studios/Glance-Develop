@@ -17,9 +17,8 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
+using TextEditor.IntelliSense;
 using TextEditor.Lexer;
-using Windows.UI;
 
 namespace TextEditor
 {
@@ -36,8 +35,8 @@ namespace TextEditor
 
         public IGrammer Grammer { get; protected set; }
 
-        public IDictionary<TokenType, Color> HighlightColors { get; protected set; }
-
         public IndentationProvider IndentationProvider { get; set; }
+
+        public abstract IFileIntelliSense CreateIntelliSenseEngine();
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
-using Microsoft.Toolkit.Uwp.Extensions;
 using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.Helpers;
 using ProjectCodeEditor.Services;
@@ -16,6 +15,7 @@ using Windows.System;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media.Animation;
 
 namespace ProjectCodeEditor
 {
@@ -25,6 +25,8 @@ namespace ProjectCodeEditor
         private readonly Stopwatch LaunchStopwatch = new();
 #endif
         private bool AlreadyActivated = false;
+
+        public static readonly string CancelStringId = "CancelText";
 
         public static User CurrentUser;
 
@@ -53,6 +55,13 @@ namespace ProjectCodeEditor
             {
                 if (!AlreadyActivated)
                 {
+                    AlreadyActivated = true;
+                    if (!AppCenter.Configured)
+                    {
+                        AppCenter.SetUserId(await AppSettings.UniqueUserId());
+                        AppCenter.Start("dd9a81de-fe79-4ab8-be96-8f96c346c88e", typeof(Analytics), typeof(Crashes));
+                    }
+
                     // Initialize services that you need before app activation
                     // take into account that the splash screen is shown while this code runs.
                     await Singleton<RecentsViewModel>.Instance.LoadRecentsAsync();
@@ -71,17 +80,20 @@ namespace ProjectCodeEditor
                 }
                 else frame = Window.Current.Content as Frame;
 
-                object arguments = null;
+                string arguments = null;
                 if (activationArgs is LaunchActivatedEventArgs launchArgs)
                 {
                     arguments = launchArgs.Arguments;
                     CurrentUser = launchArgs.User;
                 }
 
-                frame.Navigate(typeof(MainPage), arguments);
+                frame.Navigate(typeof(MainPage), arguments, new SuppressNavigationTransitionInfo());
 
                 // Ensure the current window is active
                 Window.Current.Activate();
+
+                if (viewModel.SelectedIndex != 0 && string.IsNullOrEmpty(arguments)) viewModel.SelectedIndex = 0;
+
                 if (activationArgs is FileActivatedEventArgs fileActivationArgs)
                 {
                     var filesArray = new StorageFile[fileActivationArgs.Files.Count];
@@ -93,15 +105,15 @@ namespace ProjectCodeEditor
                     Interactions.AddFiles(filesArray);
                 }
 
+                if (arguments == "OpenFiles") Interactions.OpenFiles();
+                else if (arguments == "NewFiles") Interactions.NewFile();
+
                 if (!AlreadyActivated)
                 {
-                    AppCenter.SetUserId(await AppSettings.UniqueUserId());
-                    AppCenter.Start("dd9a81de-fe79-4ab8-be96-8f96c346c88e", typeof(Analytics), typeof(Crashes));
 #if DEBUG
                     LaunchStopwatch.Stop();
                     Debug.WriteLine($"Develop took {LaunchStopwatch.ElapsedMilliseconds} ms to launch");
 #endif
-                    AlreadyActivated = true;
                 }
             }
         }

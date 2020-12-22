@@ -20,18 +20,20 @@
 using System;
 using System.Text;
 using TextEditor.Lexer;
+using TextEditor.Languages;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
+using System.Threading.Tasks;
 
 namespace TextEditor.UI
 {
     public class SyntaxViewer : Control
     {
-        Storyboard highlightLineStoryboard;
+        readonly Storyboard highlightLineStoryboard;
 
         public SyntaxViewer()
         {
@@ -156,9 +158,6 @@ namespace TextEditor.UI
                 return;
             }
 
-            if (newValue.HighlightColors == null)
-                throw new ArgumentException("Grammer HightlightColrs must not be null");
-
             tokenizer = new Tokenizer(newValue.Grammer);
         }
 
@@ -202,12 +201,10 @@ namespace TextEditor.UI
             if (tokenizer == null) return;
 
             var t = tokenizer.Tokenize(value);
-            var highlightColors = SyntaxLanguage.HighlightColors;
-            Color color;
 
             while (t.MoveNext())
             {
-                if (highlightColors.TryGetValue(t.Current.Type, out color))
+                if (LanguageProvider.HighlightColors.TryGetValue(t.Current.Type, out Color color))
                 {
                     if (builder.Length > 0)
                     {

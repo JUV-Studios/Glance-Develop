@@ -12,8 +12,6 @@ namespace ProjectCodeEditor.Dialogs
 
         private string TitleStringId = "FindItem/Text";
 
-        private string CancelStringId = "CancelText";
-
         public FindDialog() => InitializeComponent();
 
         private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)

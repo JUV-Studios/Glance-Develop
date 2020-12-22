@@ -1,16 +1,12 @@
-﻿using Microsoft.Toolkit.Uwp.Extensions;
+﻿using Microsoft.UI.Xaml.Controls;
+using System;
 using Windows.UI.Xaml;
 
 namespace ProjectCodeEditor.Models
 {
-    public sealed class ShellView
+    public sealed record ShellView(string Title, string Caption, IconSource Icon, UIElement Content)
     {
-        public UIElement Content { get; set; }
-
-        public string Title { get; init; }
-
-        public string Caption { get; init; }
-
-        public override string ToString() => $"{Title}, {Caption}, {"TabItemAutomation".GetLocalized()}";
+        public bool CanClose => Content is IDisposable;
+        public override string ToString() => $"{Title}, {Caption}";
     }
 }

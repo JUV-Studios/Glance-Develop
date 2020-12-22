@@ -5,9 +5,11 @@ using ProjectCodeEditor.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TextEditorUWP.Languages;
+using System.Threading.Tasks;
+using TextEditor.Languages;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.UI.Xaml.Controls;
 
 namespace ProjectCodeEditor.ViewModels
 {
@@ -23,27 +25,23 @@ namespace ProjectCodeEditor.ViewModels
                 { "file", file }
             };
 
-            return new()
-            {
-                Title = file.Name,
-                Caption = file.Path,
-                Content = new CodeEditor(options)
-            };
+            return new(file.Name, file.Path, new Microsoft.UI.Xaml.Controls.SymbolIconSource() { Symbol = Symbol.Document }, new CodeEditor(options));
         }
 
-        private static bool FileAlreadyOpen(StorageFile file, ref ShellView view, bool retInstanceRef = true)
+        internal static bool FileAlreadyOpen(StorageFile file, ref ShellView view, bool retInstanceRef = true)
         {
-            foreach (var item in viewModel.Instances)
+            ShellView foundItem = null;
+            Parallel.ForEach(viewModel.Instances, item =>
             {
-                if (item.Content is CodeEditor && item.Caption == file.Path)
-                {
-                    if (retInstanceRef) view = item;
-                    return true;
-                }
-                else continue;
-            }
+                if (item.Content is CodeEditor && item.Caption == file.Path) if (retInstanceRef) foundItem = item;
+            });
 
-            return false;
+            if (foundItem != null)
+            {
+                if (retInstanceRef) view = foundItem;
+                return true;
+            }
+            else return false;
         }
 
         public static void AddFiles(IReadOnlyList<StorageFile> files)
@@ -51,7 +49,7 @@ namespace ProjectCodeEditor.ViewModels
             if (files.Count() == 1)
             {
                 ShellView view = null;
-                if (FileAlreadyOpen(files[0], ref view)) viewModel.SelectedItem = view;
+                if (FileAlreadyOpen(files[0], ref view)) viewModel.SelectedIndex = viewModel.Instances.IndexOf(view);
                 else viewModel.AddLayout(CreateEditorStandalone(files[0]));
             }
             else
@@ -59,14 +57,14 @@ namespace ProjectCodeEditor.ViewModels
                 foreach (var file in files)
                 {
                     ShellView view = null;
-                    if (!FileAlreadyOpen(file, ref view, false)) viewModel.AddLayout(CreateEditorStandalone(file));
+                    if (!FileAlreadyOpen(file, ref view, false)) viewModel.AddLayout(CreateEditorStandalone(file), true);
                 }
 
-                viewModel.SelectedItem = viewModel.Instances[viewModel.Instances.Count - 1];
+                viewModel.SelectedIndex = viewModel.Instances.Count - 1;
             }
         }
 
-        public static async void OpenFile()
+        public static async void OpenFiles()
         {
             if (!App.AppSettings.DialogShown)
             {

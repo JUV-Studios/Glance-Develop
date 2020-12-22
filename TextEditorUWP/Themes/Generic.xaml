@@ -37,7 +37,6 @@
                         <ContentPresenter Content="{TemplateBinding TextView}">
                             <ContentPresenter.Resources>
                                 <Style TargetType="RichEditBox">
-                                    <Setter Property="IsSpellCheckEnabled" Value="False" />
                                     <Setter Property="DisabledFormattingAccelerators" Value="All" />
                                     <Setter Property="ClipboardCopyFormat" Value="PlainText" />
                                     <Setter Property="TextWrapping" Value="NoWrap" />

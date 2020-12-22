@@ -17,8 +17,8 @@ namespace ProjectCodeEditor.ViewModels
 
         public readonly ActionOption[] Actions = new ActionOption[]
         {
-            new("OpenOption/Label".GetLocalized(), "OpenFileActionDescription".GetLocalized(), new SymbolIconSource() { Symbol = Symbol.OpenFile }, Interactions.OpenFile),
-            new("NewFileActionTitle".GetLocalized(), "NewFileActionDescription".GetLocalized(), new SymbolIconSource() { Symbol = Symbol.Add }, Interactions.NewFile)
+            new("OpenOption/Label".GetLocalized(), "OpenFileActionDescription".GetLocalized(), new SymbolIconSource() { Symbol = Symbol.OpenFile }, Interactions.OpenFiles, "Ctrl+O"),
+            new("NewFileActionTitle".GetLocalized(), "NewFileActionDescription".GetLocalized(), new SymbolIconSource() { Symbol = Symbol.Add }, Interactions.NewFile, "Ctrl+N")
         };
 
         public Visibility RecentFilesVisibility => Recents.RecentFiles.IsEmpty() ? Visibility.Collapsed : Visibility.Visible;

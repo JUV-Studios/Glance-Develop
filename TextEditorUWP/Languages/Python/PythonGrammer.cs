@@ -17,6 +17,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using ColorCode.Common;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -27,30 +28,23 @@ namespace TextEditor.Languages
 {
     public class PythonGrammer : IGrammer
     {
-        public PythonGrammer()
-        {
-            Rules = new GrammerRule[]
-            {
-                new GrammerRule(TokenType.Comment, new Regex("^(#.*)")),  // Comment
-                new GrammerRule(TokenType.WhiteSpace, new Regex("^\\s")), // Whitespace
-                //new GrammerRule(TokenType.Operator, new Regex("^(and|or|not|is)\\b")), // Word Operator
-                new GrammerRule(TokenType.Operator, new Regex("^[\\+\\-\\*/%&|\\^~<>!]")), // Single Char Operator
-                new GrammerRule(TokenType.Operator, new Regex("^((==)|(!=)|(<=)|(>=)|(<>)|(<<)|(>>)|(//)|(\\*\\*))")), // Double Char Operator
-                new GrammerRule(TokenType.Delimiter, new Regex("^[\\(\\)\\[\\]\\{\\}@,:`=;\\.]")), // Single Delimiter
-                new GrammerRule(TokenType.Delimiter, new Regex("^((\\+=)|(\\-=)|(\\*=)|(%=)|(/=)|(&=)|(\\|=)|(\\^=))")), // Double Char Operator
-                new GrammerRule(TokenType.Delimiter, new Regex("^((//=)|(>>=)|(<<=)|(\\*\\*=))")), // Triple Delimiter
-
-                new GrammerRule(TokenType.Identifier, new Regex("^[_A-Za-z][_A-Za-z0-9]*")), // Identifier
-
-                new GrammerRule(TokenType.String, new Regex("^((\"\"\"(.*)\"\"\")|('''(.)*'''))", RegexOptions.IgnoreCase | RegexOptions.Multiline)),
-                new GrammerRule(TokenType.String, new Regex("^((@'(?:[^']|'')*'|'(?:\\.|[^\\']|)*('|\\b))|(@\"(?:[^\"]|\"\")*\"|\"(?:\\.|[^\\\"])*(\"|\\b)))", RegexOptions.IgnoreCase | RegexOptions.Singleline)), // String Marker
-            };
-        }
-
         private static readonly string PythonFolderPath = Path.Combine(Package.Current.InstalledPath, "Assets", "Languages", "Python");
 
-        public IEnumerable<GrammerRule> Rules { get; private set; }
-
+        public IEnumerable<GrammerRule> Rules { get; } = new GrammerRule[]
+        {
+            new GrammerRule(ScopeName.Comment, new Regex("^(#.*)", RegexOptions.Compiled)),  // Comment
+                //new GrammerRule(ScopeName.Operator, new Regex("^(and|or|not|is)\\b")), // Word Operator
+            new GrammerRule(ScopeName.Operator, new Regex("^[\\+\\-\\*/%&|\\^~<>!]", RegexOptions.Compiled)), // Single Char Operator
+            new GrammerRule(ScopeName.Operator, new Regex("^((==)|(!=)|(<=)|(>=)|(<>)|(<<)|(>>)|(//)|(\\*\\*))", RegexOptions.Compiled)), // Double Char Operator
+            new GrammerRule(ScopeName.Delimiter, new Regex("^[\\(\\)\\[\\]\\{\\}@,:`=;\\.]", RegexOptions.Compiled)), // Single Delimiter
+            new GrammerRule(ScopeName.Delimiter, new Regex("^((\\+=)|(\\-=)|(\\*=)|(%=)|(/=)|(&=)|(\\|=)|(\\^=))", RegexOptions.Compiled)), // Double Char Operator
+            new GrammerRule(ScopeName.Delimiter, new Regex("^((//=)|(>>=)|(<<=)|(\\*\\*=))", RegexOptions.Compiled)), // Triple Delimiter
+            new GrammerRule(ScopeName.TypeVariable, new Regex("^[_A-Za-z][_A-Za-z0-9]*", RegexOptions.Compiled)), // Identifier
+            new GrammerRule(ScopeName.String, new Regex("^((\"\"\"(.*)\"\"\")|('''(.)*'''))", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled)),
+            new GrammerRule(ScopeName.String, new Regex("^((@'(?:[^']|'')*'|'(?:\\.|[^\\']|)*('|\\b))|(@\"(?:[^\"]|\"\")*\"|\"(?:\\.|[^\\\"])*(\"|\\b)))", 
+                RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled)), // String Marker
+        };
+            
         public IEnumerable<string> Builtins { get; } = File.ReadAllLines(Path.Combine(PythonFolderPath, "Builtins"));
 
         public IEnumerable<string> Keywords { get; } = File.ReadAllLines(Path.Combine(PythonFolderPath, "Keywords"));

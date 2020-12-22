@@ -19,13 +19,11 @@
 
 namespace TextEditor.Languages
 {
-    public class PythonIndentationProvider : IndentationProvider
+    internal sealed class PythonIndentationProvider : IndentationProvider
     {
         bool NeedIndentation(string text)
         {
-            if (text.TrimEnd(' ').EndsWith(":"))
-                return true;
-
+            if (text.TrimEnd(' ').EndsWith(":")) return true;
             int j = 0;
             while (j < text.Length && text[j] != '#') { j++; }
 
@@ -37,7 +35,7 @@ namespace TextEditor.Languages
             return text.TrimEnd(' ').EndsWith(":");
         }
 
-        int GuessIndentLevel(string text)
+        /* int GuessIndentLevel(string text)
         {
             int indentLevel = GetIndentLevel(text);
 
@@ -45,23 +43,15 @@ namespace TextEditor.Languages
                 indentLevel += 4;
 
             return indentLevel;
-        }
+        } */
 
         public override int GuessIndentLevel(string text, int index)
         {
             var lineText = ExtractLineText(ref text, index - 2).TrimEnd('\r');
-
             int indentLevel = GetIndentLevel(lineText);
-
-            if (NeedIndentation(lineText))
-                return indentLevel + TabWidth;
-
+            if (NeedIndentation(lineText)) return indentLevel + TabWidth;
             lineText = lineText.TrimStart(' ');
-            if (indentLevel >= TabWidth &&
-                (lineText.StartsWith("return") || lineText.StartsWith("pass"))
-                )
-                return indentLevel - TabWidth;
-
+            if (indentLevel >= TabWidth && (lineText.StartsWith("return") || lineText.StartsWith("pass"))) return indentLevel - TabWidth;
             return indentLevel;
         }
     }

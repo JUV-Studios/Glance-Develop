@@ -18,13 +18,12 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
-using System.IO;
 
 namespace TextEditor
 {
     public abstract class IndentationProvider
     {
-        public int TabWidth { get; /* protected */ set; } = 4;
+        public int TabWidth { get; set; } = 4;
 
         protected string ExtractLineText(ref string text, int loc)
         {
@@ -54,13 +53,13 @@ namespace TextEditor
                     break;
             }
 
-            return (indentLevel / TabWidth) * TabWidth;
+            return indentLevel / TabWidth * TabWidth;
         }
 
-        List<int> blockStart = new List<int> { '[', '{', '(', '\'', '"' };
-        List<int> blockEnd = new List<int> { ']', '}', ')', '\'', '"' };
+        readonly List<int> blockStart = new List<int> { '[', '{', '(', '\'', '"' };
+        readonly List<int> blockEnd = new List<int> { ']', '}', ')', '\'', '"' };
 
-        protected bool IsBracketOpen(ref string text)
+        /* protected bool IsBracketOpen(ref string text)
         {
             int chr = -2;
             var stack = new Stack<int>();
@@ -85,7 +84,7 @@ namespace TextEditor
             }
 
             return stack.Count > 0;
-        }
+        } */
 
         public abstract int GuessIndentLevel(string text, int index);
     }

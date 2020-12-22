@@ -132,6 +132,9 @@
   <data name="ClearSelectionItem.Text" xml:space="preserve">
     <value>Clear selection</value>
   </data>
+  <data name="CodeSuggestionsPivot.Header" xml:space="preserve">
+    <value>Code suggestions</value>
+  </data>
   <data name="CopyrightBlock.Text" xml:space="preserve">
     <value>© 2020 JUV Studios. All rights reserved</value>
   </data>
@@ -152,9 +155,6 @@
   </data>
   <data name="EditorSettingsManageFontsList.Content" xml:space="preserve">
     <value>Manage installed fonts</value>
-  </data>
-  <data name="EditSubItem.Text" xml:space="preserve">
-    <value>Edit</value>
   </data>
   <data name="FileOpenPathItem.Text" xml:space="preserve">
     <value>Open file location</value>
@@ -189,6 +189,9 @@
   <data name="FullScreenOptionOnText" xml:space="preserve">
     <value>Exit full screen</value>
   </data>
+  <data name="GeneralSettingsDesc.Text" xml:space="preserve">
+    <value>General settings for Develop</value>
+  </data>
   <data name="GoToDialog.PrimaryButtonText" xml:space="preserve">
     <value>Go!</value>
   </data>
@@ -201,11 +204,8 @@
   <data name="GoToLineItem.Text" xml:space="preserve">
     <value>Go to line</value>
   </data>
-  <data name="HomePageHub.Header" xml:space="preserve">
-    <value>Develop</value>
-  </data>
   <data name="HubCaption" xml:space="preserve">
-    <value>Welcome to Develop!</value>
+    <value>Welcome!</value>
   </data>
   <data name="HubTitle" xml:space="preserve">
     <value>Home</value>
@@ -216,12 +216,6 @@
   <data name="Hub_RecentFiles.Header" xml:space="preserve">
     <value>Recent files</value>
   </data>
-  <data name="NewCommand.Label" xml:space="preserve">
-    <value>New</value>
-  </data>
-  <data name="NewCommand.ToolTipService.ToolTip" xml:space="preserve">
-    <value>New (Ctrl+N)</value>
-  </data>
   <data name="NewFileActionDescription" xml:space="preserve">
     <value>Create a new source file</value>
   </data>
@@ -231,6 +225,9 @@
   <data name="NewFileOption.Text" xml:space="preserve">
     <value>New file</value>
   </data>
+  <data name="NoCodeSuggestionsBlock.Text" xml:space="preserve">
+    <value>Code suggestions aren't available at the current moment</value>
+  </data>
   <data name="NoFileOpenDialogContent" xml:space="preserve">
     <value>Sorry, we couldn't open {0}. Please make sure it still exists and is still accessible.</value>
   </data>
@@ -239,9 +236,6 @@
   </data>
   <data name="OkayText" xml:space="preserve">
     <value>Okay</value>
-  </data>
-  <data name="OpenCommand.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Open (Ctrl+O)</value>
   </data>
   <data name="OpenFileActionDescription" xml:space="preserve">
     <value>Open source files from this PC</value>
@@ -261,11 +255,23 @@
   <data name="RecentFileContextMenuRemoveItem.Text" xml:space="preserve">
     <value>Remove from this list</value>
   </data>
-  <data name="SaveAsItem.Text" xml:space="preserve">
+  <data name="RefreshParseBtn.Content" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="SaveAsItem.Label" xml:space="preserve">
     <value>Save a copy</value>
+  </data>
+  <data name="SaveAsItem.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Save a copy (Ctrl+Shift+S)</value>
   </data>
   <data name="SaveAsPickerDefaultName" xml:space="preserve">
     <value>Copy of {0}</value>
+  </data>
+  <data name="SaveBtn.Label" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="SaveBtn.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Save (Ctrl+S)</value>
   </data>
   <data name="SettingsCaption" xml:space="preserve">
     <value>Customize Develop!</value>
@@ -280,7 +286,7 @@
     <value>Editor settings</value>
   </data>
   <data name="Settings_General.Header" xml:space="preserve">
-    <value>General</value>
+    <value>General settings</value>
   </data>
   <data name="ShareAsFileItem.Text" xml:space="preserve">
     <value>Share as file</value>
@@ -296,9 +302,6 @@
   </data>
   <data name="ShareFileTitle" xml:space="preserve">
     <value>Sharing {0}</value>
-  </data>
-  <data name="ShareItem.Text" xml:space="preserve">
-    <value>Share</value>
   </data>
   <data name="ShareSelectionCaption" xml:space="preserve">
     <value>Sharing current selection for {0}</value>
@@ -318,17 +321,8 @@
   <data name="SubscribeHyperlink.Content" xml:space="preserve">
     <value>Subscribe to Jaiganesh Useful Videos</value>
   </data>
-  <data name="TabItemAutomation" xml:space="preserve">
-    <value>tab item</value>
-  </data>
   <data name="TabSizeOption.Header" xml:space="preserve">
     <value>Tab size</value>
-  </data>
-  <data name="TabSwitcher.AutomationProperties.HelpText" xml:space="preserve">
-    <value>Press the Ctrl+Tab key at any time to quickly switch between open tabs</value>
-  </data>
-  <data name="TabSwitcher.AutomationProperties.Name" xml:space="preserve">
-    <value>Tab switcher</value>
   </data>
   <data name="TermsOfUseHyperlink.Content" xml:space="preserve">
     <value>JUV Studios terms of use</value>

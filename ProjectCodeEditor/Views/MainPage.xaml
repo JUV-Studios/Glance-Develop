@@ -7,20 +7,73 @@
     xmlns:models="using:ProjectCodeEditor.Models"
     xmlns:services="using:ProjectCodeEditor.Services"
     xmlns:vmodels="using:ProjectCodeEditor.ViewModels"
+    xmlns:winui="using:Microsoft.UI.Xaml.Controls"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    Loaded="Page_Loaded"
     mc:Ignorable="d">
 
-    <ContentPresenter Content="{x:Bind ViewModel.SelectedItem.Content, Mode=OneWay}">
-        <ContentPresenter.ContentTransitions>
-            <TransitionCollection>
-                <EntranceThemeTransition />
-            </TransitionCollection>
-        </ContentPresenter.ContentTransitions>
-    </ContentPresenter>
+    <Page.KeyboardAccelerators>
+        <KeyboardAccelerator
+            Key="O"
+            Invoked="{x:Bind vmodels:Interactions.OpenFiles}"
+            Modifiers="Control" />
+        <KeyboardAccelerator
+            Key="N"
+            Invoked="{x:Bind vmodels:Interactions.NewFile}"
+            Modifiers="Control" />
+        <KeyboardAccelerator
+            Key="W"
+            Invoked="CloseCurrent_Invoked"
+            Modifiers="Control" />
+        <KeyboardAccelerator
+            Key="F4"
+            Invoked="CloseCurrent_Invoked"
+            Modifiers="Control" />
+    </Page.KeyboardAccelerators>
 
-    <Page.BottomAppBar>
-        <CommandBar ClosedDisplayMode="{x:Bind services:ViewService.Properties.RecommendedAppBarMode, Mode=OneWay}" DefaultLabelPosition="Right">
-            <CommandBar.Content>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <winui:TabView
+            IsAddTabButtonVisible="False"
+            SelectedIndex="{x:Bind ViewModel.SelectedIndex, Mode=TwoWay}"
+            TabCloseRequested="TabView_TabCloseRequested"
+            TabItemsSource="{x:Bind ViewModel.Instances, Mode=OneWay}"
+            TabWidthMode="SizeToContent">
+            <winui:TabView.TabItemTemplate>
+                <DataTemplate x:DataType="models:ShellView">
+                    <winui:TabViewItem IconSource="{x:Bind Icon}" IsClosable="{x:Bind CanClose}">
+                        <winui:TabViewItem.Header>
+                            <StackPanel>
+                                <TextBlock Text="{x:Bind Title}" />
+                                <TextBlock Opacity=".6" Text="{x:Bind Caption}" />
+                            </StackPanel>
+                        </winui:TabViewItem.Header>
+                    </winui:TabViewItem>
+                </DataTemplate>
+            </winui:TabView.TabItemTemplate>
+            <winui:TabView.TabStripFooter>
+                <Grid
+                    x:Name="DragRegion"
+                    Height="{x:Bind services:ViewService.Properties.TitleBarHeight, Mode=OneWay}"
+                    MinWidth="{x:Bind services:ViewService.Properties.TitleBarInsert, Mode=OneWay}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Top"
+                    Background="Transparent" />
+            </winui:TabView.TabStripFooter>
+        </winui:TabView>
+        <ContentPresenter Grid.Row="1" Content="{x:Bind ViewModel.CurrentContent, Mode=OneWay}">
+            <ContentPresenter.ContentTransitions>
+                <TransitionCollection>
+                    <EntranceThemeTransition />
+                </TransitionCollection>
+            </ContentPresenter.ContentTransitions>
+        </ContentPresenter>
+    </Grid>
+    <!--
+        <CommandBar.Content>
                 <ComboBox
                     x:Uid="TabSwitcher"
                     Margin="8"
@@ -78,15 +131,6 @@
                         <KeyboardAccelerator Key="F12" Modifiers="None" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
-                <AppBarButton IsEnabled="{x:Bind ViewModel.IsCurrentClosable, Mode=OneWay}">
-                    <AppBarButton.Command>
-                        <StandardUICommand
-                            CanExecuteRequested="{x:Bind ViewModel.CanClose}"
-                            ExecuteRequested="{x:Bind ViewModel.CloseCurrentInstance}"
-                            Kind="Close" />
-                    </AppBarButton.Command>
-                </AppBarButton>
             </CommandBar.SecondaryCommands>
-        </CommandBar>
-    </Page.BottomAppBar>
+        </AppBar>-->
 </Page>

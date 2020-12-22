@@ -1,7 +1,7 @@
 ﻿using Microsoft.Toolkit.Uwp.Extensions;
-using Microsoft.UI.Xaml.Controls;
 using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.Dialogs;
+using ProjectCodeEditor.Models;
 using ProjectCodeEditor.Services;
 using ProjectCodeEditor.ViewModels;
 using System;
@@ -13,12 +13,12 @@ using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.System;
-using Windows.UI.Text;
+using Windows.System.Profile;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Automation;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Markup;
+using WinRTXamlToolkit.Controls.Extensions;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -49,7 +49,6 @@ namespace ProjectCodeEditor.Views
             {
                 Debug.WriteLine("Editor loaded");
                 ViewModel.Unloaded = false;
-                ViewModel.HistoryItemDone += ViewModel_HistoryItemDone;
                 ViewService.Properties.ViewTitle = ViewModel.WorkingFile.Name;
                 ViewService.KeyShortcutPressed += ViewService_KeyShortcutPressed;
                 ShareCharm.DataRequested += ShareCharm_DataRequested;
@@ -61,6 +60,7 @@ namespace ProjectCodeEditor.Views
                 AutomationProperties.SetHelpText(Editor.TextView, "EditorAutomationEscHelp".GetLocalized());
                 AutomationProperties.SetName(Editor.TextView, ViewModel.WorkingFile.Name);
                 Editor.PropertyChanged += Editor_PropertyChanged;
+                ViewModel.PropertyChanged += ViewModel_PropertyChanged;
                 try
                 {
                     await ViewModel.LoadFileAsync();
@@ -85,10 +85,30 @@ namespace ProjectCodeEditor.Views
             }
         }
 
-        private void ViewModel_HistoryItemDone()
+        private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            Editor.Focus(FocusState.Keyboard);
-            Editor.TextView.TextDocument.Selection.EndKey(TextRangeUnit.Story, false);
+            if (e.PropertyName == "HistoryItemDone")
+            {
+                if (ViewModel.HistoryRange != -1)
+                {
+                    Editor.Focus(FocusState.Keyboard);
+                    Editor.TextView.TextDocument.Selection.StartPosition = ViewModel.HistoryRange;
+                    Editor.TextView.TextDocument.Selection.EndPosition = ViewModel.HistoryRange - 1;
+                    Editor.TextView.TextDocument.Selection.Collapse(false);
+                    // TODO implement undo/redo location
+                }
+            }
+            else if (e.PropertyName == "RetriveSelection")
+            {
+                ViewModel.PropertyChangeReturn = Editor.TextView.TextDocument.Selection.EndPosition;
+            }
+            else if (e.PropertyName == "IsLoading") FadeSplashScreen();
+        }
+
+        private async void FadeSplashScreen()
+        {
+            await SplashScreen.FadeOutAsync(TimeSpan.FromSeconds(10));
+            SplashScreen.Visibility = Visibility.Collapsed;
         }
 
         private void Editor_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -120,8 +140,8 @@ namespace ProjectCodeEditor.Views
                 e.SystemArgs.Handled = true;
                 ViewModel.Undo();
             }
-            // Intercept Ctrl+S via CoreWindow
-            else if (e.Accelerator.Modifiers == VirtualKeyModifiers.Control && e.Accelerator.Key == VirtualKey.S && e.Accelerator.IsEnabled)
+            /// Intercept Ctrl+S via CoreWindow
+            else if (e.Accelerator.Modifiers == VirtualKeyModifiers.Control && e.Accelerator.Key == VirtualKey.S && e.Accelerator.IsEnabled & !ViewModel.Saved)
             {
                 e.SystemArgs.Handled = true;
                 ViewModel.Save();
@@ -159,7 +179,6 @@ namespace ProjectCodeEditor.Views
             if (!ViewModel.Unloaded)
             {
                 ViewModel.Unloaded = true;
-                ViewModel.HistoryItemDone -= ViewModel_HistoryItemDone;
                 Debug.WriteLine("Editor unloaded");
                 ViewService.Properties.ViewTitle = string.Empty;
                 ViewService.KeyShortcutPressed -= ViewService_KeyShortcutPressed;
@@ -178,7 +197,7 @@ namespace ProjectCodeEditor.Views
             }
             else
             {
-                if (!App.AppSettings.DialogShown)
+                if (!App.AppSettings.DialogShown && !ViewModel.Unloaded)
                 {
                     App.AppSettings.DialogShown = true;
                     var dialog = Singleton<UnsavedChangesDialog>.Instance;
@@ -200,12 +219,15 @@ namespace ProjectCodeEditor.Views
         private void Close()
         {
             Editor.PropertyChanged -= Editor_PropertyChanged;
+            ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
             Editor.Dispose();
             Bindings.StopTracking();
             if (!ViewService.Properties.AppClosing)
             {
                 ViewService.AppClosingEvent.Remove(ViewService_AppClosing);
-                Singleton<ShellViewModel>.Instance.RemoveInstance(Singleton<ShellViewModel>.Instance.SelectedItem);
+                ShellView instance = null;
+                Interactions.FileAlreadyOpen(ViewModel.WorkingFile, ref instance);
+                Singleton<ShellViewModel>.Instance.RemoveInstance(instance);
             }
         }
 
@@ -214,36 +236,18 @@ namespace ProjectCodeEditor.Views
             App.AppSettings.DialogShown = true;
             var lines = ViewModel.UserContent.Split("\r");
             Editor.DetachEvents(Editor.TextView);
-            var lineBox = new NumberBox()
-            {
-                Minimum = 1,
-                Maximum = lines.Count() - 1,
-                SpinButtonPlacementMode = NumberBoxSpinButtonPlacementMode.Inline,
-                AcceptsExpression = true,
-                Header = "GoToLineBox/Header".GetLocalized(),
-                PlaceholderText = $"{"GoToLineBox/Placeholder".GetLocalized()} (1 - {lines.Count() - 1})",
-            };
-
-            var goToDialog = new ContentDialog()
-            {
-                Title = "GoToLineItem/Text".GetLocalized(),
-                PrimaryButtonText = "GoToDialog/PrimaryButtonText".GetLocalized(),
-                SecondaryButtonText = "CancelText".GetLocalized(),
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                VerticalAlignment = VerticalAlignment.Top,
-                DefaultButton = ContentDialogButton.Primary,
-                Content = lineBox
-            };
-
-            if (await goToDialog.ShowAsync() == ContentDialogResult.Primary)
+            GoToDialog.LineBox.Text = string.Empty;
+            GoToDialog.LineBox.PlaceholderText = $"{"GoToLineBox/Placeholder".GetLocalized()} (1 - {lines.Count() - 1})";
+            GoToDialog.LineBox.Maximum = lines.Count() - 1;
+            if (await GoToDialog.DialogRef.ShowAsync() == ContentDialogResult.Primary)
             {
                 int lineVal;
                 try
                 {
-                    lineVal = Convert.ToInt32(lineBox.Value);
+                    lineVal = Convert.ToInt32(GoToDialog.LineBox.Value);
                 }
                 catch (OverflowException) { lineVal = 0; }
-                Editor.ScrollToLine(lineVal);
+                Editor.ScrollToLine(lineVal, false);
             }
 
             Editor.AttachEvents(Editor.TextView);
@@ -252,15 +256,6 @@ namespace ProjectCodeEditor.Views
 
         private void Replace_Click(object sender, RoutedEventArgs e)
         {
-        }
-
-        private void Editor_Escaped(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
-        {
-            if (!ViewModel.IsLoading)
-            {
-                args.Handled = true;
-                FocusManager.TryMoveFocus(FocusNavigationDirection.Next);
-            }
         }
 
         private async void Find_Click(object sender, RoutedEventArgs e)
@@ -277,5 +272,21 @@ namespace ProjectCodeEditor.Views
         }
 
         private void StandardUICommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args) => args.CanExecute = !ViewModel.Unloaded;
+
+        private void PanelPivot_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
+            {
+                (sender as Pivot).IsHeaderItemsCarouselEnabled = false;
+            }
+        }
+
+        private void RefreshParse_Click(object sender, RoutedEventArgs e) => ViewModel.IntelliSenseEngine?.Parse(ViewModel.UserContent).ConfigureAwait(false);
+
+        private void Editor_Escaped(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+        {
+            args.Handled = true;
+            (FocusManager.FindFirstFocusableElement(null) as Control).Focus(FocusState.Keyboard);
+        }
     }
 }

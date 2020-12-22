@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
+using Windows.ApplicationModel.Resources.Core;
 using Windows.Foundation;
 using Windows.System;
 using Windows.UI;
@@ -15,7 +16,6 @@ using Windows.UI.Core;
 using Windows.UI.Core.Preview;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 
 namespace ProjectCodeEditor.Services
@@ -28,25 +28,21 @@ namespace ProjectCodeEditor.Services
     {
         public interface IViewProperties : INotifyPropertyChanged
         {
-            public AppBarClosedDisplayMode RecommendedAppBarMode { get; }
-
             public string ViewTitle { get; set; }
 
             public Thickness RecommendedPageMargin { get; }
+
+            public double TitleBarHeight { get; }
+
+            public double TitleBarInsert { get; }
+
+            public FlowDirection FlowDirection { get; }
 
             public bool AppClosing { get; }
         }
 
         private class ViewServiceProperties : ObservableObject, IViewProperties
         {
-            private AppBarClosedDisplayMode _RecommendedAppBarMode = AppBarClosedDisplayMode.Compact;
-
-            public AppBarClosedDisplayMode RecommendedAppBarMode
-            {
-                get => _RecommendedAppBarMode;
-                set => SetProperty(ref _RecommendedAppBarMode, value);
-            }
-
             public string ViewTitle
             {
                 get => ApplicationView.Title;
@@ -63,6 +59,33 @@ namespace ProjectCodeEditor.Services
             {
                 get => _RecommendedPageMargin;
                 set => SetProperty(ref _RecommendedPageMargin, value);
+            }
+
+            private double _TitleBarHeight;
+
+            public double TitleBarHeight
+            {
+                get => _TitleBarHeight;
+                set => SetProperty(ref _TitleBarHeight, value);
+            }
+
+            private double _TitleBarInsert;
+
+            public double TitleBarInsert
+            {
+                get => _TitleBarInsert;
+                set => SetProperty(ref _TitleBarInsert, value);
+            }
+
+            public FlowDirection FlowDirection
+            {
+                get
+                {
+                    // For bidirectional languages, determine flow direction for the root layout panel, and all contained UI.
+                    var flowDirectionSetting = ResourceContext.GetForCurrentView().QualifierValues["LayoutDirection"];
+                    if (flowDirectionSetting == "LTR") return FlowDirection.LeftToRight;
+                    else return FlowDirection.RightToLeft;
+                }
             }
 
             public bool AppClosing { get; set; } = false;
@@ -126,8 +149,6 @@ namespace ProjectCodeEditor.Services
             AppViewMode viewMode = AppViewMode.Resizable;
             if (ApplicationView.IsFullScreenMode) viewMode = AppViewMode.FullScreen;
             else if (ApplicationView.ViewMode == ApplicationViewMode.CompactOverlay) viewMode = AppViewMode.CompactOverlay;
-            if (viewMode == AppViewMode.CompactOverlay) _Properties.RecommendedAppBarMode = AppBarClosedDisplayMode.Minimal;
-            else _Properties.RecommendedAppBarMode = AppBarClosedDisplayMode.Compact;
             ViewModeChanged?.Invoke(null, viewMode);
         }
 
@@ -171,6 +192,11 @@ namespace ProjectCodeEditor.Services
             ApplicationView.TitleBar.ForegroundColor = Singleton<UISettings>.Instance.GetColorValue(UIColorType.Foreground);
             ApplicationView.TitleBar.ButtonBackgroundColor = Colors.Transparent;
             ApplicationView.TitleBar.ButtonForegroundColor = ApplicationView.TitleBar.ForegroundColor;
+            ApplicationView.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+            ApplicationView.TitleBar.ButtonForegroundColor = ApplicationView.TitleBar.InactiveForegroundColor;
+            _Properties.TitleBarHeight = ApplicationViewCore.TitleBar.Height;
+            if (Properties.FlowDirection == FlowDirection.LeftToRight) _Properties.TitleBarInsert = ApplicationViewCore.TitleBar.SystemOverlayRightInset;
+            else _Properties.TitleBarInsert = ApplicationViewCore.TitleBar.SystemOverlayLeftInset;
         }
 
         private static void SetPageMargin()

@@ -20,13 +20,23 @@ namespace ProjectCodeEditor.ViewModels
 
         public readonly string[] InstalledFonts = CanvasTextFormat.GetSystemFontFamilies();
 
-        private readonly ApplicationDataContainer SettingsContainer = ApplicationData.Current.LocalSettings;
+        public ApplicationDataContainer LocalSettings = ApplicationData.Current.LocalSettings;
+
+        public T GetSetting<T>(string key, T fallback)
+        {
+            if (!LocalSettings.Values.ContainsKey(key)) return fallback;
+            else return (T)LocalSettings.Values[key];
+        }
+
+        public void SetSetting(string key, object value)
+        {
+            LocalSettings.Values[key] = value;
+        }
 
         public async Task<string> UniqueUserId()
         {
-            string accountId;
-            if (SettingsContainer.Values.ContainsKey("UserId")) accountId = SettingsContainer.Values["UserId"].ToString();
-            else
+            string accountId = GetSetting("UserId", string.Empty);
+            if (accountId == string.Empty)
             {
                 if (App.CurrentUser != null)
                 {
@@ -35,7 +45,7 @@ namespace ProjectCodeEditor.ViewModels
                 }
                 // This user wants some privacy. Let's not try to enumerate users which will need capability
                 else accountId = Guid.NewGuid().ToString();
-                SettingsContainer.Values["UserId"] = accountId;
+                SetSetting("UserId", accountId);
             }
 
             return accountId;
@@ -43,16 +53,12 @@ namespace ProjectCodeEditor.ViewModels
 
         public string FontFamily
         {
-            get
-            {
-                if (SettingsContainer.Values.ContainsKey(nameof(FontFamily))) return SettingsContainer.Values[nameof(FontFamily)].ToString();
-                else return "Consolas";
-            }
+            get => GetSetting(nameof(FontFamily), "Consolas");
             set
             {
                 if (FontFamily != value)
                 {
-                    SettingsContainer.Values[nameof(FontFamily)] = value;
+                    SetSetting(nameof(FontFamily), value);
                     OnPropertyChanged(nameof(FontFamily));
                 }
             }
@@ -60,16 +66,12 @@ namespace ProjectCodeEditor.ViewModels
 
         public int TabSize
         {
-            get
-            {
-                if (SettingsContainer.Values.ContainsKey(nameof(TabSize))) return Convert.ToInt32(SettingsContainer.Values[nameof(TabSize)]);
-                else return 4;
-            }
+            get => GetSetting(nameof(TabSize), 4);
             set
             {
                 if (TabSize != value)
                 {
-                    SettingsContainer.Values[nameof(TabSize)] = value;
+                    SetSetting(nameof(TabSize), value);
                     OnPropertyChanged(nameof(TabSize));
                 }
             }
@@ -77,16 +79,12 @@ namespace ProjectCodeEditor.ViewModels
 
         public uint FontSize
         {
-            get
-            {
-                if (SettingsContainer.Values.ContainsKey(nameof(FontSize))) return Convert.ToUInt32(SettingsContainer.Values[nameof(FontSize)]);
-                else return 18;
-            }
+            get => GetSetting(nameof(FontSize), 18u);
             set
             {
-                if (TabSize != value)
+                if (FontSize != value)
                 {
-                    SettingsContainer.Values[nameof(FontSize)] = value;
+                    SetSetting(nameof(FontSize), value);
                     OnPropertyChanged(nameof(FontSize));
                 }
             }
@@ -94,35 +92,38 @@ namespace ProjectCodeEditor.ViewModels
 
         public bool AutoSave
         {
-            get
-            {
-                if (SettingsContainer.Values.ContainsKey(nameof(AutoSave))) return Convert.ToBoolean(SettingsContainer.Values[nameof(AutoSave)]);
-                else return false;
-            }
+            get => GetSetting(nameof(AutoSave), false);
             set
             {
                 if (AutoSave != value)
                 {
-                    SettingsContainer.Values[nameof(AutoSave)] = value;
+                    SetSetting(nameof(AutoSave), value);
                     OnPropertyChanged(nameof(AutoSave));
+                }
+            }
+        }
+
+        public bool ExtendGoTo
+        {
+            get => GetSetting(nameof(ExtendGoTo), true);
+            set
+            {
+                if (ExtendGoTo != value)
+                {
+                    SetSetting(nameof(ExtendGoTo), value);
+                    OnPropertyChanged(nameof(ExtendGoTo));
                 }
             }
         }
 
         public bool DisableSound
         {
-            get
-            {
-                bool value;
-                if (SettingsContainer.Values.ContainsKey(nameof(DisableSound))) value = Convert.ToBoolean(SettingsContainer.Values[nameof(DisableSound)]);
-                else value = false;
-                return value;
-            }
+            get => GetSetting(nameof(DisableSound), false);
             set
             {
                 if (DisableSound != value)
                 {
-                    SettingsContainer.Values[nameof(DisableSound)] = value;
+                    SetSetting(nameof(DisableSound), value);
                     OnPropertyChanged(nameof(DisableSound));
                     ElementSoundPlayer.State = !value ? ElementSoundPlayerState.On : ElementSoundPlayerState.Off;
                 }
@@ -135,9 +136,10 @@ namespace ProjectCodeEditor.ViewModels
         {
             new("Windows UI Library", new Uri("https://aka.ms/winui")), new("Win2D", new Uri("http://microsoft.github.io/Win2D/html/Introduction.htm")),
             new("WinRTXamlToolkit", new Uri("https://github.com/xyzzer/WinRTXamlToolkit")), new("XAML Behaviors", new Uri("http://go.microsoft.com/fwlink/?LinkID=651678")),
-            new("Visual Studio App Center", new Uri("https://azure.microsoft.com/en-us/services/app-center/")),
-            new("Windows Community Toolkit", new Uri("https://github.com/windows-toolkit/WindowsCommunityToolkit")), new("TextEncodingDetect", new Uri("https://github.com/AutoItConsulting/text-encoding-detect")),
-            new("SwordfishCollections", new Uri("https://github.com/stewienj/SwordfishCollections"))
+            new("Visual Studio App Center", new Uri("https://azure.microsoft.com/en-us/services/app-center/")), new("UTF.Unknown", new Uri("https://github.com/CharsetDetector/UTF-unknown")),
+            new("Windows Community Toolkit", new Uri("https://github.com/windows-toolkit/WindowsCommunityToolkit")), new("Humanizer", new Uri("https://github.com/Humanizr/Humanizer")),
+            new("SwordfishCollections", new Uri("https://github.com/stewienj/SwordfishCollections")),
+            new("ColorCode", new Uri("https://github.com/windows-toolkit/ColorCode-Universal")), new("IronPython", new Uri("https://github.com/IronLanguages/ironpython2"))
         };
 
         public string AboutText

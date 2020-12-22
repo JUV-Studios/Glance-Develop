@@ -2,11 +2,13 @@
     x:Class="ProjectCodeEditor.Views.HomePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:dataTransfer="using:Windows.ApplicationModel.DataTransfer"
-    xmlns:local="using:ProjectCodeEditor.Views"
+    xmlns:local="using:ProjectCodeEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:ProjectCodeEditor.Models"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:services="using:ProjectCodeEditor.Services"
     xmlns:vmodels="using:ProjectCodeEditor.ViewModels"
     d:DesignHeight="300"
@@ -43,50 +45,21 @@
 
     <Grid>
         <Hub
-            x:Uid="HomePageHub"
             Margin="{x:Bind services:ViewService.Properties.RecommendedPageMargin, Mode=OneWay}"
+            Header="Develop"
             Loaded="Layout_Loaded">
             <HubSection x:Uid="Hub_GettingStarted" DataContext="{x:Bind ViewModel}">
                 <DataTemplate x:DataType="vmodels:HomeViewModel">
-                    <ListView
+                    <local:ActionButtonList
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
-                        IsItemClickEnabled="True"
                         ItemClick="ActionList_ItemClick"
-                        ItemsSource="{x:Bind Actions}"
-                        SelectionMode="None">
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="Padding" Value="0" />
-                                <Setter Property="Margin" Value="0" />
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.ItemTemplate>
-                            <DataTemplate x:DataType="models:ActionOption">
-                                <Grid Margin="8,8,16,8">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="8" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <IconSourceElement
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        IconSource="{x:Bind Icon}" />
-                                    <StackPanel Grid.Column="2" Spacing="4">
-                                        <TextBlock Style="{ThemeResource BaseTextBlockStyle}" Text="{x:Bind Title}" />
-                                        <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Text="{x:Bind Description}" />
-                                    </StackPanel>
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                        ItemsSource="{x:Bind Actions}" />
                 </DataTemplate>
             </HubSection>
             <HubSection
                 x:Name="RecentFilesSection"
                 x:Uid="Hub_RecentFiles"
-                MaxWidth="456"
                 DataContext="{x:Bind ViewModel}"
                 Visibility="{x:Bind ViewModel.RecentFilesVisibility, Mode=OneWay}">
                 <DataTemplate x:DataType="vmodels:HomeViewModel">
@@ -97,12 +70,22 @@
                         ItemClick="RecentFilesListItem_Click"
                         ItemsSource="{x:Bind Recents.RecentFiles, Mode=OneWay}"
                         Loaded="RecentFilesList_Loaded"
+                        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                        ScrollViewer.HorizontalScrollMode="Disabled"
+                        ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                        ScrollViewer.VerticalScrollMode="Disabled"
                         SelectionMode="None"
                         Unloaded="RecentFilesList_Unloaded">
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsWrapGrid Orientation="Vertical" />
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="Padding" Value="0" />
                                 <Setter Property="Margin" Value="0" />
+                                <Setter Property="MaxWidth" Value="360" />
                             </Style>
                         </ListView.ItemContainerStyle>
                         <ListView.ItemTemplate>
@@ -113,15 +96,82 @@
                                         Text="{x:Bind File.Name}"
                                         TextTrimming="CharacterEllipsis"
                                         TextWrapping="NoWrap" />
-                                    <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Text="{x:Bind File.Path}" />
+                                    <TextBlock
+                                        Style="{ThemeResource CaptionTextBlockStyle}"
+                                        Text="{x:Bind File.Path}"
+                                        TextTrimming="CharacterEllipsis"
+                                        TextWrapping="NoWrap" />
                                     <TextBlock
                                         Style="{ThemeResource CaptionTextBlockStyle}"
                                         Text="{x:Bind TimeString}"
-                                        TextWrapping="Wrap" />
+                                        TextTrimming="CharacterEllipsis"
+                                        TextWrapping="NoWrap" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
+                </DataTemplate>
+            </HubSection>
+            <HubSection DataContext="{x:Bind local:App.AppSettings}" Header="{x:Bind SettingsTitleStringId, Converter={StaticResource ResourceLocator}}">
+                <DataTemplate x:DataType="vmodels:SettingsViewModel">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalScrollMode="Auto">
+                        <StackPanel Margin="0,0,16,0" Spacing="8">
+                            <controls:Expander x:Uid="Settings_General" Width="300">
+                                <StackPanel
+                                    Width="300"
+                                    Margin="12"
+                                    Spacing="8">
+                                    <TextBlock x:Uid="GeneralSettingsDesc" />
+                                    <ToggleSwitch x:Uid="EditorSettingsDisableSound" IsOn="{x:Bind DisableSound, Mode=TwoWay}" />
+                                </StackPanel>
+                            </controls:Expander>
+                            <controls:Expander x:Uid="Settings_Editor" Width="300">
+                                <StackPanel Margin="12" Spacing="8">
+                                    <TextBlock x:Uid="GeneralSettingsDesc" />
+                                    <ToggleSwitch x:Uid="EditorSettingsAutoSave" IsOn="{x:Bind AutoSave, Mode=TwoWay}" />
+                                    <ComboBox
+                                        x:Uid="FontOption"
+                                        HorizontalAlignment="Stretch"
+                                        IsEditable="True"
+                                        ItemsSource="{x:Bind InstalledFonts}"
+                                        SelectedItem="{x:Bind FontFamily, Mode=TwoWay}"
+                                        TextSubmitted="FontBox_TextSubmitted">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="x:String">
+                                                <TextBlock FontFamily="{x:Bind}" Text="{x:Bind}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                    <HyperlinkButton x:Uid="EditorSettingsManageFontsList" NavigateUri="ms-settings:fonts" />
+                                    <muxc:NumberBox
+                                        x:Uid="FontSizeOption"
+                                        AcceptsExpression="False"
+                                        Maximum="72"
+                                        Minimum="12"
+                                        SmallChange="1"
+                                        SpinButtonPlacementMode="Inline"
+                                        ValidationMode="InvalidInputOverwritten"
+                                        Value="{x:Bind FontSize, Mode=TwoWay}" />
+                                    <Slider
+                                        x:Uid="TabSizeOption"
+                                        HorizontalAlignment="Stretch"
+                                        Maximum="8"
+                                        Minimum="4"
+                                        StepFrequency="1"
+                                        Value="{x:Bind TabSize, Mode=TwoWay}" />
+                                </StackPanel>
+                            </controls:Expander>
+                            <controls:Expander x:Uid="Settings_About" Width="300">
+                                <StackPanel Width="300" Margin="12">
+                                    <TextBlock Text="{x:Bind AboutText}" />
+                                    <TextBlock Loaded="SpecialThanksBlock_Loaded" />
+                                    <HyperlinkButton x:Uid="TermsOfUseHyperlink" NavigateUri="https://sites.google.com/site/jgveed/legal" />
+                                    <HyperlinkButton x:Uid="SubscribeHyperlink" NavigateUri="https://www.youtube.com/channel/UCCgDUPx_XgBfgBx-If1uk1g?sub_confirmation=1" />
+                                    <HyperlinkButton x:Uid="TwitterFollowLink" NavigateUri="https://twitter.com/Jaigane88727011" />
+                                </StackPanel>
+                            </controls:Expander>
+                        </StackPanel>
+                    </ScrollViewer>
                 </DataTemplate>
             </HubSection>
         </Hub>

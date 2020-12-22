@@ -1,31 +1,37 @@
 ﻿using Microsoft.Toolkit.Uwp.Extensions;
 using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.Helpers;
-using ProjectCodeEditor.Models;
 using ProjectCodeEditor.Services;
 using Swordfish.NET.Collections.Auxiliary;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TextEditor;
-using TextEditorUWP.Languages;
+using TextEditor.IntelliSense;
+using TextEditor.Languages;
+using UtfUnknown;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.UI.Text;
 
 namespace ProjectCodeEditor.ViewModels
 {
     internal enum WhatToShare : byte { File, Text, Selection }
 
-    public sealed class EditorViewModel : FlagsModel
+    public sealed class EditorViewModel : FlagsModel, IDisposable
     {
-        public event Action HistoryItemDone;
+        internal object PropertyChangeReturn;
 
         public EditorViewModel(StorageFile file) : base(16)
         {
+            // __SuggestionListReadOnly = new(_SuggestionList);
             Singleton<RecentsViewModel>.Instance.AddRecentFile(file);
             WorkingFile = file;
             IsLoading = true;
@@ -75,6 +81,26 @@ namespace ProjectCodeEditor.ViewModels
             set => SetProperty(ref _CodeLanguage, value);
         }
 
+        private IFileIntelliSense _IntelliSenseEngine;
+
+        public IFileIntelliSense IntelliSenseEngine
+        {
+            get => _IntelliSenseEngine;
+            set
+            {
+                var oldVal = _IntelliSenseEngine;
+                if (SetProperty(ref _IntelliSenseEngine, value))
+                {
+                    if (oldVal != null) oldVal.PropertyChanged -= IntelliSenseEngine_PropertyChanged;
+                    if (_IntelliSenseEngine != null)
+                    {
+                        _IntelliSenseEngine.PropertyChanged += IntelliSenseEngine_PropertyChanged;
+                        AppendSuggestions();
+                    }
+                }
+            }
+        }
+
         private string _UserContent;
 
         public string UserContent
@@ -89,10 +115,12 @@ namespace ProjectCodeEditor.ViewModels
                 }
                 else
                 {
-                    if (value.TrimEnd() == FileReadData.Value.Text.TrimEnd())
+                    if (value.TrimEnd() == FileReadData.Value.Item1.TrimEnd())
                     {
                         SetProperty(ref _UserContent, value);
                         Saved = true;
+                        Save();
+                        // IntelliSenseEngine?.Parse(_UserContent).ConfigureAwait(false);
                     }
                     else if (value.TrimEnd() != _UserContent.TrimEnd())
                     {
@@ -100,28 +128,49 @@ namespace ProjectCodeEditor.ViewModels
                         Saved = false;
 
                         // Undo/Redo support
-                        UndoStack.Push(value);
+                        OnPropertyChanged("RetriveSelection");
+                        UndoStack.Push(new(value, Convert.ToInt32(PropertyChangeReturn)));
                         HistoryCleared = false;
                         UpdateHistoryProperties();
 
                         if (App.AppSettings.AutoSave) Save();
+                        // IntelliSenseEngine?.Parse(_UserContent).ConfigureAwait(false);
                     }
                 }
             }
         }
 
-        internal TextPlusEncoding? FileReadData;
+        internal (string, object)? FileReadData;
 
         internal WhatToShare ShareOption = WhatToShare.File;
 
         public async Task LoadFileAsync()
         {
             FileReadData = await FileService.ReadTextFileAsync(WorkingFile);
-            UserContent = FileReadData.Value.Text;
+            UserContent = FileReadData.Value.Item1;
             string fileFormat = WorkingFile.FileType.ToLower();
             if (LanguageProvider.CodeLanguages.TryGetValue(fileFormat, out Lazy<SyntaxLanguage> syntaxLang)) CodeLanguage = syntaxLang.Value;
             else CodeLanguage = LanguageProvider.CodeLanguages[".txt"].Value;
+            IntelliSenseEngine = CodeLanguage.CreateIntelliSenseEngine();
             IsLoading = false;
+        }
+
+        private void IntelliSenseEngine_PropertyChanged(object sender, PropertyChangedEventArgs e) => AppendSuggestions();
+
+        private void AppendSuggestions()
+        {
+            //_SuggestionList.Clear();
+            // _SuggestionList.AddRange(IntelliSenseEngine.SuggestionList);
+            //OnPropertyChanged(nameof(SuggestionsAvailable));
+        }
+
+        public void Dispose()
+        {
+            if (_IntelliSenseEngine != null)
+            {
+                _IntelliSenseEngine.PropertyChanged -= IntelliSenseEngine_PropertyChanged;
+                _IntelliSenseEngine.Dispose();
+            }
         }
 
         #region History
@@ -132,36 +181,43 @@ namespace ProjectCodeEditor.ViewModels
 
         public bool CanClearHistory => CanUndo || CanRedo;
 
-        private readonly Stack<string> UndoStack = new();
+        private readonly Stack<(string, int)> UndoStack = new();
 
-        private readonly Stack<string> RedoStack = new();
+        private readonly Stack<(string, int)> RedoStack = new();
+
+        internal int HistoryRange;
 
         private void UpdateHistoryProperties()
         {
             OnPropertyChanged(nameof(CanUndo));
             OnPropertyChanged(nameof(CanRedo));
             OnPropertyChanged(nameof(CanClearHistory));
-            HistoryItemDone?.Invoke();
         }
 
         public void Undo()
         {
             if (!CanUndo) return;
-            string retVal;
+            (string, int) retVal;
             // Remove current one first
             RedoStack.Push(UndoStack.Pop());
             // Return second one
-            if (UndoStack.IsEmpty()) retVal = FileReadData.Value.Text;
+            if (UndoStack.IsEmpty()) retVal = new(FileReadData.Value.Item1, -1);
             else retVal = UndoStack.Pop();
             UpdateHistoryProperties();
-            UserContent = retVal;
+            UserContent = retVal.Item1;
+            OnPropertyChanged("HistoryItemDone");
+            HistoryRange = retVal.Item2;
         }
 
         public void Redo()
         {
             if (!CanRedo) return;
-            UserContent = RedoStack.Pop();
+            (string, int) retVal;
+            retVal = RedoStack.Pop();
+            UserContent = retVal.Item1;
             UpdateHistoryProperties();
+            OnPropertyChanged("HistoryItemDone");
+            HistoryRange = retVal.Item2;
         }
 
         public void ClearHistory()
@@ -217,7 +273,10 @@ namespace ProjectCodeEditor.ViewModels
             await _semaphoreSlim.WaitAsync();
             try
             {
-                await FileIO.WriteBytesAsync(file, FileReadData.Value.Encoding.GetBytes(text));
+                Encoding fileEncoding;
+                if (FileReadData.Value.Item2 is DetectionResult detail) fileEncoding = detail.Detected.Encoding;
+                else fileEncoding = FileReadData.Value.Item2 as Encoding;
+                await FileIO.WriteBytesAsync(file, fileEncoding.GetBytes(text));
                 Saved = true;
                 Debug.WriteLine($"Saved {file.Path}");
                 if (sendNotification)
@@ -252,7 +311,7 @@ namespace ProjectCodeEditor.ViewModels
             string text;
             if (UndoStack.IsEmpty() && !HistoryCleared) return null;
             else if (HistoryCleared) text = UserContent;
-            else text = UndoStack.Peek().TrimEnd();
+            else text = UndoStack.Peek().Item1.TrimEnd();
             return await SaveAsync(file, text);
         }
 

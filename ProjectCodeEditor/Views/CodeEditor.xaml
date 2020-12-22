@@ -13,41 +13,15 @@
     Unloaded="UserControl_Unloaded"
     mc:Ignorable="d">
 
+    <UserControl.KeyboardAccelerators>
+        <KeyboardAccelerator
+            Key="Escape"
+            Invoked="Editor_Escaped"
+            IsEnabled="{x:Bind ViewModel.Unloaded, Mode=OneWay, Converter={StaticResource BooleanReverse}}" />
+    </UserControl.KeyboardAccelerators>
+
     <UserControl.Resources>
-        <SolidColorBrush x:Key="NavigationViewTopPaneBackground" Color="Transparent" />
-        <MenuFlyout x:Key="EditorMenu" AreOpenCloseAnimationsEnabled="True">
-            <MenuFlyoutSubItem x:Uid="FileSubItem">
-                <MenuFlyoutItem IsEnabled="{x:Bind ViewModel.Saved, Mode=OneWay, Converter={StaticResource BooleanReverse}}">
-                    <MenuFlyoutItem.Command>
-                        <StandardUICommand
-                            CanExecuteRequested="StandardUICommand_CanExecuteRequested"
-                            ExecuteRequested="{x:Bind ViewModel.Save}"
-                            Kind="Save" />
-                    </MenuFlyoutItem.Command>
-                </MenuFlyoutItem>
-                <MenuFlyoutItem x:Uid="SaveAsItem" Click="{x:Bind ViewModel.SaveAs}">
-                    <MenuFlyoutItem.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEA35;" />
-                    </MenuFlyoutItem.Icon>
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator
-                            Key="S"
-                            IsEnabled="{x:Bind ViewModel.Unloaded, Converter={StaticResource BooleanReverse}, Mode=OneWay}"
-                            Modifiers="Control, Shift" />
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-                <MenuFlyoutSubItem
-                    x:Uid="ShareItem"
-                    Icon="Share"
-                    IsEnabled="{x:Bind dataTransfer:DataTransferManager.IsSupported()}">
-                    <MenuFlyoutItem x:Uid="ShareAsFileItem" Click="{x:Bind ViewModel.ShareAsFile}" />
-                    <MenuFlyoutItem x:Uid="ShareAsTextItem" Click="{x:Bind ViewModel.ShareAsText}" />
-                    <MenuFlyoutItem
-                        x:Uid="ShareAsSelectionItem"
-                        Click="{x:Bind ViewModel.ShareAsSelection}"
-                        IsEnabled="{x:Bind Editor.IsSelectionValid, Mode=OneWay}" />
-                </MenuFlyoutSubItem>
-            </MenuFlyoutSubItem>
+        <!--<MenuFlyout x:Name="EditorMenu" AreOpenCloseAnimationsEnabled="True">
             <MenuFlyoutSubItem x:Uid="EditSubItem">
                 <MenuFlyoutItem IsEnabled="{x:Bind ViewModel.CanUndo, Mode=OneWay}">
                     <MenuFlyoutItem.Command>
@@ -107,7 +81,7 @@
                     Icon="ClearSelection"
                     IsEnabled="{x:Bind Editor.IsSelectionValid, Mode=OneWay}" />
             </MenuFlyoutSubItem>
-        </MenuFlyout>
+        </MenuFlyout>-->
     </UserControl.Resources>
 
     <Grid>
@@ -116,38 +90,122 @@
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
             Background="{ThemeResource SystemAccentColor}"
-            RequestedTheme="Dark"
-            Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
+            RequestedTheme="Dark">
             <StackPanel
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Spacing="8">
                 <TextBlock
+                    HorizontalAlignment="Center"
                     FontFamily="Segoe MDL2 Assets"
-                    FontSize="{StaticResource TextStyleLargeFontSize}"
+                    FontSize="{StaticResource TextStyleExtraLargeFontSize}"
                     Text="&#xE130;" />
                 <TextBlock Text="{x:Bind ViewModel.WorkingFile.Name}" TextAlignment="Center" />
                 <ProgressRing Foreground="White" IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
             </StackPanel>
         </Border>
-        <editor:SyntaxEditor
-            x:Name="Editor"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch"
-            ContextMenu="{StaticResource EditorMenu}"
-            FontFamily="{x:Bind root:App.AppSettings.FontFamily, Mode=OneWay}"
-            FontSize="{x:Bind root:App.AppSettings.FontSize, Mode=OneWay}"
-            SyntaxLanguage="{x:Bind ViewModel.CodeLanguage, Mode=OneWay}"
-            TabSize="{x:Bind root:App.AppSettings.TabSize, Mode=OneWay}"
-            Text="{x:Bind ViewModel.UserContent, Mode=OneWay}"
+        <SplitView
+            DisplayMode="Inline"
+            IsPaneOpen="True"
+            PaneBackground="{ThemeResource SystemControlAccentAcrylicWindowAccentMediumHighBrush}"
             Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibility}}">
-            <editor:SyntaxEditor.KeyboardAccelerators>
-                <KeyboardAccelerator
-                    Key="Escape"
-                    Invoked="Editor_Escaped"
-                    IsEnabled="{x:Bind ViewModel.Unloaded, Converter={StaticResource BooleanReverse}, Mode=OneWay}"
-                    Modifiers="None" />
-            </editor:SyntaxEditor.KeyboardAccelerators>
-        </editor:SyntaxEditor>
+            <SplitView.Resources>
+                <StaticResource x:Key="PivotHeaderItemSelectedPipeFill" ResourceKey="SystemChromeWhiteColor" />
+            </SplitView.Resources>
+            <SplitView.Pane>
+                <Pivot
+                    Margin="12"
+                    AutomationProperties.FullDescription="{x:Bind ViewModel.WorkingFile.Path, Mode=OneWay}"
+                    AutomationProperties.Name="{x:Bind ViewModel.WorkingFile.Name, Mode=OneWay}"
+                    Loaded="PanelPivot_Loaded"
+                    RequestedTheme="Dark">
+                    <Pivot.Title>
+                        <StackPanel Spacing="8">
+                            <TextBlock
+                                Style="{ThemeResource HeaderTextBlockStyle}"
+                                Text="{x:Bind ViewModel.WorkingFile.Name, Mode=OneWay}"
+                                TextTrimming="CharacterEllipsis"
+                                TextWrapping="NoWrap" />
+                            <TextBlock
+                                Style="{ThemeResource BodyTextBlockStyle}"
+                                Text="{x:Bind ViewModel.WorkingFile.Path, Mode=OneWay}"
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Pivot.Title>
+                    <!--<PivotItem x:Uid="CodeSuggestionsPivot">
+                        <Grid>
+                            <StackPanel
+                                Margin="0,8,0,8"
+                                Spacing="8"
+                                Visibility="{x:Bind ViewModel.SuggestionsAvailable, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibility}}">
+                                <TextBlock x:Uid="NoCodeSuggestionsBlock" TextWrapping="Wrap" />
+                                <Button
+                                    x:Uid="RefreshParseBtn"
+                                    Click="RefreshParse_Click"
+                                    Style="{ThemeResource ButtonRevealStyle}" />
+                            </StackPanel>
+
+                            <ListView
+                                Margin="0,8,0,8"
+                                IsItemClickEnabled="True"
+                                ItemsSource="{x:Bind ViewModel.SuggestionList, Mode=OneWay}"
+                                SelectionMode="None"
+                                Visibility="{x:Bind ViewModel.SuggestionsAvailable, Mode=OneWay, Converter={StaticResource BoolToVisibility}}" />
+                        </Grid>
+                    </PivotItem>-->
+                </Pivot>
+            </SplitView.Pane>
+            <SplitView.Content>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <editor:SyntaxEditor
+                        x:Name="Editor"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        FontFamily="{x:Bind root:App.AppSettings.FontFamily, Mode=OneWay}"
+                        FontSize="{x:Bind root:App.AppSettings.FontSize, Mode=OneWay}"
+                        SyntaxLanguage="{x:Bind ViewModel.CodeLanguage, Mode=OneWay}"
+                        TabSize="{x:Bind root:App.AppSettings.TabSize, Mode=OneWay}"
+                        Text="{x:Bind ViewModel.UserContent, Mode=OneWay}" />
+                    <CommandBar Grid.Row="1" DefaultLabelPosition="Right">
+                        <AppBarButton
+                            x:Uid="SaveBtn"
+                            Click="{x:Bind ViewModel.Save}"
+                            Icon="Save"
+                            IsEnabled="{x:Bind ViewModel.Saved, Mode=OneWay, Converter={StaticResource BooleanReverse}}"
+                            Visibility="{x:Bind root:App.AppSettings.AutoSave, Converter={StaticResource ReverseBoolToVisibility}, Mode=OneWay}" />
+                        <AppBarButton x:Uid="SaveAsItem" Click="{x:Bind ViewModel.SaveAs}">
+                            <AppBarButton.Icon>
+                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEA35;" />
+                            </AppBarButton.Icon>
+                            <AppBarButton.KeyboardAccelerators>
+                                <KeyboardAccelerator
+                                    Key="S"
+                                    IsEnabled="{x:Bind ViewModel.Unloaded, Converter={StaticResource BooleanReverse}, Mode=OneWay}"
+                                    Modifiers="Control, Shift" />
+                            </AppBarButton.KeyboardAccelerators>
+                        </AppBarButton>
+                        <AppBarButton IsEnabled="{x:Bind dataTransfer:DataTransferManager.IsSupported()}">
+                            <AppBarButton.Flyout>
+                                <MenuFlyout AreOpenCloseAnimationsEnabled="True">
+                                    <MenuFlyoutItem x:Uid="ShareAsFileItem" Click="{x:Bind ViewModel.ShareAsFile}" />
+                                    <MenuFlyoutItem x:Uid="ShareAsTextItem" Click="{x:Bind ViewModel.ShareAsText}" />
+                                    <MenuFlyoutItem
+                                        x:Uid="ShareAsSelectionItem"
+                                        Click="{x:Bind ViewModel.ShareAsSelection}"
+                                        IsEnabled="{x:Bind Editor.IsSelectionValid, Mode=OneWay}" />
+                                </MenuFlyout>
+                            </AppBarButton.Flyout>
+                            <AppBarButton.Command>
+                                <StandardUICommand Kind="Share" />
+                            </AppBarButton.Command>
+                        </AppBarButton>
+                    </CommandBar>
+                </Grid>
+            </SplitView.Content>
+        </SplitView>
     </Grid>
 </UserControl>

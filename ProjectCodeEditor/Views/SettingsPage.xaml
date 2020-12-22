@@ -19,9 +19,7 @@
             Loaded="Layout_Loaded">
             <HubSection x:Uid="Settings_General" DataContext="{x:Bind root:App.AppSettings}">
                 <DataTemplate x:DataType="vmodels:SettingsViewModel">
-                    <StackPanel HorizontalAlignment="Stretch" Spacing="8">
-                        <ToggleSwitch x:Uid="EditorSettingsDisableSound" IsOn="{x:Bind DisableSound, Mode=TwoWay}" />
-                    </StackPanel>
+                    <StackPanel HorizontalAlignment="Stretch" Spacing="8" />
                 </DataTemplate>
             </HubSection>
             <HubSection x:Uid="Settings_Editor" DataContext="{x:Bind root:App.AppSettings}">
@@ -34,39 +32,7 @@
                         <StackPanel
                             Margin="0,0,16,0"
                             HorizontalAlignment="Stretch"
-                            Spacing="8">
-                            <ToggleSwitch x:Uid="EditorSettingsAutoSave" IsOn="{x:Bind AutoSave, Mode=TwoWay}" />
-                            <ComboBox
-                                x:Uid="FontOption"
-                                HorizontalAlignment="Stretch"
-                                IsEditable="True"
-                                ItemsSource="{x:Bind InstalledFonts}"
-                                SelectedItem="{x:Bind FontFamily, Mode=TwoWay}"
-                                TextSubmitted="FontBox_TextSubmitted">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate x:DataType="x:String">
-                                        <TextBlock FontFamily="{x:Bind}" Text="{x:Bind}" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <HyperlinkButton x:Uid="EditorSettingsManageFontsList" NavigateUri="ms-settings:fonts" />
-                            <muxc:NumberBox
-                                x:Uid="FontSizeOption"
-                                AcceptsExpression="False"
-                                Maximum="72"
-                                Minimum="12"
-                                SmallChange="1"
-                                SpinButtonPlacementMode="Inline"
-                                ValidationMode="InvalidInputOverwritten"
-                                Value="{x:Bind FontSize, Mode=TwoWay}" />
-                            <Slider
-                                x:Uid="TabSizeOption"
-                                HorizontalAlignment="Stretch"
-                                Maximum="8"
-                                Minimum="4"
-                                StepFrequency="1"
-                                Value="{x:Bind TabSize, Mode=TwoWay}" />
-                        </StackPanel>
+                            Spacing="8" />
                     </ScrollViewer>
                 </DataTemplate>
             </HubSection>
@@ -81,11 +47,6 @@
                         VerticalScrollBarVisibility="Auto"
                         VerticalScrollMode="Auto">
                         <StackPanel Margin="0,0,16,0" HorizontalAlignment="Stretch">
-                            <TextBlock Text="{x:Bind root:App.AppSettings.AboutText}" />
-                            <TextBlock Loaded="SpecialThanksBlock_Loaded" />
-                            <HyperlinkButton x:Uid="TermsOfUseHyperlink" NavigateUri="https://sites.google.com/site/jgveed/legal" />
-                            <HyperlinkButton x:Uid="SubscribeHyperlink" NavigateUri="https://www.youtube.com/channel/UCCgDUPx_XgBfgBx-If1uk1g?sub_confirmation=1" />
-                            <HyperlinkButton x:Uid="TwitterFollowLink" NavigateUri="https://twitter.com/Jaigane88727011" />
                             <controls:Expander
                                 Margin="0,8,0,8"
                                 HorizontalAlignment="Stretch"

@@ -17,34 +17,19 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Diagnostics;
-using TextEditor.Lexer;
-using TextEditorUWP.Languages;
-using Windows.UI;
+using TextEditor.IntelliSense;
+using TextEditor.Languages.Python;
 
 namespace TextEditor.Languages
 {
     public class PythonSyntaxLanguage : SyntaxLanguage
     {
-        public static readonly Color CommentColor = Color.FromArgb(255, 0, 128, 0);
-        public static readonly Color StringColor = Color.FromArgb(255, 163, 21, 21);
-        public static readonly Color BuiltinsColor = Color.FromArgb(255, 208, 144, 31);
-        public static readonly Color KeywordsColor = Color.FromArgb(255, 52, 141, 255);
-
         public PythonSyntaxLanguage() : base("Python")
         {
             Grammer = new PythonGrammer();
-
-            HighlightColors = new Dictionary<TokenType, Color>
-            {
-                { TokenType.Comment, CommentColor },
-                { TokenType.String, StringColor },
-                { TokenType.Builtins, BuiltinsColor },
-                { TokenType.Keyword, KeywordsColor },
-            };
-
             IndentationProvider = new PythonIndentationProvider();
         }
+
+        public override IFileIntelliSense CreateIntelliSenseEngine() => new PythonIntelliSense();
     }
 }

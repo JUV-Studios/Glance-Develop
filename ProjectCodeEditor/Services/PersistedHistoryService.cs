@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace ProjectCodeEditor.Services
 {
-    public static class PersistedHistoryService
+    internal static class PersistedHistoryService
     {
-
     }
 }

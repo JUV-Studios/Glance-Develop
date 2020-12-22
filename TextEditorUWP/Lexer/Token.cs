@@ -25,14 +25,14 @@ namespace TextEditor.Lexer
     /// </summary>
     public class Token
     {
-        public Token(int startIndex, int length, TokenType type)
+        public Token(int startIndex, int length, string type)
         {
             StartIndex = startIndex;
             Length = length;
             Type = type;
         }
 
-        public TokenType Type { get; private set; }
+        public string Type { get; private set; }
 
         public int StartIndex { get; private set; }
 

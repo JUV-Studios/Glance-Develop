@@ -14,7 +14,21 @@ namespace ProjectCodeEditor.Helpers
             {
                 AppJumpList = await JumpList.LoadCurrentAsync();
                 AppJumpList.SystemGroupKind = JumpListSystemGroupKind.None;
-                await AppJumpList.SaveAsync();
+                AppJumpList.Items.Clear();
+                var openItem = JumpListItem.CreateWithArguments("OpenFiles", "ms-resource:///Resources/OpenOption/Label");
+                openItem.Description = "ms-resource:///Resources/OpenFileActionDescription";
+                var newItem = JumpListItem.CreateWithArguments("NewFiles", "ms-resource:///Resources/NewFileOption/Text");
+                newItem.Description = "ms-resource:///Resources/NewFileActionDescription";
+                AppJumpList.Items.Add(openItem);
+                AppJumpList.Items.Add(newItem);
+                try
+                {
+                    await AppJumpList.SaveAsync();
+                }
+                catch (Exception ex)
+                {
+                    if (ex.HResult != 80070497) throw ex;
+                }
             }
         }
     }

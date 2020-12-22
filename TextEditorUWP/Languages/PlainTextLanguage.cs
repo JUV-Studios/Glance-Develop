@@ -1,6 +1,6 @@
-﻿using TextEditor;
+﻿using TextEditor.IntelliSense;
 
-namespace TextEditorUWP.Languages
+namespace TextEditor.Languages
 {
     public sealed class PlainTextLanguage : SyntaxLanguage
     {
@@ -8,5 +8,7 @@ namespace TextEditorUWP.Languages
         {
             IsPlainText = true;
         }
+
+        public override IFileIntelliSense CreateIntelliSenseEngine() => null;
     }
 }

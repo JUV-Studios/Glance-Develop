@@ -35,7 +35,7 @@
       Executable="ProjectCodeEditor.exe"
       EntryPoint="ProjectCodeEditor.App">
       <uap:VisualElements
-        DisplayName="Develop"
+        DisplayName="Develop" 
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
         Description="Code editing, reimagined."
@@ -108,8 +108,8 @@
 
   <Capabilities>
     <Capability Name="internetClient" />
-    <rescap:Capability Name="confirmAppClose"/>
-    <uap:Capability Name="userAccountInformation"/>
+	<uap:Capability Name="userAccountInformation"/>
+	<rescap:Capability Name="confirmAppClose"/>
   </Capabilities>
 
   <genTemplate:Metadata>

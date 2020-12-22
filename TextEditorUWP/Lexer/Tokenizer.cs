@@ -17,6 +17,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using ColorCode.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,19 +30,13 @@ namespace TextEditor.Lexer
     {
         public Tokenizer(IGrammer grammer)
         {
-            if (grammer == null)
-                throw new ArgumentNullException("grammer");
-
-            if (grammer.Keywords == null)
-                throw new ArgumentException("Grammer Keywords must not be null");
-
-            if (grammer.Builtins == null)
-                throw new ArgumentException("Grammer Builtins must not be null");
-
             var grammerRules = new List<GrammerRule>(grammer.Rules);
-            grammerRules.Insert(0, new GrammerRule(TokenType.Keyword, WordRegex(grammer.Keywords)));
-            grammerRules.Insert(0, new GrammerRule(TokenType.Builtins, WordRegex(grammer.Builtins)));
-
+            if (grammer == null) throw new ArgumentNullException("grammer");
+            if (grammer.Keywords == null) throw new ArgumentException("Grammer Keywords must not be null");
+            else grammerRules.Insert(0, new(ScopeName.Keyword, WordRegex(grammer.Keywords)));
+            if (grammer.Builtins == null) throw new ArgumentException("Grammer Builtins must not be null");
+            else grammerRules.Insert(0, new GrammerRule(ScopeName.Predefined, WordRegex(grammer.Builtins)));
+            // grammerRules.Insert(0, new GrammerRule("Whitespace", new Regex("^\\s")));
             GrammerRules = grammerRules;
         }
 
@@ -49,21 +44,16 @@ namespace TextEditor.Lexer
 
         static Regex WordRegex(IEnumerable<string> words)
         {
-            return new Regex("^((" +
-                             string.Join(")|(", words.Where<string>(s => !string.IsNullOrWhiteSpace(s))) +
-                             "))\\b");
+            return new Regex("^((" + string.Join(")|(", words.Where(s => !string.IsNullOrWhiteSpace(s))) + "))\\b");
         }
 
         internal IEnumerator<Token> Tokenize(string script)
         {
             var builder = new StringBuilder(script);
-
             int i = 0;
             int length = script.Length;
-
             Match match;
             bool found;
-
             string str = script;
 
             while (i < length)
@@ -73,27 +63,21 @@ namespace TextEditor.Lexer
                 foreach (var rule in GrammerRules)
                 {
                     match = rule.Pattern.Match(str);
-
                     if (match.Success)
                     {
-                        if (match.Length == 0)
-                            throw new InvalidOperationException("Regex Pattern matches string of length zero");
-
-                        yield return new Token(i, match.Length, rule.TokenType);
+                        if (match.Length == 0) throw new InvalidOperationException("Regex Pattern matches string of length zero");
+                        yield return new Token(i, match.Length, rule.Captures[0]);
                         i += match.Length;
-
                         builder.Remove(0, match.Length);
                         found = true;
-
                         break;
                     }
                 }
 
                 if (!found)
                 {
-                    yield return new Token(i, 1, TokenType.Unknown);
+                    yield return new Token(i, 1, ScopeName.PlainText);
                     i += 1;
-
                     builder.Remove(0, 1);
                 }
 

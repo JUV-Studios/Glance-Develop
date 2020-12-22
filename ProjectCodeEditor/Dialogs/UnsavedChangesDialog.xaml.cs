@@ -8,8 +8,6 @@ namespace ProjectCodeEditor.Dialogs
     {
         internal ContentDialogResult Result;
 
-        private string CancelTextId = "CancelText";
-
         public UnsavedChangesDialog()
         {
             InitializeComponent();

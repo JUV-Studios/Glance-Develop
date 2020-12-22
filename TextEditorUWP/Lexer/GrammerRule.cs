@@ -17,20 +17,24 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using ColorCode;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace TextEditor.Lexer
 {
-    public class GrammerRule
+    public class GrammerRule : LanguageRule
     {
-        public GrammerRule(TokenType tokenType, Regex pattern)
+        public GrammerRule(string tokenType, Regex pattern) : base(pattern.ToString(), new Dictionary<int, string>() { { 0, tokenType } })
         {
-            TokenType = tokenType;
             Pattern = pattern;
         }
 
-        public Regex Pattern { get; private set; }
+        public GrammerRule(LanguageRule movableRule) : base(movableRule.Regex, movableRule.Captures)
+        {
+            Pattern = new(movableRule.Regex);
+        }
 
-        public TokenType TokenType { get; private set; }
+        public Regex Pattern { get; private set; }
     }
 }

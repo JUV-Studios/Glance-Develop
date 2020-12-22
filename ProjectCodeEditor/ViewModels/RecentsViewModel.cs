@@ -44,6 +44,7 @@ namespace ProjectCodeEditor.ViewModels
 
             var sorted = filesTemp.OrderByDescending(item => item.Time);
             foreach (var item in sorted) RecentFiles.Add(item);
+
         }
 
         public void AddRecentFile(StorageFile file)
