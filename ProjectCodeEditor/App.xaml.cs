@@ -3,17 +3,20 @@ using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
 using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.Helpers;
+using ProjectCodeEditor.Models;
 using ProjectCodeEditor.Services;
 using ProjectCodeEditor.ViewModels;
 using ProjectCodeEditor.Views;
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Activation;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Automation;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
 
@@ -87,12 +90,16 @@ namespace ProjectCodeEditor
                     CurrentUser = launchArgs.User;
                 }
 
-                frame.Navigate(typeof(MainPage), arguments, new SuppressNavigationTransitionInfo());
+                frame.Navigate(typeof(MainPage), arguments, new DrillInNavigationTransitionInfo());
 
                 // Ensure the current window is active
                 Window.Current.Activate();
 
-                if (viewModel.SelectedIndex != 0 && string.IsNullOrEmpty(arguments)) viewModel.SelectedIndex = 0;
+                try
+                {
+                    if (viewModel.SelectedIndex != 0 && string.IsNullOrEmpty(arguments)) viewModel.SelectedIndex = 0;
+                }
+                catch (ArgumentException) { }
 
                 if (activationArgs is FileActivatedEventArgs fileActivationArgs)
                 {
@@ -116,6 +123,23 @@ namespace ProjectCodeEditor
 #endif
                 }
             }
+        }
+    }
+
+    public sealed class ActionButtonList : ListView
+    {
+        public ActionButtonList()
+        {
+            Style = App.Current.Resources["ActionButtonListStyle"] as Style;
+        }
+
+        protected override void PrepareContainerForItemOverride(DependencyObject element, object item)
+        {
+            base.PrepareContainerForItemOverride(element, item);
+            FrameworkElement source = element as FrameworkElement;
+            var context = item as ActionOption;
+            ToolTipService.SetToolTip(source, context.ToolTipContent);
+            if (!string.IsNullOrWhiteSpace(context.AccessKey)) AutomationProperties.SetAcceleratorKey(source, context.AccessKey);
         }
     }
 }

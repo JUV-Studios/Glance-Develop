@@ -273,9 +273,6 @@
   <data name="SaveBtn.ToolTipService.ToolTip" xml:space="preserve">
     <value>Save (Ctrl+S)</value>
   </data>
-  <data name="SettingsCaption" xml:space="preserve">
-    <value>Customize Develop!</value>
-  </data>
   <data name="SettingsHub.Header" xml:space="preserve">
     <value>Preferences</value>
   </data>

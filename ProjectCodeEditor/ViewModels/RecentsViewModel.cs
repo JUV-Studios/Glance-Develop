@@ -1,5 +1,6 @@
-﻿using ProjectCodeEditor.Models;
-using Swordfish.NET.Collections;
+﻿using ProjectCodeEditor.Core.Helpers;
+using ProjectCodeEditor.Models;
+using Swordfish.NET.Collections.Auxiliary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,10 +9,39 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Data;
 
 namespace ProjectCodeEditor.ViewModels
 {
-    public class RecentsViewModel
+    public sealed class RecentFilesList : ListView
+    {
+        public RecentFilesList()
+        {
+            Style = App.Current.Resources["RecentListItemStyle"] as Style;
+            SetBinding(ItemsSourceProperty, new Binding()
+            {
+                Source = Singleton<RecentsViewModel>.Instance.RecentFiles,
+                Mode = BindingMode.OneWay,
+            });
+        }
+
+        protected override void PrepareContainerForItemOverride(DependencyObject element, object item)
+        {
+            base.PrepareContainerForItemOverride(element, item);
+            FrameworkElement source = element as FrameworkElement;
+            var context = item as RecentFile;
+            ToolTipService.SetToolTip(source, new TextBlock()
+            {
+                Text = $"{context.File.Name} ({context.File.Path})",
+                TextWrapping = TextWrapping.NoWrap,
+                TextTrimming = TextTrimming.CharacterEllipsis
+            });
+        }
+    }
+
+    public sealed class RecentsViewModel
     {
         private readonly ApplicationDataContainer TimeContainer = ApplicationData.Current.LocalSettings.CreateContainer("RecentFileTime", ApplicationDataCreateDisposition.Always);
 
@@ -22,10 +52,11 @@ namespace ProjectCodeEditor.ViewModels
         public async Task LoadRecentsAsync()
         {
             RecentFiles.Clear();
-            List<RecentFile> filesTemp = new(RecentsList.Entries.Count());
-            await Task.Run(async () =>
+            IOrderedEnumerable<RecentFile> filesSorted = null;
+            await Task.Run(() =>
             {
-                foreach (var item in RecentsList.Entries)
+                List<RecentFile> filesTemp = new(RecentsList.Entries.Count());
+                Parallel.ForEach(RecentsList.Entries, async item =>
                 {
                     try
                     {
@@ -39,12 +70,12 @@ namespace ProjectCodeEditor.ViewModels
                     {
                         RecentsList.Remove(item.Token);
                     }
-                }
+                });
+
+                filesSorted = filesTemp.OrderByDescending(item => item.Time);
             });
 
-            var sorted = filesTemp.OrderByDescending(item => item.Time);
-            foreach (var item in sorted) RecentFiles.Add(item);
-
+            RecentFiles.AddRange(filesSorted.AsEnumerable());
         }
 
         public void AddRecentFile(StorageFile file)

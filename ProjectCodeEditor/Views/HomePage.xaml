@@ -5,9 +5,9 @@
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:dataTransfer="using:Windows.ApplicationModel.DataTransfer"
+    xmlns:dialogs="using:ProjectCodeEditor.Dialogs"
     xmlns:local="using:ProjectCodeEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="using:ProjectCodeEditor.Models"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:services="using:ProjectCodeEditor.Services"
     xmlns:vmodels="using:ProjectCodeEditor.ViewModels"
@@ -63,53 +63,12 @@
                 DataContext="{x:Bind ViewModel}"
                 Visibility="{x:Bind ViewModel.RecentFilesVisibility, Mode=OneWay}">
                 <DataTemplate x:DataType="vmodels:HomeViewModel">
-                    <ListView
+                    <vmodels:RecentFilesList
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
-                        IsItemClickEnabled="True"
                         ItemClick="RecentFilesListItem_Click"
-                        ItemsSource="{x:Bind Recents.RecentFiles, Mode=OneWay}"
                         Loaded="RecentFilesList_Loaded"
-                        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                        ScrollViewer.HorizontalScrollMode="Disabled"
-                        ScrollViewer.VerticalScrollBarVisibility="Disabled"
-                        ScrollViewer.VerticalScrollMode="Disabled"
-                        SelectionMode="None"
-                        Unloaded="RecentFilesList_Unloaded">
-                        <ListView.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <ItemsWrapGrid Orientation="Vertical" />
-                            </ItemsPanelTemplate>
-                        </ListView.ItemsPanel>
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="Padding" Value="0" />
-                                <Setter Property="Margin" Value="0" />
-                                <Setter Property="MaxWidth" Value="360" />
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.ItemTemplate>
-                            <DataTemplate x:DataType="models:RecentFile">
-                                <StackPanel Margin="8,8,16,8" Spacing="4">
-                                    <TextBlock
-                                        Style="{ThemeResource BaseTextBlockStyle}"
-                                        Text="{x:Bind File.Name}"
-                                        TextTrimming="CharacterEllipsis"
-                                        TextWrapping="NoWrap" />
-                                    <TextBlock
-                                        Style="{ThemeResource CaptionTextBlockStyle}"
-                                        Text="{x:Bind File.Path}"
-                                        TextTrimming="CharacterEllipsis"
-                                        TextWrapping="NoWrap" />
-                                    <TextBlock
-                                        Style="{ThemeResource CaptionTextBlockStyle}"
-                                        Text="{x:Bind TimeString}"
-                                        TextTrimming="CharacterEllipsis"
-                                        TextWrapping="NoWrap" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                        Unloaded="RecentFilesList_Unloaded" />
                 </DataTemplate>
             </HubSection>
             <HubSection DataContext="{x:Bind local:App.AppSettings}" Header="{x:Bind SettingsTitleStringId, Converter={StaticResource ResourceLocator}}">
@@ -168,6 +127,7 @@
                                     <HyperlinkButton x:Uid="TermsOfUseHyperlink" NavigateUri="https://sites.google.com/site/jgveed/legal" />
                                     <HyperlinkButton x:Uid="SubscribeHyperlink" NavigateUri="https://www.youtube.com/channel/UCCgDUPx_XgBfgBx-If1uk1g?sub_confirmation=1" />
                                     <HyperlinkButton x:Uid="TwitterFollowLink" NavigateUri="https://twitter.com/Jaigane88727011" />
+                                    <HyperlinkButton Click="DependenciesDialog_Click" Content="{x:Bind dialogs:DependenciesDialog.DependenciesBlockTextId, Converter={StaticResource ResourceLocator}}" />
                                 </StackPanel>
                             </controls:Expander>
                         </StackPanel>

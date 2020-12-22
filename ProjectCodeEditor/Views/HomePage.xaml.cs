@@ -1,8 +1,11 @@
 ﻿using Microsoft.Toolkit.Uwp.Extensions;
+using ProjectCodeEditor.Core.Helpers;
+using ProjectCodeEditor.Dialogs;
 using ProjectCodeEditor.Helpers;
 using ProjectCodeEditor.Models;
 using ProjectCodeEditor.ViewModels;
 using Swordfish.NET.Collections.Auxiliary;
+using System;
 using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
@@ -91,5 +94,7 @@ namespace ProjectCodeEditor.Views
             specialThanksBlock.Inlines.Add(link);
             specialThanksBlock.Loaded -= SpecialThanksBlock_Loaded;
         }
+
+        private void DependenciesDialog_Click(object sender, RoutedEventArgs e) => DialogHelper.ShowPlusBlock(Singleton<DependenciesDialog>.Instance, null);
     }
 }

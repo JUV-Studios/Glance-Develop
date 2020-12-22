@@ -5,7 +5,6 @@ using ProjectCodeEditor.Services;
 using Swordfish.NET.Collections.Auxiliary;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -19,7 +18,6 @@ using UtfUnknown;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.Storage.Pickers;
-using Windows.UI.Text;
 
 namespace ProjectCodeEditor.ViewModels
 {

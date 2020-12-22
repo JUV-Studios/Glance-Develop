@@ -95,7 +95,6 @@ namespace ProjectCodeEditor.Views
                     Editor.TextView.TextDocument.Selection.StartPosition = ViewModel.HistoryRange;
                     Editor.TextView.TextDocument.Selection.EndPosition = ViewModel.HistoryRange - 1;
                     Editor.TextView.TextDocument.Selection.Collapse(false);
-                    // TODO implement undo/redo location
                 }
             }
             else if (e.PropertyName == "RetriveSelection")
@@ -186,7 +185,7 @@ namespace ProjectCodeEditor.Views
             }
         }
 
-        public async void Dispose()
+        public void Dispose()
         {
             ViewModel.TabClosing = true;
             if (ViewModel.Saved) Close();
@@ -199,20 +198,24 @@ namespace ProjectCodeEditor.Views
             {
                 if (!App.AppSettings.DialogShown && !ViewModel.Unloaded)
                 {
-                    App.AppSettings.DialogShown = true;
                     var dialog = Singleton<UnsavedChangesDialog>.Instance;
-                    await dialog.ShowAsync();
-                    App.AppSettings.DialogShown = false;
-                    if (dialog.Result == ContentDialogResult.Primary) ViewModel.Save();
-                    else if (dialog.Result == ContentDialogResult.Secondary) Close();
-                    else
+                    DialogHelper.ShowPlusBlock(dialog, ((e) =>
                     {
-                        ViewModel.TabClosing = false;
-                        return;
-                    }
+                        if (dialog.Result == ContentDialogResult.None)
+                        {
+                            ViewModel.TabClosing = false;
+                            return;
+                        }
+
+                        if (dialog.Result == ContentDialogResult.Primary) ViewModel.Save();
+                        Close();
+                    }));
                 }
-                else ViewModel.Save();
-                Close();
+                else
+                {
+                    ViewModel.Save();
+                    Close();
+                }
             }
         }
 

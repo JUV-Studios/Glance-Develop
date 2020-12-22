@@ -1,17 +1,14 @@
 ﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Uwp.Extensions;
-using Microsoft.Toolkit.Uwp.Helpers;
 using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.Models;
 using ProjectCodeEditor.Services;
 using ProjectCodeEditor.Views;
 using System;
 using System.Collections.ObjectModel;
-using System.Linq;
-using Windows.ApplicationModel.Core;
-using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using MUXC = Microsoft.UI.Xaml.Controls;
 
 namespace ProjectCodeEditor.ViewModels
 {
@@ -26,12 +23,27 @@ namespace ProjectCodeEditor.ViewModels
             get => _SelectedIndex;
             set
             {
-                SetProperty(ref _SelectedIndex, value);
-                OnPropertyChanged(nameof(CurrentContent));
+                try
+                {
+                    SetProperty(ref _SelectedIndex, value);
+                    OnPropertyChanged(nameof(CurrentContent));
+                }
+                catch (ArgumentException) { }
             }
         }
 
-        public UIElement CurrentContent => Instances[SelectedIndex].Content;
+        public UIElement CurrentContent
+        {
+            get
+            {
+                if (_SelectedIndex == -1 || _SelectedIndex >= Instances.Count)
+                {
+                    SetProperty(ref _SelectedIndex, 0, nameof(SelectedIndex));
+                    return CurrentContent;
+                }
+                else return Instances[_SelectedIndex].Content;
+            }
+        }
 
         private SymbolIconSource _FullScreenBtnSrc;
 
@@ -65,8 +77,7 @@ namespace ProjectCodeEditor.ViewModels
 
         public ShellViewModel()
         {
-            AddLayout(new("HubTitle".GetLocalized(), "HubCaption".GetLocalized(), new Microsoft.UI.Xaml.Controls.SymbolIconSource() { Symbol = Symbol.Home }, new HomePage()));
-            AddLayout(new("SettingsHub/Header".GetLocalized(), "SettingsCaption".GetLocalized(), new Microsoft.UI.Xaml.Controls.SymbolIconSource() { Symbol = Symbol.Setting }, new SettingsPage()), true);
+            AddLayout(new("HubTitle".GetLocalized(), "HubCaption".GetLocalized(), new MUXC.SymbolIconSource() { Symbol = Symbol.Home }, new HomePage()));
             ViewService.ViewModeChanged += ViewService_ViewModeChanged;
             ElementSoundPlayer.State = !Singleton<SettingsViewModel>.Instance.DisableSound ? ElementSoundPlayerState.On : ElementSoundPlayerState.Off;
             ViewService.RaiseViewModeChanged();

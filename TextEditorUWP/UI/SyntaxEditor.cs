@@ -241,20 +241,23 @@ namespace TextEditor.UI
             if (tokenizer != null)
             {
                 // Syntax highliting
-                var editor = (RichEditBox)sender;
+                var editor = sender as RichEditBox;
                 if (Text.Length == textLength) return;
                 textLength = Text.Length;
                 // Store a local copy to use from another thread
                 var text = Text;
                 await Task.Run(() =>
                 {
-                    var t = tokenizer.Tokenize(text);
-                    while (t.MoveNext())
+                    if (tokenizer != null)
                     {
-                        if (t.Current != null)
+                        var t = tokenizer.Tokenize(text);
+                        while (t.MoveNext())
                         {
-                            if (LanguageProvider.HighlightColors.TryGetValue(t.Current.Type, out Color foregroundColor)) ColourRegion(t.Current, foregroundColor);
-                            else ColourRegion(t.Current, LanguageProvider.HighlightColors[ScopeName.PlainText]);
+                            if (t.Current != null)
+                            {
+                                if (LanguageProvider.HighlightColors.TryGetValue(t.Current.Type, out Color foregroundColor)) ColourRegion(t.Current, foregroundColor);
+                                else ColourRegion(t.Current, LanguageProvider.HighlightColors[ScopeName.PlainText]);
+                            }
                         }
                     }
                 });
@@ -263,7 +266,7 @@ namespace TextEditor.UI
 
         private void ColourRegion(Token token, Color color)
         {
-            Dispatcher.RunAsync(CoreDispatcherPriority.Low, new DispatchedHandler(() =>
+            Dispatcher.RunAsync(CoreDispatcherPriority.Normal, new DispatchedHandler(() =>
             {
                 var range = TextView.Document.GetRange(token.StartIndex, token.StartIndex + token.Length);
                 if (range.CharacterFormat.ForegroundColor != color) range.CharacterFormat.ForegroundColor = color;
