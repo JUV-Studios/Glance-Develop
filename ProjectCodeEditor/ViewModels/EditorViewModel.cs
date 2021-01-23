@@ -5,14 +5,15 @@ using ProjectCodeEditor.Services;
 using Swordfish.NET.Collections.Auxiliary;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TextEditor;
-using TextEditor.IntelliSense;
 using TextEditor.Languages;
 using UtfUnknown;
 using Windows.ApplicationModel.DataTransfer;
@@ -23,7 +24,7 @@ namespace ProjectCodeEditor.ViewModels
 {
     internal enum WhatToShare : byte { File, Text, Selection }
 
-    public sealed class EditorViewModel : FlagsModel, IDisposable
+    public sealed class EditorViewModel : FlagsModel, IDisposable, ISuspendable
     {
         internal object PropertyChangeReturn;
 
@@ -39,7 +40,9 @@ namespace ProjectCodeEditor.ViewModels
 
         public readonly StorageFile WorkingFile;
 
-        private readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim saveLock = new SemaphoreSlim(1, 1);
+
+        private static readonly SemaphoreSlim lifecycleLock = new SemaphoreSlim(1, 1);
 
         public bool Saved
         {
@@ -71,32 +74,18 @@ namespace ProjectCodeEditor.ViewModels
             set => SetFlag(4, value);
         }
 
+        public bool Suspended
+        {
+            get => GetFlag(5);
+            set => SetFlag(5, value);
+        }
+
         private SyntaxLanguage _CodeLanguage;
 
         public SyntaxLanguage CodeLanguage
         {
             get => _CodeLanguage;
             set => SetProperty(ref _CodeLanguage, value);
-        }
-
-        private IFileIntelliSense _IntelliSenseEngine;
-
-        public IFileIntelliSense IntelliSenseEngine
-        {
-            get => _IntelliSenseEngine;
-            set
-            {
-                var oldVal = _IntelliSenseEngine;
-                if (SetProperty(ref _IntelliSenseEngine, value))
-                {
-                    if (oldVal != null) oldVal.PropertyChanged -= IntelliSenseEngine_PropertyChanged;
-                    if (_IntelliSenseEngine != null)
-                    {
-                        _IntelliSenseEngine.PropertyChanged += IntelliSenseEngine_PropertyChanged;
-                        AppendSuggestions();
-                    }
-                }
-            }
         }
 
         private string _UserContent;
@@ -118,7 +107,6 @@ namespace ProjectCodeEditor.ViewModels
                         SetProperty(ref _UserContent, value);
                         Saved = true;
                         Save();
-                        // IntelliSenseEngine?.Parse(_UserContent).ConfigureAwait(false);
                     }
                     else if (value.TrimEnd() != _UserContent.TrimEnd())
                     {
@@ -127,12 +115,11 @@ namespace ProjectCodeEditor.ViewModels
 
                         // Undo/Redo support
                         OnPropertyChanged("RetriveSelection");
-                        UndoStack.Push(new(value, Convert.ToInt32(PropertyChangeReturn)));
+                        UndoStack.Push(new(value, (int)PropertyChangeReturn));
                         HistoryCleared = false;
                         UpdateHistoryProperties();
 
                         if (App.AppSettings.AutoSave) Save();
-                        // IntelliSenseEngine?.Parse(_UserContent).ConfigureAwait(false);
                     }
                 }
             }
@@ -149,27 +136,75 @@ namespace ProjectCodeEditor.ViewModels
             string fileFormat = WorkingFile.FileType.ToLower();
             if (LanguageProvider.CodeLanguages.TryGetValue(fileFormat, out Lazy<SyntaxLanguage> syntaxLang)) CodeLanguage = syntaxLang.Value;
             else CodeLanguage = LanguageProvider.CodeLanguages[".txt"].Value;
-            IntelliSenseEngine = CodeLanguage.CreateIntelliSenseEngine();
             IsLoading = false;
         }
 
-        private void IntelliSenseEngine_PropertyChanged(object sender, PropertyChangedEventArgs e) => AppendSuggestions();
-
-        private void AppendSuggestions()
-        {
-            //_SuggestionList.Clear();
-            // _SuggestionList.AddRange(IntelliSenseEngine.SuggestionList);
-            //OnPropertyChanged(nameof(SuggestionsAvailable));
-        }
+        public void OpenFileLocation() => FileService.OpenFileLocationAsync(WorkingFile).ConfigureAwait(false);
 
         public void Dispose()
         {
-            if (_IntelliSenseEngine != null)
+        }
+
+        public async Task SuspendAsync()
+        {
+            if (!Suspended && (CanUndo || CanRedo))
             {
-                _IntelliSenseEngine.PropertyChanged -= IntelliSenseEngine_PropertyChanged;
-                _IntelliSenseEngine.Dispose();
+                await lifecycleLock.WaitAsync();
+                Suspended = true;
+                // Clear and write history stack collections to reduce memory usage.
+                UndoSuspendFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync($"{WorkingFile.Path.Replace("\\", "-")} undo data",
+                    CreationCollisionOption.ReplaceExisting);
+                RedoSuspendFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync($"{WorkingFile.Path.Replace("\\", "-")} redo data",
+                    CreationCollisionOption.ReplaceExisting);
+                await Task.Run(() =>
+                {
+                    using (var undoStream = File.Open(UndoSuspendFile.Path, FileMode.Create))
+                    {
+                        ObjectSerialize.Write(UndoStack, undoStream);
+                    }
+
+                    using (var redoStream = File.Open(RedoSuspendFile.Path, FileMode.Create))
+                    {
+                        ObjectSerialize.Write(RedoStack, redoStream);
+                    }
+                });
+
+                ClearHistoryImpl(false);
+                UndoStack = null;
+                RedoStack = null;
+                lifecycleLock.Release();
             }
         }
+
+        public async Task ResumeAsync()
+        {
+            if (Suspended && UndoStack == null && RedoStack == null)
+            {
+                await lifecycleLock.WaitAsync();
+                Suspended = false;
+                await Task.Run(() =>
+                {
+                    using (var undoStream = File.Open(UndoSuspendFile.Path, FileMode.Open, FileAccess.Read))
+                    {
+                        UndoStack = ObjectSerialize.Read(undoStream) as Stack<(string, int)>;
+                    }
+
+                    using (var redoStream = File.Open(RedoSuspendFile.Path, FileMode.Open, FileAccess.Read))
+                    {
+                        RedoStack = ObjectSerialize.Read(redoStream) as Stack<(string, int)>;
+                    }
+                });
+
+                UpdateHistoryProperties();
+                await FileService.DeleteFileAsync(UndoSuspendFile);
+                await FileService.DeleteFileAsync(RedoSuspendFile);
+                lifecycleLock.Release();
+            }
+        }
+
+        private StorageFile UndoSuspendFile = null;
+
+        private StorageFile RedoSuspendFile = null;
 
         #region History
 
@@ -179,9 +214,9 @@ namespace ProjectCodeEditor.ViewModels
 
         public bool CanClearHistory => CanUndo || CanRedo;
 
-        private readonly Stack<(string, int)> UndoStack = new();
+        private Stack<(string, int)> UndoStack = new();
 
-        private readonly Stack<(string, int)> RedoStack = new();
+        private Stack<(string, int)> RedoStack = new();
 
         internal int HistoryRange;
 
@@ -218,12 +253,14 @@ namespace ProjectCodeEditor.ViewModels
             HistoryRange = retVal.Item2;
         }
 
-        public void ClearHistory()
+        public void ClearHistory() => ClearHistoryImpl(true);
+
+        private void ClearHistoryImpl(bool setFlag)
         {
             UndoStack.Clear();
             RedoStack.Clear();
             UpdateHistoryProperties();
-            HistoryCleared = true;
+            if (setFlag) HistoryCleared = true;
         }
 
         #endregion
@@ -268,7 +305,7 @@ namespace ProjectCodeEditor.ViewModels
             bool sendNotification = true;
             bool result = true;
             if ((Singleton<SettingsViewModel>.Instance.AutoSave && isWorkingFile) || ViewService.Properties.AppClosing) sendNotification = false;
-            await _semaphoreSlim.WaitAsync();
+            await saveLock.WaitAsync();
             try
             {
                 Encoding fileEncoding;
@@ -298,7 +335,7 @@ namespace ProjectCodeEditor.ViewModels
             }
             finally
             {
-                _semaphoreSlim.Release();
+                saveLock.Release();
             }
 
             return result;

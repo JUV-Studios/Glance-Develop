@@ -15,12 +15,6 @@ namespace ProjectCodeEditor.ViewModels
     {
         public readonly RecentsViewModel Recents = Singleton<RecentsViewModel>.Instance;
 
-        public readonly ActionOption[] Actions = new ActionOption[]
-        {
-            new("OpenOption/Label".GetLocalized(), "OpenFileActionDescription".GetLocalized(), new SymbolIconSource() { Symbol = Symbol.OpenFile }, Interactions.OpenFiles, "Ctrl+O"),
-            new("NewFileActionTitle".GetLocalized(), "NewFileActionDescription".GetLocalized(), new SymbolIconSource() { Symbol = Symbol.Add }, Interactions.NewFile, "Ctrl+N")
-        };
-
         public Visibility RecentFilesVisibility => Recents.RecentFiles.IsEmpty() ? Visibility.Collapsed : Visibility.Visible;
 
         internal RecentFile ContextedRecentFile;
@@ -30,9 +24,9 @@ namespace ProjectCodeEditor.ViewModels
             if (ContextedRecentFile != null) Recents.RemoveRecentFile(ContextedRecentFile);
         }
 
-        public async void OpenRecentFilePath()
+        public void OpenRecentFilePath()
         {
-            if (ContextedRecentFile != null) await FileService.OpenFileLocation(ContextedRecentFile.File);
+            if (ContextedRecentFile != null) FileService.OpenFileLocationAsync(ContextedRecentFile.File).ConfigureAwait(false);
         }
 
         public void ShareRecentFile() => DataTransferManager.ShowShareUI();

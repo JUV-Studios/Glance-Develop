@@ -1,11 +1,11 @@
-﻿using Microsoft.Toolkit.Uwp.Extensions;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Uwp.Extensions;
 using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.Dialogs;
 using ProjectCodeEditor.Helpers;
 using ProjectCodeEditor.Models;
 using ProjectCodeEditor.ViewModels;
 using Swordfish.NET.Collections.Auxiliary;
-using System;
 using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
@@ -23,6 +23,8 @@ namespace ProjectCodeEditor.Views
         public readonly HomeViewModel ViewModel = new HomeViewModel();
 
         public readonly string SettingsTitleStringId = "SettingsHub/Header";
+
+        private RecentFilesList RecentFilesList = null;
 
         public HomePage() => InitializeComponent();
 
@@ -51,11 +53,6 @@ namespace ProjectCodeEditor.Views
             deferral.Complete();
         }
 
-        private void ActionList_ItemClick(object sender, ItemClickEventArgs e)
-        {
-            if (e.ClickedItem is ActionOption option) option.ActionCommand();
-        }
-
         private void Layout_Loaded(object sender, RoutedEventArgs e)
         {
             var layout = sender as Hub;
@@ -65,14 +62,13 @@ namespace ProjectCodeEditor.Views
 
         private void RecentFilesList_Loaded(object sender, RoutedEventArgs e)
         {
-            var target = sender as ListView;
-            AccessibilityHelper.AttachContextMenu(target, Resources["RecentFileContextMenu"] as MenuFlyout, ViewModel.ShowContextFlyoutForRecentList);
+            RecentFilesList = sender as RecentFilesList;
+            AccessibilityHelper.AttachContextMenu(RecentFilesList, Resources["RecentFileContextMenu"] as MenuFlyout, ViewModel.ShowContextFlyoutForRecentList);
         }
 
         private void RecentFilesList_Unloaded(object sender, RoutedEventArgs e)
         {
-            var target = sender as ListView;
-            AccessibilityHelper.DetachContextMenu(target);
+            if (RecentFilesList != null) AccessibilityHelper.DetachContextMenu(RecentFilesList);
         }
 
         private void FontBox_TextSubmitted(ComboBox sender, ComboBoxTextSubmittedEventArgs args)
@@ -96,5 +92,11 @@ namespace ProjectCodeEditor.Views
         }
 
         private void DependenciesDialog_Click(object sender, RoutedEventArgs e) => DialogHelper.ShowPlusBlock(Singleton<DependenciesDialog>.Instance, null);
+
+        private void RecentsListViewSearch_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+            var panel = sender.Parent;
+            ((panel as Grid).Children.Where(item => item is RecentFilesList).First() as RecentFilesList).Search(sender.Text);
+        }
     }
 }

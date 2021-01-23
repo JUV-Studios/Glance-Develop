@@ -1,5 +1,4 @@
 ﻿using Humanizer;
-using Microsoft.Toolkit.Uwp.Extensions;
 using System;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
@@ -9,6 +8,7 @@ namespace ProjectCodeEditor.Models
     public sealed record RecentFile(StorageFile File, DateTime Time, AccessListEntry Entry)
     {
         private string _TimeString = null;
+
         public string TimeString
         {
             get
@@ -18,6 +18,6 @@ namespace ProjectCodeEditor.Models
             }
         }
 
-        public override string ToString() => $"{File.Name}, {File.Path}, {TimeString}, {"RecentFileAutomation".GetLocalized()}";
+        public override string ToString() => $"{File.Name}, {File.Path}, {TimeString}";
     }
 }

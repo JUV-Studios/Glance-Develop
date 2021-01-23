@@ -8,6 +8,7 @@
     xmlns:dialogs="using:ProjectCodeEditor.Dialogs"
     xmlns:local="using:ProjectCodeEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:ProjectCodeEditor.Models"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:services="using:ProjectCodeEditor.Services"
     xmlns:vmodels="using:ProjectCodeEditor.ViewModels"
@@ -50,11 +51,26 @@
             Loaded="Layout_Loaded">
             <HubSection x:Uid="Hub_GettingStarted" DataContext="{x:Bind ViewModel}">
                 <DataTemplate x:DataType="vmodels:HomeViewModel">
-                    <local:ActionButtonList
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"
-                        ItemClick="ActionList_ItemClick"
-                        ItemsSource="{x:Bind Actions}" />
+                    <local:ActionButtonList HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <models:ActionOption
+                            x:Uid="OpenFilesOption"
+                            AccessKey="Ctrl+O"
+                            Click="{x:Bind vmodels:Interactions.OpenFiles}"
+                            Icon="OpenFile" />
+                        <models:ActionOption
+                            x:Uid="OpenProjectOption"
+                            AccessKey="Ctrl+Shift+O"
+                            Click="{x:Bind vmodels:Interactions.OpenProject}">
+                            <models:ActionOption.Icon>
+                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xED25;" />
+                            </models:ActionOption.Icon>
+                        </models:ActionOption>
+                        <models:ActionOption
+                            x:Uid="NewFileOption"
+                            AccessKey="Ctrl+N"
+                            Click="{x:Bind vmodels:Interactions.NewFile}"
+                            Icon="Add" />
+                    </local:ActionButtonList>
                 </DataTemplate>
             </HubSection>
             <HubSection
@@ -63,12 +79,26 @@
                 DataContext="{x:Bind ViewModel}"
                 Visibility="{x:Bind ViewModel.RecentFilesVisibility, Mode=OneWay}">
                 <DataTemplate x:DataType="vmodels:HomeViewModel">
-                    <vmodels:RecentFilesList
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"
-                        ItemClick="RecentFilesListItem_Click"
-                        Loaded="RecentFilesList_Loaded"
-                        Unloaded="RecentFilesList_Unloaded" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="8" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <AutoSuggestBox
+                            x:Uid="RecentFilesSearch"
+                            Width="360"
+                            HorizontalAlignment="Left"
+                            QueryIcon="Find"
+                            TextChanged="RecentsListViewSearch_TextChanged" />
+                        <vmodels:RecentFilesList
+                            Grid.Row="2"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            ItemClick="RecentFilesListItem_Click"
+                            Loaded="RecentFilesList_Loaded"
+                            Unloaded="RecentFilesList_Unloaded" />
+                    </Grid>
                 </DataTemplate>
             </HubSection>
             <HubSection DataContext="{x:Bind local:App.AppSettings}" Header="{x:Bind SettingsTitleStringId, Converter={StaticResource ResourceLocator}}">
@@ -86,7 +116,7 @@
                             </controls:Expander>
                             <controls:Expander x:Uid="Settings_Editor" Width="300">
                                 <StackPanel Margin="12" Spacing="8">
-                                    <TextBlock x:Uid="GeneralSettingsDesc" />
+                                    <TextBlock x:Uid="EditorSettingsDesc" />
                                     <ToggleSwitch x:Uid="EditorSettingsAutoSave" IsOn="{x:Bind AutoSave, Mode=TwoWay}" />
                                     <ComboBox
                                         x:Uid="FontOption"
@@ -124,7 +154,7 @@
                                 <StackPanel Width="300" Margin="12">
                                     <TextBlock Text="{x:Bind AboutText}" />
                                     <TextBlock Loaded="SpecialThanksBlock_Loaded" />
-                                    <HyperlinkButton x:Uid="TermsOfUseHyperlink" NavigateUri="https://sites.google.com/site/jgveed/legal" />
+                                    <HyperlinkButton x:Uid="TermsOfUseHyperlink" NavigateUri="https://sway.office.com/s/5JnZ4XUEqVN7bAsB/embed" />
                                     <HyperlinkButton x:Uid="SubscribeHyperlink" NavigateUri="https://www.youtube.com/channel/UCCgDUPx_XgBfgBx-If1uk1g?sub_confirmation=1" />
                                     <HyperlinkButton x:Uid="TwitterFollowLink" NavigateUri="https://twitter.com/Jaigane88727011" />
                                     <HyperlinkButton Click="DependenciesDialog_Click" Content="{x:Bind dialogs:DependenciesDialog.DependenciesBlockTextId, Converter={StaticResource ResourceLocator}}" />

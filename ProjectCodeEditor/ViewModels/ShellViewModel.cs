@@ -45,30 +45,6 @@ namespace ProjectCodeEditor.ViewModels
             }
         }
 
-        private SymbolIconSource _FullScreenBtnSrc;
-
-        public SymbolIconSource FSIconSource
-        {
-            get => _FullScreenBtnSrc;
-            set => SetProperty(ref _FullScreenBtnSrc, value);
-        }
-
-        private string _FullScreenBtnLabel;
-
-        public string FSLabel
-        {
-            get => _FullScreenBtnLabel;
-            set => SetProperty(ref _FullScreenBtnLabel, value);
-        }
-
-        private string _CompactOverlayBtnLabel;
-
-        public string CompactOverlayBtnLabel
-        {
-            get => _CompactOverlayBtnLabel;
-            set => SetProperty(ref _CompactOverlayBtnLabel, value);
-        }
-
         public void AddLayout(ShellView view, bool multiple = false)
         {
             Instances.Add(view);
@@ -78,26 +54,7 @@ namespace ProjectCodeEditor.ViewModels
         public ShellViewModel()
         {
             AddLayout(new("HubTitle".GetLocalized(), "HubCaption".GetLocalized(), new MUXC.SymbolIconSource() { Symbol = Symbol.Home }, new HomePage()));
-            ViewService.ViewModeChanged += ViewService_ViewModeChanged;
             ElementSoundPlayer.State = !Singleton<SettingsViewModel>.Instance.DisableSound ? ElementSoundPlayerState.On : ElementSoundPlayerState.Off;
-            ViewService.RaiseViewModeChanged();
-        }
-
-        private void ViewService_ViewModeChanged(object sender, AppViewMode e)
-        {
-            if (e == AppViewMode.FullScreen)
-            {
-                FSIconSource = new SymbolIconSource() { Symbol = Symbol.BackToWindow };
-                FSLabel = "FullScreenOptionOnText".GetLocalized();
-            }
-            else
-            {
-                FSIconSource = new SymbolIconSource() { Symbol = Symbol.FullScreen };
-                FSLabel = "FullScreenOptionOffText".GetLocalized();
-            }
-
-            if (e == AppViewMode.CompactOverlay) CompactOverlayBtnLabel = "PipOptionOnText".GetLocalized();
-            else CompactOverlayBtnLabel = "PipOptionOffText".GetLocalized();
         }
 
         public void CloseInstance(ShellView view)
@@ -107,7 +64,8 @@ namespace ProjectCodeEditor.ViewModels
 
         internal void RemoveInstance(ShellView e)
         {
-            if (Instances.IndexOf(e) == SelectedIndex) SelectedIndex = 0;
+            var index = Instances.IndexOf(e);
+            if (index == SelectedIndex) SelectedIndex = index - 1;
             Instances.Remove(e);
             GC.Collect();
             GC.WaitForPendingFinalizers();

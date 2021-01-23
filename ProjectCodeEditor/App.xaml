@@ -102,6 +102,7 @@
                                 </Style>
                             </Setter.Value>
                         </Setter>
+                        <Setter Property="ItemContainerTransitions" Value="{x:Null}" />
                         <Setter Property="ItemTemplate">
                             <Setter.Value>
                                 <DataTemplate>
@@ -111,13 +112,13 @@
                                             <ColumnDefinition Width="8" />
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
-                                        <IconSourceElement
+                                        <ContentPresenter
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center"
-                                            IconSource="{Binding Icon}" />
+                                            Content="{Binding Icon, Mode=OneWay}" />
                                         <StackPanel Grid.Column="2" Spacing="4">
-                                            <TextBlock Style="{ThemeResource BaseTextBlockStyle}" Text="{Binding Title}" />
-                                            <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Text="{Binding Description}" />
+                                            <TextBlock Style="{ThemeResource BaseTextBlockStyle}" Text="{Binding Title, Mode=OneWay}" />
+                                            <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Text="{Binding Description, Mode=OneWay}" />
                                         </StackPanel>
                                     </Grid>
                                 </DataTemplate>

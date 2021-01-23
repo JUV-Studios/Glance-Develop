@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.System;
@@ -28,19 +29,25 @@ namespace ProjectCodeEditor.Views
     {
         public EditorViewModel ViewModel { get; private set; }
 
-        private readonly DataTransferManager ShareCharm = DataTransferManager.GetForCurrentView();
+        private static readonly DataTransferManager ShareCharm = DataTransferManager.GetForCurrentView();
 
         private bool PropertiesSet = false;
 
-        public CodeEditor(Dictionary<string, object> args)
+        internal static readonly string PathOpenCommandId = "FileOpenPathItem/Text";
+
+        private readonly Dictionary<VirtualKey, Action> FastCtrlKeyboardShortcuts;
+
+        public CodeEditor(object args)
         {
-            if (args.TryGetValue("file", out object file))
-            {
-                var storageFile = file as StorageFile;
-                ViewModel = new(storageFile);
-            }
-            else if (args.ContainsKey("viewModel")) ViewModel = args["viewModel"] as EditorViewModel;
+            if (args is StorageFile file) ViewModel = new(file);
+            else ViewModel = args as EditorViewModel;
             InitializeComponent();
+            FastCtrlKeyboardShortcuts = new()
+            {
+                { VirtualKey.Z, ViewModel.Undo },
+                { VirtualKey.Y, ViewModel.Redo },
+                { VirtualKey.A, Editor.SelectAll },
+            };
         }
 
         private async void UserControl_Loaded(object sender, RoutedEventArgs e)
@@ -52,6 +59,7 @@ namespace ProjectCodeEditor.Views
                 ViewService.Properties.ViewTitle = ViewModel.WorkingFile.Name;
                 ViewService.KeyShortcutPressed += ViewService_KeyShortcutPressed;
                 ShareCharm.DataRequested += ShareCharm_DataRequested;
+                await ViewModel.ResumeAsync();
             }
 
             if (!PropertiesSet)
@@ -68,17 +76,13 @@ namespace ProjectCodeEditor.Views
                 catch (FileNotFoundException)
                 {
                     Close();
-                    App.AppSettings.DialogShown = true;
-                    ContentDialog dialog = new()
+                    DialogHelper.ShowPlusBlock(new()
                     {
                         Title = string.Format("NoFileOpenDialogTitle".GetLocalized(), ViewModel.WorkingFile.Name),
                         Content = string.Format("NoFileOpenDialogContent".GetLocalized(), ViewModel.WorkingFile.Name),
                         DefaultButton = ContentDialogButton.Close,
                         CloseButtonText = "OkayText".GetLocalized()
-                    };
-
-                    await dialog.ShowAsync();
-                    App.AppSettings.DialogShown = false;
+                    }, null);
                 }
 
                 ViewService.AppClosingEvent.Add(ViewService_AppClosing);
@@ -101,10 +105,10 @@ namespace ProjectCodeEditor.Views
             {
                 ViewModel.PropertyChangeReturn = Editor.TextView.TextDocument.Selection.EndPosition;
             }
-            else if (e.PropertyName == "IsLoading") FadeSplashScreen();
+            else if (e.PropertyName == "IsLoading") FadeSplashScreenAsync().ConfigureAwait(false);
         }
 
-        private async void FadeSplashScreen()
+        private async Task FadeSplashScreenAsync()
         {
             await SplashScreen.FadeOutAsync(TimeSpan.FromSeconds(10));
             SplashScreen.Visibility = Visibility.Collapsed;
@@ -127,23 +131,13 @@ namespace ProjectCodeEditor.Views
 
         private void ViewService_KeyShortcutPressed(object sender, KeyShortcutPressedEventArgs e)
         {
-            // Intercept Ctrl+Z via CoreWindow
-            if (e.Accelerator.Modifiers == VirtualKeyModifiers.Control && e.Accelerator.Key == VirtualKey.Z && e.Accelerator.IsEnabled)
+            if (e.Accelerator.IsEnabled && e.Accelerator.Modifiers == VirtualKeyModifiers.Control)
             {
-                e.SystemArgs.Handled = true;
-                ViewModel.Undo();
-            }
-            // Intercept Ctrl+Y via CoreWindow
-            if (e.Accelerator.Modifiers == VirtualKeyModifiers.Control && e.Accelerator.Key == VirtualKey.Y && e.Accelerator.IsEnabled)
-            {
-                e.SystemArgs.Handled = true;
-                ViewModel.Undo();
-            }
-            /// Intercept Ctrl+S via CoreWindow
-            else if (e.Accelerator.Modifiers == VirtualKeyModifiers.Control && e.Accelerator.Key == VirtualKey.S && e.Accelerator.IsEnabled & !ViewModel.Saved)
-            {
-                e.SystemArgs.Handled = true;
-                ViewModel.Save();
+                if (FastCtrlKeyboardShortcuts.TryGetValue(e.Accelerator.Key, out Action function))
+                {
+                    e.SystemArgs.Handled = true;
+                    function();
+                }
             }
         }
 
@@ -178,6 +172,7 @@ namespace ProjectCodeEditor.Views
             if (!ViewModel.Unloaded)
             {
                 ViewModel.Unloaded = true;
+                ViewModel.SuspendAsync().ConfigureAwait(false);
                 Debug.WriteLine("Editor unloaded");
                 ViewService.Properties.ViewTitle = string.Empty;
                 ViewService.KeyShortcutPressed -= ViewService_KeyShortcutPressed;
@@ -199,7 +194,7 @@ namespace ProjectCodeEditor.Views
                 if (!App.AppSettings.DialogShown && !ViewModel.Unloaded)
                 {
                     var dialog = Singleton<UnsavedChangesDialog>.Instance;
-                    DialogHelper.ShowPlusBlock(dialog, ((e) =>
+                    DialogHelper.ShowPlusBlock(dialog, (e) =>
                     {
                         if (dialog.Result == ContentDialogResult.None)
                         {
@@ -209,7 +204,7 @@ namespace ProjectCodeEditor.Views
 
                         if (dialog.Result == ContentDialogResult.Primary) ViewModel.Save();
                         Close();
-                    }));
+                    });
                 }
                 else
                 {
@@ -229,49 +224,32 @@ namespace ProjectCodeEditor.Views
             {
                 ViewService.AppClosingEvent.Remove(ViewService_AppClosing);
                 ShellView instance = null;
-                Interactions.FileAlreadyOpen(ViewModel.WorkingFile, ref instance);
+                Interactions.StorageItemAlreadyOpen(ViewModel.WorkingFile, ref instance);
                 Singleton<ShellViewModel>.Instance.RemoveInstance(instance);
             }
         }
 
-        private async void GoTo_Click(object sender, RoutedEventArgs e)
+        private void GoTo_Click(object sender, EventArgs e)
         {
-            App.AppSettings.DialogShown = true;
             var lines = ViewModel.UserContent.Split("\r");
             Editor.DetachEvents(Editor.TextView);
             GoToDialog.LineBox.Text = string.Empty;
             GoToDialog.LineBox.PlaceholderText = $"{"GoToLineBox/Placeholder".GetLocalized()} (1 - {lines.Count() - 1})";
             GoToDialog.LineBox.Maximum = lines.Count() - 1;
-            if (await GoToDialog.DialogRef.ShowAsync() == ContentDialogResult.Primary)
+            DialogHelper.ShowPlusBlock(GoToDialog.DialogRef, (result) =>
             {
-                int lineVal;
-                try
+                if (result == ContentDialogResult.Primary)
                 {
-                    lineVal = Convert.ToInt32(GoToDialog.LineBox.Value);
+                    int lineVal;
+                    try
+                    {
+                        lineVal = Convert.ToInt32(GoToDialog.LineBox.Value);
+                    }
+                    catch (OverflowException) { lineVal = 0; }
+                    Editor.ScrollToLine(lineVal, false);
                 }
-                catch (OverflowException) { lineVal = 0; }
-                Editor.ScrollToLine(lineVal, false);
-            }
-
-            Editor.AttachEvents(Editor.TextView);
-            App.AppSettings.DialogShown = false;
-        }
-
-        private void Replace_Click(object sender, RoutedEventArgs e)
-        {
-        }
-
-        private async void Find_Click(object sender, RoutedEventArgs e)
-        {
-            if (!App.AppSettings.DialogShown)
-            {
-                App.AppSettings.DialogShown = true;
-                var findDialog = Singleton<FindDialog>.Instance;
-                await findDialog.ShowAsync();
-                if (findDialog.Result == ContentDialogResult.Primary) Editor.FindText(findDialog.FindText);
-                App.AppSettings.DialogShown = false;
-            }
-
+                Editor.AttachEvents(Editor.TextView);
+            });
         }
 
         private void StandardUICommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args) => args.CanExecute = !ViewModel.Unloaded;
@@ -284,12 +262,15 @@ namespace ProjectCodeEditor.Views
             }
         }
 
-        private void RefreshParse_Click(object sender, RoutedEventArgs e) => ViewModel.IntelliSenseEngine?.Parse(ViewModel.UserContent).ConfigureAwait(false);
-
-        private void Editor_Escaped(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+        private void GoToShortcut_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
         {
             args.Handled = true;
-            (FocusManager.FindFirstFocusableElement(null) as Control).Focus(FocusState.Keyboard);
+            GoTo_Click(this, null);
+        }
+
+        private void FindBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            Editor.FindText(args.QueryText);
         }
     }
 }

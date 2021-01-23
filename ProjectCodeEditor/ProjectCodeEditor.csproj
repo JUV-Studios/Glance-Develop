@@ -13,6 +13,7 @@
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.19041.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -178,6 +179,9 @@
     <PackageReference Include="Microsoft.Xaml.Behaviors.Uwp.Managed">
       <Version>2.0.1</Version>
     </PackageReference>
+    <PackageReference Include="RangedObservableCollection">
+      <Version>1.0.1</Version>
+    </PackageReference>
     <PackageReference Include="Swordfish.NET.CollectionsV3">
       <Version>3.3.1</Version>
     </PackageReference>
@@ -201,14 +205,12 @@
       <DependentUpon>DependenciesDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\DialogHelper.cs" />
-    <Compile Include="Dialogs\FindDialog.xaml.cs">
-      <DependentUpon>FindDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Dialogs\GoToDialog.cs" />
     <Compile Include="Dialogs\UnsavedChangesDialog.xaml.cs">
       <DependentUpon>UnsavedChangesDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helpers\AccessibilityHelper.cs" />
+    <Compile Include="Helpers\ISuspendable.cs" />
     <Compile Include="Helpers\FlagsModel.cs" />
     <Compile Include="Helpers\JumpListHelper.cs" />
     <Compile Include="Helpers\NotificationHelper.cs" />
@@ -216,7 +218,6 @@
     <Compile Include="Models\RecentFile.cs" />
     <Compile Include="Models\ShellView.cs" />
     <Compile Include="Services\FileService.cs" />
-    <Compile Include="Services\PersistedHistoryService.cs" />
     <Compile Include="Services\ViewService.cs" />
     <Compile Include="ViewModels\EditorViewModel.cs" />
     <Compile Include="ViewModels\HomeViewModel.cs" />
@@ -245,10 +246,6 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="Dialogs\DependenciesDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Dialogs\FindDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -311,6 +308,7 @@
       <Name>TextEditor</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

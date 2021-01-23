@@ -111,7 +111,7 @@ namespace ProjectCodeEditor.Services
         /// Only use for saving data before close. Don't update the UI
         /// </summary>
         /// 
-        public static readonly HashSet<Action> AppClosingEvent = new();
+        public static readonly List<Action> AppClosingEvent = new();
 
         private static readonly ViewModePreferences CompactOverlayPreferences = ViewModePreferences.CreateDefault(ApplicationViewMode.CompactOverlay);
 
@@ -135,8 +135,6 @@ namespace ProjectCodeEditor.Services
 
         private static void TitleBar_LayoutMetricsChanged(CoreApplicationViewTitleBar sender, object args) => SetTitleBarProperties();
 
-        public static async Task CloseView() => await ApplicationView.TryConsolidateAsync();
-
         private static void CoreWindow_SizeChanged(CoreWindow sender, WindowSizeChangedEventArgs args)
         {
             args.Handled = true;
@@ -152,15 +150,14 @@ namespace ProjectCodeEditor.Services
             ViewModeChanged?.Invoke(null, viewMode);
         }
 
-        private static async void CloseManager_CloseRequested(object sender, SystemNavigationCloseRequestedPreviewEventArgs e)
+        private static void CloseManager_CloseRequested(object sender, SystemNavigationCloseRequestedPreviewEventArgs e)
         {
             e.Handled = true;
             var deferral = e.GetDeferral();
             _Properties.AppClosing = true;
             if (!AppClosingEvent.IsEmpty()) foreach (var func in AppClosingEvent) func();
             AppClosingEvent.Clear();
-            await CloseView();
-            deferral.Complete();
+            ApplicationView.TryConsolidateAsync().AsTask().ContinueWith((result) => { deferral.Complete(); }, TaskScheduler.Default).ConfigureAwait(true); 
         }
 
         private static void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
@@ -180,7 +177,7 @@ namespace ProjectCodeEditor.Services
                     IsEnabled = !Singleton<SettingsViewModel>.Instance.DialogShown,
                     Key = args.VirtualKey,
                     Modifiers = modifier
-                }, args));
+                }, args)); 
             }
         }
 
@@ -188,8 +185,9 @@ namespace ProjectCodeEditor.Services
 
         private static void SetTitleBarProperties()
         {
-            ApplicationView.TitleBar.BackgroundColor = Singleton<UISettings>.Instance.GetColorValue(UIColorType.Background);
-            ApplicationView.TitleBar.ForegroundColor = Singleton<UISettings>.Instance.GetColorValue(UIColorType.Foreground);
+            var uiSettings = Singleton<UISettings>.Instance;
+            ApplicationView.TitleBar.BackgroundColor = uiSettings.GetColorValue(UIColorType.Background);
+            ApplicationView.TitleBar.ForegroundColor = uiSettings.GetColorValue(UIColorType.Foreground);
             ApplicationView.TitleBar.ButtonBackgroundColor = Colors.Transparent;
             ApplicationView.TitleBar.ButtonForegroundColor = ApplicationView.TitleBar.ForegroundColor;
             ApplicationView.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
@@ -205,18 +203,6 @@ namespace ProjectCodeEditor.Services
             if (size.Width < 641) _Properties.RecommendedPageMargin = new(12, 12, 12, 0);
             else if (size.Width < 1008) _Properties.RecommendedPageMargin = new(24, 24, 24, 0);
             else _Properties.RecommendedPageMargin = new(36, 36, 36, 0);
-        }
-
-        public static void ToggleFullScreen()
-        {
-            if (ApplicationView.IsFullScreenMode) ApplicationView.ExitFullScreenMode();
-            else ApplicationView.TryEnterFullScreenMode();
-        }
-
-        public static async void ToggleCompactOverlay()
-        {
-            if (ApplicationView.ViewMode == ApplicationViewMode.Default) await ApplicationView.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, CompactOverlayPreferences);
-            else await ApplicationView.TryEnterViewModeAsync(ApplicationViewMode.Default, CompactOverlayPreferences);
         }
     }
 }

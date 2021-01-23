@@ -2,10 +2,14 @@
     x:Class="ProjectCodeEditor.Views.CodeEditor"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:dataTransfer="using:Windows.ApplicationModel.DataTransfer"
     xmlns:editor="using:TextEditor.UI"
+    xmlns:local="using:ProjectCodeEditor.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:ProjectCodeEditor.Models"
     xmlns:root="using:ProjectCodeEditor"
     d:DesignHeight="300"
     d:DesignWidth="400"
@@ -15,74 +19,11 @@
 
     <UserControl.KeyboardAccelerators>
         <KeyboardAccelerator
-            Key="Escape"
-            Invoked="Editor_Escaped"
-            IsEnabled="{x:Bind ViewModel.Unloaded, Mode=OneWay, Converter={StaticResource BooleanReverse}}" />
+            Key="G"
+            Invoked="GoToShortcut_Invoked"
+            IsEnabled="{x:Bind ViewModel.Unloaded, Mode=OneWay, Converter={StaticResource BooleanReverse}}"
+            Modifiers="Control" />
     </UserControl.KeyboardAccelerators>
-
-    <UserControl.Resources>
-        <!--<MenuFlyout x:Name="EditorMenu" AreOpenCloseAnimationsEnabled="True">
-            <MenuFlyoutSubItem x:Uid="EditSubItem">
-                <MenuFlyoutItem IsEnabled="{x:Bind ViewModel.CanUndo, Mode=OneWay}">
-                    <MenuFlyoutItem.Command>
-                        <StandardUICommand
-                            CanExecuteRequested="StandardUICommand_CanExecuteRequested"
-                            ExecuteRequested="{x:Bind ViewModel.Undo}"
-                            Kind="Undo" />
-                    </MenuFlyoutItem.Command>
-                </MenuFlyoutItem>
-                <MenuFlyoutItem IsEnabled="{x:Bind ViewModel.CanRedo, Mode=OneWay}">
-                    <MenuFlyoutItem.Command>
-                        <StandardUICommand
-                            CanExecuteRequested="StandardUICommand_CanExecuteRequested"
-                            ExecuteRequested="{x:Bind ViewModel.Redo}"
-                            Kind="Redo" />
-                    </MenuFlyoutItem.Command>
-                </MenuFlyoutItem>
-                <MenuFlyoutItem
-                    x:Uid="ClearHistoryItem"
-                    Click="{x:Bind ViewModel.ClearHistory}"
-                    IsEnabled="{x:Bind ViewModel.CanClearHistory, Mode=OneWay}" />
-                <MenuFlyoutSeparator />
-                <MenuFlyoutItem
-                    x:Uid="GoToLineItem"
-                    Click="GoTo_Click"
-                    Icon="Go">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator
-                            Key="G"
-                            IsEnabled="{x:Bind ViewModel.Unloaded, Converter={StaticResource BooleanReverse}, Mode=OneWay}"
-                            Modifiers="Control" />
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-                <MenuFlyoutItem
-                    x:Uid="FindItem"
-                    Click="Find_Click"
-                    Icon="Find">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <KeyboardAccelerator
-                            Key="F"
-                            IsEnabled="{x:Bind ViewModel.Unloaded, Converter={StaticResource BooleanReverse}, Mode=OneWay}"
-                            Modifiers="Control" />
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-                <MenuFlyoutSeparator />
-                <MenuFlyoutItem>
-                    <MenuFlyoutItem.Command>
-                        <StandardUICommand
-                            CanExecuteRequested="StandardUICommand_CanExecuteRequested"
-                            ExecuteRequested="{x:Bind Editor.SelectAll}"
-                            Kind="SelectAll" />
-                    </MenuFlyoutItem.Command>
-                </MenuFlyoutItem>
-                <MenuFlyoutItem
-                    x:Uid="ClearSelectionItem"
-                    Click="{x:Bind Editor.ClearSelection}"
-                    Icon="ClearSelection"
-                    IsEnabled="{x:Bind Editor.IsSelectionValid, Mode=OneWay}" />
-            </MenuFlyoutSubItem>
-        </MenuFlyout>-->
-    </UserControl.Resources>
 
     <Grid>
         <Border
@@ -132,27 +73,36 @@
                                 TextWrapping="Wrap" />
                         </StackPanel>
                     </Pivot.Title>
-                    <!--<PivotItem x:Uid="CodeSuggestionsPivot">
-                        <Grid>
-                            <StackPanel
-                                Margin="0,8,0,8"
-                                Spacing="8"
-                                Visibility="{x:Bind ViewModel.SuggestionsAvailable, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibility}}">
-                                <TextBlock x:Uid="NoCodeSuggestionsBlock" TextWrapping="Wrap" />
-                                <Button
-                                    x:Uid="RefreshParseBtn"
-                                    Click="RefreshParse_Click"
-                                    Style="{ThemeResource ButtonRevealStyle}" />
-                            </StackPanel>
-
-                            <ListView
-                                Margin="0,8,0,8"
-                                IsItemClickEnabled="True"
-                                ItemsSource="{x:Bind ViewModel.SuggestionList, Mode=OneWay}"
-                                SelectionMode="None"
-                                Visibility="{x:Bind ViewModel.SuggestionsAvailable, Mode=OneWay, Converter={StaticResource BoolToVisibility}}" />
-                        </Grid>
-                    </PivotItem>-->
+                    <PivotItem x:Uid="CodeEditor_OptionsPivot">
+                        <root:ActionButtonList
+                            Margin="0,8,0,8"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch">
+                            <models:ActionOption
+                                x:Uid="ClearHistoryItem"
+                                Click="{x:Bind ViewModel.ClearHistory}"
+                                IsEnabled="{x:Bind ViewModel.CanClearHistory, Mode=OneWay}">
+                                <models:ActionOption.Icon>
+                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xED62;" />
+                                </models:ActionOption.Icon>
+                            </models:ActionOption>
+                            <models:ActionOption AccessKey="Ctrl+A" Click="{x:Bind Editor.SelectAll}">
+                                <models:ActionOption.CommandRef>
+                                    <StandardUICommand Kind="SelectAll" />
+                                </models:ActionOption.CommandRef>
+                            </models:ActionOption>
+                            <models:ActionOption
+                                x:Uid="ClearSelectionItem"
+                                Click="{x:Bind Editor.ClearSelection}"
+                                Icon="ClearSelection"
+                                IsEnabled="{x:Bind Editor.IsSelectionValid, Mode=OneWay}" />
+                            <models:ActionOption
+                                x:Uid="GoToOption"
+                                AccessKey="Ctrl+G"
+                                Click="GoTo_Click"
+                                Icon="Go" />
+                        </root:ActionButtonList>
+                    </PivotItem>
                 </Pivot>
             </SplitView.Pane>
             <SplitView.Content>
@@ -171,12 +121,46 @@
                         TabSize="{x:Bind root:App.AppSettings.TabSize, Mode=OneWay}"
                         Text="{x:Bind ViewModel.UserContent, Mode=OneWay}" />
                     <CommandBar Grid.Row="1" DefaultLabelPosition="Right">
+                        <CommandBar.Content>
+                            <CommandBar
+                                HorizontalContentAlignment="Left"
+                                DefaultLabelPosition="Right"
+                                IsDynamicOverflowEnabled="False"
+                                OverflowButtonVisibility="Collapsed">
+                                <AppBarButton x:Uid="HistoryFlyoutBtn" AccessKey="1">
+                                    <AppBarButton.Icon>
+                                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE81C;" />
+                                    </AppBarButton.Icon>
+                                    <AppBarButton.Flyout>
+                                        <MenuFlyout>
+                                            <MenuFlyoutItem Click="{x:Bind ViewModel.Undo}" IsEnabled="{x:Bind ViewModel.CanUndo, Mode=OneWay}">
+                                                <MenuFlyoutItem.Command>
+                                                    <StandardUICommand CanExecuteRequested="StandardUICommand_CanExecuteRequested" Kind="Undo" />
+                                                </MenuFlyoutItem.Command>
+                                            </MenuFlyoutItem>
+                                            <MenuFlyoutItem Click="{x:Bind ViewModel.Redo}" IsEnabled="{x:Bind ViewModel.CanRedo, Mode=OneWay}">
+                                                <MenuFlyoutItem.Command>
+                                                    <StandardUICommand CanExecuteRequested="StandardUICommand_CanExecuteRequested" Kind="Redo" />
+                                                </MenuFlyoutItem.Command>
+                                            </MenuFlyoutItem>
+                                        </MenuFlyout>
+                                    </AppBarButton.Flyout>
+                                </AppBarButton>
+                            </CommandBar>
+                        </CommandBar.Content>
                         <AppBarButton
                             x:Uid="SaveBtn"
                             Click="{x:Bind ViewModel.Save}"
                             Icon="Save"
                             IsEnabled="{x:Bind ViewModel.Saved, Mode=OneWay, Converter={StaticResource BooleanReverse}}"
-                            Visibility="{x:Bind root:App.AppSettings.AutoSave, Converter={StaticResource ReverseBoolToVisibility}, Mode=OneWay}" />
+                            Visibility="{x:Bind root:App.AppSettings.AutoSave, Converter={StaticResource ReverseBoolToVisibility}, Mode=OneWay}">
+                            <AppBarButton.KeyboardAccelerators>
+                                <KeyboardAccelerator
+                                    Key="S"
+                                    IsEnabled="{x:Bind ViewModel.Unloaded, Converter={StaticResource BooleanReverse}, Mode=OneWay}"
+                                    Modifiers="Control" />
+                            </AppBarButton.KeyboardAccelerators>
+                        </AppBarButton>
                         <AppBarButton x:Uid="SaveAsItem" Click="{x:Bind ViewModel.SaveAs}">
                             <AppBarButton.Icon>
                                 <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEA35;" />
@@ -190,7 +174,7 @@
                         </AppBarButton>
                         <AppBarButton IsEnabled="{x:Bind dataTransfer:DataTransferManager.IsSupported()}">
                             <AppBarButton.Flyout>
-                                <MenuFlyout AreOpenCloseAnimationsEnabled="True">
+                                <MenuFlyout>
                                     <MenuFlyoutItem x:Uid="ShareAsFileItem" Click="{x:Bind ViewModel.ShareAsFile}" />
                                     <MenuFlyoutItem x:Uid="ShareAsTextItem" Click="{x:Bind ViewModel.ShareAsText}" />
                                     <MenuFlyoutItem
@@ -202,6 +186,11 @@
                             <AppBarButton.Command>
                                 <StandardUICommand Kind="Share" />
                             </AppBarButton.Command>
+                        </AppBarButton>
+                        <AppBarButton Click="{x:Bind ViewModel.OpenFileLocation}" Label="{x:Bind local:CodeEditor.PathOpenCommandId, Converter={StaticResource ResourceLocator}}">
+                            <AppBarButton.Icon>
+                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE838;" />
+                            </AppBarButton.Icon>
                         </AppBarButton>
                     </CommandBar>
                 </Grid>

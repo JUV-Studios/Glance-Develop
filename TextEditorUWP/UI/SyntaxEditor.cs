@@ -46,11 +46,7 @@ namespace TextEditor.UI
         public SyntaxEditor()
         {
             DefaultStyleKey = typeof(SyntaxEditor);
-
-            /// LineNumberBlock = new TextBlock { Foreground = new SolidColorBrush(ColorProvider.GetColorValue(UIColorType.AccentLight3)) /* Color.FromArgb(255, 43, 145, 175)) */ };
             TextView = new RichEditBox();
-
-            // this.Loaded += (s, e) => { BindTextViewerScrollViewer(); };
         }
     
         public event PropertyChangedEventHandler PropertyChanged;
@@ -240,7 +236,6 @@ namespace TextEditor.UI
             PropertyChanged(this, new PropertyChangedEventArgs(nameof(Text)));
             if (tokenizer != null)
             {
-                // Syntax highliting
                 var editor = sender as RichEditBox;
                 if (Text.Length == textLength) return;
                 textLength = Text.Length;

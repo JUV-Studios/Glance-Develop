@@ -11,6 +11,21 @@ namespace ProjectCodeEditor.Services
 {
     public static class FileService
     {
+        public static async Task<bool> DeleteFileAsync(StorageFile file)
+        {
+            bool result = true;
+            try
+            {
+                await file.DeleteAsync();
+            }
+            catch (ArgumentException)
+            {
+                result = false;
+            }
+
+            return result;
+        }
+
         public static async Task<(string, object)> ReadTextFileAsync(StorageFile file)
         {
             var bytes = await file.ReadBytesAsync();
@@ -20,6 +35,6 @@ namespace ProjectCodeEditor.Services
             return (text, encoding);
         }
 
-        public static async Task OpenFileLocation(StorageFile file) => await Launcher.LaunchFolderPathAsync(Path.GetDirectoryName(file.Path));
+        public static async Task OpenFileLocationAsync(StorageFile file) => await Launcher.LaunchFolderPathAsync(Path.GetDirectoryName(file.Path));
     }
 }

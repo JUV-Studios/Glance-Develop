@@ -11,7 +11,7 @@ namespace ProjectCodeEditor.Helpers
 {
     public static class AccessibilityHelper
     {
-        private static readonly Dictionary<ListView, Tuple<MenuFlyout, Func<object, bool>>> ContextedListViews = new();
+        private static readonly Dictionary<ListView, (MenuFlyout, Func<object, bool>)> ContextedListViews = new();
 
         public static void SetProperties(Hub hub)
         {
@@ -58,7 +58,7 @@ namespace ProjectCodeEditor.Helpers
             if (val.Item2(param))
             {
                 if (args.TryGetPosition(sender, out Point location)) val.Item1.ShowAt(sender, location);
-                else val.Item1.ShowAt(sender, target.GetPosition(default, sender));
+                else val.Item1.ShowAt(target);
             }
         }
 

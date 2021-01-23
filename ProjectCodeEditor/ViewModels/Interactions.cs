@@ -1,15 +1,21 @@
-﻿using Microsoft.Toolkit.Uwp.Extensions;
+﻿using Microsoft.Toolkit.HighPerformance.Helpers;
+using Microsoft.Toolkit.Uwp.Extensions;
 using ProjectCodeEditor.Core.Helpers;
+using ProjectCodeEditor.Dialogs;
 using ProjectCodeEditor.Models;
 using ProjectCodeEditor.Views;
+using Swordfish.NET.Collections.Auxiliary;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using TextEditor.Languages;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI.Xaml.Controls;
+using MUXC = Microsoft.UI.Xaml.Controls;
 
 namespace ProjectCodeEditor.ViewModels
 {
@@ -17,23 +23,24 @@ namespace ProjectCodeEditor.ViewModels
     {
         private static readonly ShellViewModel viewModel = Singleton<ShellViewModel>.Instance;
         private static FileSavePicker savePicker = null;
+        private static FileOpenPicker openFilePicker = null;
 
-        public static ShellView CreateEditorStandalone(StorageFile file)
-        {
-            var options = new Dictionary<string, object>()
-            {
-                { "file", file }
-            };
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ShellView CreateEditorStandalone(StorageFile file) => new(file.Name, file.Path, new MUXC.SymbolIconSource() { Symbol = Symbol.Document }, new CodeEditor(file));
 
-            return new(file.Name, file.Path, new Microsoft.UI.Xaml.Controls.SymbolIconSource() { Symbol = Symbol.Document }, new CodeEditor(options));
-        }
-
-        internal static bool FileAlreadyOpen(StorageFile file, ref ShellView view, bool retInstanceRef = true)
+        internal static bool StorageItemAlreadyOpen(IStorageItem storageItem, ref ShellView view, bool retInstanceRef = true)
         {
             ShellView foundItem = null;
-            Parallel.ForEach(viewModel.Instances, item =>
+            Parallel.ForEach(viewModel.Instances, (item, state) =>
             {
-                if (item.Content is CodeEditor && item.Caption == file.Path) if (retInstanceRef) foundItem = item;
+                Type pageType;
+                if (storageItem.IsOfType(StorageItemTypes.File)) pageType = typeof(CodeEditor);
+                else pageType = typeof(ProjectView);
+                if (item.Content.GetType() == pageType && item.Title == storageItem.Name && item.Caption == storageItem.Path)
+                {
+                    if (retInstanceRef) foundItem = item;
+                    state.Break();
+                }
             });
 
             if (foundItem != null)
@@ -49,7 +56,7 @@ namespace ProjectCodeEditor.ViewModels
             if (files.Count() == 1)
             {
                 ShellView view = null;
-                if (FileAlreadyOpen(files[0], ref view)) viewModel.SelectedIndex = viewModel.Instances.IndexOf(view);
+                if (StorageItemAlreadyOpen(files[0], ref view)) viewModel.SelectedIndex = viewModel.Instances.IndexOf(view);
                 else viewModel.AddLayout(CreateEditorStandalone(files[0]));
             }
             else
@@ -57,7 +64,7 @@ namespace ProjectCodeEditor.ViewModels
                 foreach (var file in files)
                 {
                     ShellView view = null;
-                    if (!FileAlreadyOpen(file, ref view, false)) viewModel.AddLayout(CreateEditorStandalone(file), true);
+                    if (!StorageItemAlreadyOpen(file, ref view, false)) viewModel.AddLayout(CreateEditorStandalone(file), true);
                 }
 
                 viewModel.SelectedIndex = viewModel.Instances.Count - 1;
@@ -66,26 +73,29 @@ namespace ProjectCodeEditor.ViewModels
 
         public static async void OpenFiles()
         {
-            if (!App.AppSettings.DialogShown)
+            if (DialogHelper.PreparePresentation())
             {
-                App.AppSettings.DialogShown = true;
-                var picker = new FileOpenPicker()
+                if (openFilePicker == null)
                 {
-                    SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                    ViewMode = PickerViewMode.List
-                };
-                foreach (var fileType in App.AppSettings.SupportedFileTypes) picker.FileTypeFilter.Add(fileType);
-                var files = await picker.PickMultipleFilesAsync();
+                    openFilePicker = new FileOpenPicker()
+                    {
+                        SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+                        ViewMode = PickerViewMode.List
+                    };
+
+                    openFilePicker.FileTypeFilter.AddRange(App.AppSettings.SupportedFileTypes);
+                }
+
+                var files = await openFilePicker.PickMultipleFilesAsync();
                 if (files.Count != 0) AddFiles(files);
-                App.AppSettings.DialogShown = false;
+                DialogHelper.EndPresentation();
             }
         }
 
         public static async void NewFile()
         {
-            if (!App.AppSettings.DialogShown)
+            if (DialogHelper.PreparePresentation())
             {
-                App.AppSettings.DialogShown = true;
                 if (savePicker == null)
                 {
                     savePicker = new FileSavePicker()
@@ -95,12 +105,12 @@ namespace ProjectCodeEditor.ViewModels
                         DefaultFileExtension = ".md",
                     };
 
-                    foreach (var fileType in App.AppSettings.SupportedFileTypes) savePicker.FileTypeChoices.Add(GetFileTypeDescription(fileType), new string[] { fileType });
+                    savePicker.FileTypeChoices.AddRange(App.AppSettings.SupportedFileTypes.Select(item => new KeyValuePair<string, IList<string>>(GetFileTypeDescription(item), new string[] { item })));
                 }
 
                 var file = await savePicker.PickSaveFileAsync();
                 if (file != null) AddFiles(new StorageFile[] { file });
-                App.AppSettings.DialogShown = false;
+                DialogHelper.EndPresentation();
             }
         }
 
@@ -108,22 +118,38 @@ namespace ProjectCodeEditor.ViewModels
         {
             string fileTypeLower = fileType.ToLower();
             string prefix;
-            if (LanguageProvider.CodeLanguages.ContainsKey(fileTypeLower)) prefix = LanguageProvider.CodeLanguages[fileTypeLower].Value.LanguageName;
-            else prefix = fileTypeLower.Substring(1);
+            if (!LanguageProvider.CodeLanguages.ContainsKey(fileTypeLower)) prefix = fileTypeLower.Substring(1);
+            else prefix = LanguageProvider.CodeLanguages[fileTypeLower].Value.LanguageName;
             return $"{prefix} {"FileSubItem/Text".GetLocalized().ToLower()}";
         }
 
         public static async void OpenProject()
         {
-            if (!App.AppSettings.DialogShown)
+            if (DialogHelper.PreparePresentation())
             {
-                App.AppSettings.DialogShown = true;
                 FolderPicker picker = new()
                 {
-                    SuggestedStartLocation = PickerLocationId.DocumentsLibrary
+                    SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+                    ViewMode = PickerViewMode.List
                 };
-                await picker.PickSingleFolderAsync();
-                App.AppSettings.DialogShown = false;
+
+                picker.FileTypeFilter.Add("*");
+                var folder = await picker.PickSingleFolderAsync();
+                if (folder != null)
+                {
+                    ShellView view = null;
+                    if (StorageItemAlreadyOpen(folder, ref view)) viewModel.SelectedIndex = viewModel.Instances.IndexOf(view);
+                    else
+                    {
+                        Singleton<ShellViewModel>.Instance.AddLayout(new(folder.Name, folder.Path, new MUXC.FontIconSource()
+                        {
+                            Glyph = "&#xE8B7;",
+                            FontFamily = new("Segoe MDL2 Assets"),
+                        }, new ProjectView(folder)));
+                    }
+                }
+
+                DialogHelper.EndPresentation();
             }
         }
     }

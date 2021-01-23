@@ -4,6 +4,7 @@ using Swordfish.NET.Collections.Auxiliary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,6 +18,10 @@ namespace ProjectCodeEditor.ViewModels
 {
     public sealed class RecentFilesList : ListView
     {
+        internal ObservableCollection<RecentFile> OriginalItemSource = null;
+
+        private string LastSearchString = string.Empty;
+
         public RecentFilesList()
         {
             Style = App.Current.Resources["RecentListItemStyle"] as Style;
@@ -27,17 +32,45 @@ namespace ProjectCodeEditor.ViewModels
             });
         }
 
+        public void Search(string searchQuery)
+        {
+            if (string.IsNullOrWhiteSpace(searchQuery))
+            {
+                ItemsSource = OriginalItemSource;
+                return;
+            }
+
+            IEnumerable<RecentFile> newSource = null;
+            newSource = OriginalItemSource.Where(item => item.File.Name.Contains(searchQuery));
+            LastSearchString = searchQuery;
+            ItemsSource = newSource;
+        }
+
         protected override void PrepareContainerForItemOverride(DependencyObject element, object item)
         {
             base.PrepareContainerForItemOverride(element, item);
+            if (OriginalItemSource == null)
+            {
+                OriginalItemSource = ItemsSource as ObservableCollection<RecentFile>;
+                OriginalItemSource.CollectionChanged += OriginalItemSource_CollectionChanged;
+            }
+
             FrameworkElement source = element as FrameworkElement;
             var context = item as RecentFile;
             ToolTipService.SetToolTip(source, new TextBlock()
             {
-                Text = $"{context.File.Name} ({context.File.Path})",
-                TextWrapping = TextWrapping.NoWrap,
-                TextTrimming = TextTrimming.CharacterEllipsis
+                Text = context.File.Path,
+                TextWrapping = TextWrapping.Wrap,
             });
+        }
+
+        private void OriginalItemSource_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (ItemsSource != OriginalItemSource)
+            {
+                ItemsSource = OriginalItemSource;
+                if (!string.IsNullOrWhiteSpace(LastSearchString)) Search(LastSearchString);
+            }
         }
     }
 
@@ -47,35 +80,42 @@ namespace ProjectCodeEditor.ViewModels
 
         private readonly StorageItemMostRecentlyUsedList RecentsList = StorageApplicationPermissions.MostRecentlyUsedList;
 
-        public readonly ObservableCollection<RecentFile> RecentFiles = new();
+        public readonly RangedObservableCollection<RecentFile> RecentFiles = new();
+
+        private bool Loading = false;
 
         public async Task LoadRecentsAsync()
         {
-            RecentFiles.Clear();
-            IOrderedEnumerable<RecentFile> filesSorted = null;
-            await Task.Run(() =>
+            if (!Loading)
             {
-                List<RecentFile> filesTemp = new(RecentsList.Entries.Count());
-                Parallel.ForEach(RecentsList.Entries, async item =>
+                Loading = true;
+                RecentFiles.Clear();
+                IOrderedEnumerable<RecentFile> filesSorted = null;
+                await Task.Run(async () =>
                 {
-                    try
+                    List<RecentFile> filesTemp = new(RecentsList.Entries.Count());
+                    foreach (var item in RecentsList.Entries)
                     {
-                        DateTime time;
-                        if (TimeContainer.Values.TryGetValue(item.Token, out object timeOffset)) time = ((DateTimeOffset)timeOffset).DateTime;
-                        else time = DateTime.Now;
-                        var file = await RecentsList.GetFileAsync(item.Token);
-                        filesTemp.Add(new(file, time, item));
+                        try
+                        {
+                            DateTime time;
+                            if (TimeContainer.Values.TryGetValue(item.Token, out object timeOffset)) time = ((DateTimeOffset)timeOffset).DateTime;
+                            else time = DateTime.Now;
+                            var file = await RecentsList.GetFileAsync(item.Token);
+                            filesTemp.Add(new(file, time, item));
+                        }
+                        catch (FileNotFoundException)
+                        {
+                            RecentsList.Remove(item.Token);
+                        }
                     }
-                    catch (FileNotFoundException)
-                    {
-                        RecentsList.Remove(item.Token);
-                    }
+
+                    filesSorted = filesTemp.OrderByDescending(item => item.Time);
                 });
 
-                filesSorted = filesTemp.OrderByDescending(item => item.Time);
-            });
-
-            RecentFiles.AddRange(filesSorted.AsEnumerable());
+                RecentFiles.AddRange(filesSorted.AsEnumerable());
+                Loading = false;
+            }
         }
 
         public void AddRecentFile(StorageFile file)
@@ -88,7 +128,11 @@ namespace ProjectCodeEditor.ViewModels
                 RecentsList.AddOrReplace(token, file);
                 RecentFiles.Insert(0, new(file, currentTime.DateTime, RecentsList.Entries.Where(item => item.Token == token).First()));
             }
-            else LoadRecentsAsync().ConfigureAwait(false);
+            else
+            {
+                var fileItem = RecentFiles.Where(item => item.File.IsEqual(file)).First();
+                if (RecentFiles.Remove(fileItem)) RecentFiles.Insert(0, fileItem);
+            }
         }
 
         public void RemoveRecentFile(RecentFile file)

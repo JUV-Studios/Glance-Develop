@@ -3,6 +3,7 @@ using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Uwp.Extensions;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -14,9 +15,18 @@ namespace ProjectCodeEditor.ViewModels
 {
     public sealed record Dependency(string DependencyName, Uri ProjectUri);
 
-    public sealed class SettingsViewModel : ObservableObject
+    public sealed class SettingsViewModel : INotifyPropertyChanged
     {
-        public readonly string[] SupportedFileTypes = File.ReadAllLines(Path.Combine(Package.Current.InstalledPath, "Assets", "FileTypes"));
+        private string[] _SupportedFileTypes = null;
+
+        public string[] SupportedFileTypes
+        {
+            get
+            {
+                if (_SupportedFileTypes == null) _SupportedFileTypes = File.ReadAllLines(Path.Combine(Package.Current.InstalledPath, "Assets", "FileTypes"));
+                return _SupportedFileTypes;
+            }
+        }
 
         public readonly string[] InstalledFonts = CanvasTextFormat.GetSystemFontFamilies();
 
@@ -33,7 +43,7 @@ namespace ProjectCodeEditor.ViewModels
             LocalSettings.Values[key] = value;
         }
 
-        public async Task<string> UniqueUserId()
+        public async Task<string> UniqueUserIdAsync()
         {
             string accountId = GetSetting("UserId", string.Empty);
             if (accountId == string.Empty)
@@ -59,7 +69,7 @@ namespace ProjectCodeEditor.ViewModels
                 if (FontFamily != value)
                 {
                     SetSetting(nameof(FontFamily), value);
-                    OnPropertyChanged(nameof(FontFamily));
+                    PropertyChanged?.Invoke(this, new(nameof(FontFamily)));
                 }
             }
         }
@@ -72,7 +82,7 @@ namespace ProjectCodeEditor.ViewModels
                 if (TabSize != value)
                 {
                     SetSetting(nameof(TabSize), value);
-                    OnPropertyChanged(nameof(TabSize));
+                    PropertyChanged?.Invoke(this, new(nameof(TabSize)));
                 }
             }
         }
@@ -85,7 +95,7 @@ namespace ProjectCodeEditor.ViewModels
                 if (FontSize != value)
                 {
                     SetSetting(nameof(FontSize), value);
-                    OnPropertyChanged(nameof(FontSize));
+                    PropertyChanged?.Invoke(this, new(nameof(FontSize)));
                 }
             }
         }
@@ -98,7 +108,7 @@ namespace ProjectCodeEditor.ViewModels
                 if (AutoSave != value)
                 {
                     SetSetting(nameof(AutoSave), value);
-                    OnPropertyChanged(nameof(AutoSave));
+                    PropertyChanged?.Invoke(this, new(nameof(AutoSave)));
                 }
             }
         }
@@ -111,7 +121,7 @@ namespace ProjectCodeEditor.ViewModels
                 if (ExtendGoTo != value)
                 {
                     SetSetting(nameof(ExtendGoTo), value);
-                    OnPropertyChanged(nameof(ExtendGoTo));
+                    PropertyChanged?.Invoke(this, new(nameof(ExtendGoTo)));
                 }
             }
         }
@@ -124,13 +134,13 @@ namespace ProjectCodeEditor.ViewModels
                 if (DisableSound != value)
                 {
                     SetSetting(nameof(DisableSound), value);
-                    OnPropertyChanged(nameof(DisableSound));
+                    PropertyChanged?.Invoke(this, new(nameof(DisableSound)));
                     ElementSoundPlayer.State = !value ? ElementSoundPlayerState.On : ElementSoundPlayerState.Off;
                 }
             }
         }
 
-        public bool DialogShown = false;
+        internal bool DialogShown = false;
 
         public readonly IEnumerable<Dependency> AppDependencies = new Dependency[]
         {
@@ -138,9 +148,11 @@ namespace ProjectCodeEditor.ViewModels
             new("WinRTXamlToolkit", new Uri("https://github.com/xyzzer/WinRTXamlToolkit")), new("XAML Behaviors", new Uri("http://go.microsoft.com/fwlink/?LinkID=651678")),
             new("Visual Studio App Center", new Uri("https://azure.microsoft.com/en-us/services/app-center/")), new("UTF.Unknown", new Uri("https://github.com/CharsetDetector/UTF-unknown")),
             new("Windows Community Toolkit", new Uri("https://github.com/windows-toolkit/WindowsCommunityToolkit")), new("Humanizer", new Uri("https://github.com/Humanizr/Humanizer")),
-            new("SwordfishCollections", new Uri("https://github.com/stewienj/SwordfishCollections")),
+            new("SwordfishCollections", new Uri("https://github.com/stewienj/SwordfishCollections")), 
             new("ColorCode", new Uri("https://github.com/windows-toolkit/ColorCode-Universal")), new("IronPython", new Uri("https://github.com/IronLanguages/ironpython2"))
         };
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public string AboutText
         {

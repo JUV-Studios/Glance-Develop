@@ -21,7 +21,7 @@ namespace ProjectCodeEditor.Dialogs
         {
             DialogRef = new ContentDialog()
             {
-                Title = "GoToLineItem/Text".GetLocalized(),
+                Title = "GoToOption/Title".GetLocalized(),
                 PrimaryButtonText = "GoToDialog/PrimaryButtonText".GetLocalized(),
                 SecondaryButtonText = "CancelText".GetLocalized(),
                 HorizontalAlignment = HorizontalAlignment.Stretch,
