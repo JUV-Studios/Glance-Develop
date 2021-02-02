@@ -1,14 +1,11 @@
-﻿using TextEditor.IntelliSense;
-
-namespace TextEditor.Languages
+﻿namespace TextEditor.Languages
 {
     public sealed class PlainTextLanguage : SyntaxLanguage
     {
-        public PlainTextLanguage() : base("Plain text")
+        public PlainTextLanguage()
         {
-            IsPlainText = true;
+            Name = "Text";
+            Id = ".txt";
         }
-
-        public override IFileIntelliSense CreateIntelliSenseEngine() => null;
     }
 }

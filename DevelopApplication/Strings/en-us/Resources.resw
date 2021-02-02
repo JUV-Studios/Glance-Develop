@@ -123,10 +123,7 @@
   <data name="CancelText" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="ClearHistoryItem.Description" xml:space="preserve">
-    <value>Clears undo/redo history</value>
-  </data>
-  <data name="ClearHistoryItem.Title" xml:space="preserve">
+  <data name="ClearHistoryItem.Text" xml:space="preserve">
     <value>Clear undo/redo history</value>
   </data>
   <data name="ClearRecentFilesItem.Text" xml:space="preserve">
@@ -142,7 +139,7 @@
     <value>Edit options</value>
   </data>
   <data name="CopyrightBlock.Text" xml:space="preserve">
-    <value>© 2020 JUV Studios. All rights reserved</value>
+    <value>© 2021 JUV Studios. All rights reserved</value>
   </data>
   <data name="DependenciesListBlock.Text" xml:space="preserve">
     <value>Dependencies &amp; references</value>
@@ -155,9 +152,6 @@
   </data>
   <data name="EditorSettingsAutoSave.Header" xml:space="preserve">
     <value>Automatically save when I make changes</value>
-  </data>
-  <data name="EditorSettingsDesc.Text" xml:space="preserve">
-    <value>Customize your editor</value>
   </data>
   <data name="EditorSettingsDisableSound.Header" xml:space="preserve">
     <value>Turn off sound effects</value>
@@ -183,11 +177,11 @@
   <data name="FontSizeOption.Header" xml:space="preserve">
     <value>Font size</value>
   </data>
-  <data name="GeneralSettingsDesc.Text" xml:space="preserve">
-    <value>General settings for Develop</value>
-  </data>
   <data name="GoToDialog.PrimaryButtonText" xml:space="preserve">
     <value>Go!</value>
+  </data>
+  <data name="GoToExtendCheckBox.Content" xml:space="preserve">
+    <value>Select the entire line instead of moving text cursor</value>
   </data>
   <data name="GoToLineBox.Header" xml:space="preserve">
     <value>Where to go?</value>
@@ -204,9 +198,6 @@
   <data name="HistoryFlyoutBtn.Label" xml:space="preserve">
     <value>History</value>
   </data>
-  <data name="HubCaption" xml:space="preserve">
-    <value>Welcome!</value>
-  </data>
   <data name="HubTitle" xml:space="preserve">
     <value>Home</value>
   </data>
@@ -216,17 +207,14 @@
   <data name="Hub_RecentFiles.Header" xml:space="preserve">
     <value>Recent files</value>
   </data>
+  <data name="MultipleFileSaveNotificationContent" xml:space="preserve">
+    <value>Don't worry, we've saved all the files you had open</value>
+  </data>
   <data name="NewFileOption.Description" xml:space="preserve">
     <value>Create a new source file</value>
   </data>
   <data name="NewFileOption.Title" xml:space="preserve">
     <value>Create a new file</value>
-  </data>
-  <data name="NoFileOpenDialogContent" xml:space="preserve">
-    <value>Sorry, we couldn't open {0}. Please make sure it still exists and is still accessible.</value>
-  </data>
-  <data name="NoFileOpenDialogTitle" xml:space="preserve">
-    <value>Can't open {0}</value>
   </data>
   <data name="OkayText" xml:space="preserve">
     <value>Okay</value>
@@ -264,26 +252,17 @@
   <data name="SaveBtn.ToolTipService.ToolTip" xml:space="preserve">
     <value>Save (Ctrl+S)</value>
   </data>
-  <data name="SettingsHub.Header" xml:space="preserve">
-    <value>Preferences</value>
+  <data name="SettingsHub.Title" xml:space="preserve">
+    <value>Settings</value>
   </data>
   <data name="Settings_About.Header" xml:space="preserve">
     <value>About this application</value>
   </data>
-  <data name="Settings_Editor.Header" xml:space="preserve">
+  <data name="Settings_Editor.Text" xml:space="preserve">
     <value>Editor settings</value>
   </data>
   <data name="Settings_General.Header" xml:space="preserve">
     <value>General settings</value>
-  </data>
-  <data name="ShareAsFileItem.Text" xml:space="preserve">
-    <value>Share as file</value>
-  </data>
-  <data name="ShareAsSelectionItem.Text" xml:space="preserve">
-    <value>Share as selection text</value>
-  </data>
-  <data name="ShareAsTextItem.Text" xml:space="preserve">
-    <value>Share as text</value>
   </data>
   <data name="ShareFileCaption" xml:space="preserve">
     <value>{0} will be shared</value>
@@ -296,12 +275,6 @@
   </data>
   <data name="ShareSelectionTitle" xml:space="preserve">
     <value>Sharing current selection</value>
-  </data>
-  <data name="ShareTextCaption" xml:space="preserve">
-    <value>{0} will be shared as text</value>
-  </data>
-  <data name="ShareTextTitle" xml:space="preserve">
-    <value>Sharing {0} as text</value>
   </data>
   <data name="SpecialThanksBlock.Text" xml:space="preserve">
     <value>Special thanks to</value>

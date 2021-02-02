@@ -1,0 +1,13 @@
+namespace Develop
+{
+    delegate Boolean ContextableListViewFlyoutRequest();
+
+    [bindable]
+    [default_interface]
+    runtimeclass ContextableListView : Windows.UI.Xaml.Controls.ListView
+    {
+        ContextableListView();
+        Windows.UI.Xaml.Controls.MenuFlyout ItemContextFlyout { get; set; };
+        ContextableListViewFlyoutRequest RequestFunc { get; set; };
+    }
+}

@@ -1,74 +1,67 @@
-﻿using Microsoft.Toolkit.HighPerformance.Helpers;
-using Microsoft.Toolkit.Uwp.Extensions;
+﻿using Microsoft.Toolkit.Uwp.Extensions;
 using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.Dialogs;
 using ProjectCodeEditor.Models;
+using ProjectCodeEditor.Services;
 using ProjectCodeEditor.Views;
-using Swordfish.NET.Collections.Auxiliary;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using TextEditor.Languages;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI.Xaml.Controls;
-using MUXC = Microsoft.UI.Xaml.Controls;
 
 namespace ProjectCodeEditor.ViewModels
 {
     public static class Interactions
     {
-        private static readonly ShellViewModel viewModel = Singleton<ShellViewModel>.Instance;
         private static FileSavePicker savePicker = null;
         private static FileOpenPicker openFilePicker = null;
+        private static readonly SymbolIconSource fileIcon = new() { Symbol = Symbol.Delete };
+        private static readonly FontIconSource projectIcon = new FontIconSource()
+        {
+            Glyph = "&#xE8B7;",
+            FontFamily = new("Segoe MDL2 Assets")
+        };
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ShellView CreateEditorStandalone(StorageFile file) => new(file.Name, file.Path, new MUXC.SymbolIconSource() { Symbol = Symbol.Document }, new CodeEditor(file));
-
-        internal static bool StorageItemAlreadyOpen(IStorageItem storageItem, ref ShellView view, bool retInstanceRef = true)
+        internal static bool StorageItemAlreadyOpen(IStorageItem2 storageItem, out ShellView view)
         {
             ShellView foundItem = null;
-            Parallel.ForEach(viewModel.Instances, (item, state) =>
+            foreach (var item in Preferences.AppShellViewModel.Instances)
             {
-                Type pageType;
-                if (storageItem.IsOfType(StorageItemTypes.File)) pageType = typeof(CodeEditor);
-                else pageType = typeof(ProjectView);
-                if (item.Content.GetType() == pageType && item.Title == storageItem.Name && item.Caption == storageItem.Path)
+                if ((item.ReferenceSource?.IsEqual(storageItem)).GetValueOrDefault())
                 {
-                    if (retInstanceRef) foundItem = item;
-                    state.Break();
+                    foundItem = item;
+                    break;
                 }
-            });
-
-            if (foundItem != null)
-            {
-                if (retInstanceRef) view = foundItem;
-                return true;
             }
-            else return false;
+
+            view = foundItem;
+            return view != null;
         }
 
-        public static void AddFiles(IReadOnlyList<StorageFile> files)
+        public static void AddStorageItems(IReadOnlyList<IStorageItem2> items)
         {
-            if (files.Count() == 1)
+            List<ShellView> viewsToAdd = new();
+            foreach (var item in items)
             {
-                ShellView view = null;
-                if (StorageItemAlreadyOpen(files[0], ref view)) viewModel.SelectedIndex = viewModel.Instances.IndexOf(view);
-                else viewModel.AddLayout(CreateEditorStandalone(files[0]));
-            }
-            else
-            {
-                foreach (var file in files)
+                if (StorageItemAlreadyOpen(item, out ShellView view))
                 {
-                    ShellView view = null;
-                    if (!StorageItemAlreadyOpen(file, ref view, false)) viewModel.AddLayout(CreateEditorStandalone(file), true);
+                    if (items.Count == 1) Preferences.AppShellViewModel.SelectedItem = view;
                 }
-
-                viewModel.SelectedIndex = viewModel.Instances.Count - 1;
+                else
+                {
+                    if (item.IsOfType(StorageItemTypes.File))
+                    {
+                        var file = item as StorageFile;
+                        viewsToAdd.Add(new ShellView(file.Name, fileIcon, new CodeEditor(file), file));
+                    }
+                    else viewsToAdd.Add(new ShellView(item.Name, projectIcon, new ProjectView(item as StorageFolder), item));
+                }
             }
+
+            Preferences.AppShellViewModel.AddViews(viewsToAdd);
         }
 
         public static async void OpenFiles()
@@ -83,11 +76,11 @@ namespace ProjectCodeEditor.ViewModels
                         ViewMode = PickerViewMode.List
                     };
 
-                    openFilePicker.FileTypeFilter.AddRange(App.AppSettings.SupportedFileTypes);
+                    openFilePicker.FileTypeFilter.AddRange(Preferences.SupportedFileTypes);
                 }
 
                 var files = await openFilePicker.PickMultipleFilesAsync();
-                if (files.Count != 0) AddFiles(files);
+                if (files.Count != 0) AddStorageItems(files);
                 DialogHelper.EndPresentation();
             }
         }
@@ -105,21 +98,20 @@ namespace ProjectCodeEditor.ViewModels
                         DefaultFileExtension = ".md",
                     };
 
-                    savePicker.FileTypeChoices.AddRange(App.AppSettings.SupportedFileTypes.Select(item => new KeyValuePair<string, IList<string>>(GetFileTypeDescription(item), new string[] { item })));
+                    savePicker.FileTypeChoices.AddRange(Preferences.SupportedFileTypes.Select(item => new KeyValuePair<string, IList<string>>(GetFileTypeDescription(item), new string[] { item })));
                 }
 
                 var file = await savePicker.PickSaveFileAsync();
-                if (file != null) AddFiles(new StorageFile[] { file });
+                if (file != null) AddStorageItems(new StorageFile[] { file });
                 DialogHelper.EndPresentation();
             }
         }
 
         public static string GetFileTypeDescription(string fileType)
         {
-            string fileTypeLower = fileType.ToLower();
             string prefix;
-            if (!LanguageProvider.CodeLanguages.ContainsKey(fileTypeLower)) prefix = fileTypeLower.Substring(1);
-            else prefix = LanguageProvider.CodeLanguages[fileTypeLower].Value.LanguageName;
+            if (LanguageProvider.LocateLanguage(fileType, out var lang)) prefix = lang.Name;
+            else prefix = fileType.Substring(1);
             return $"{prefix} {"FileSubItem/Text".GetLocalized().ToLower()}";
         }
 
@@ -135,20 +127,7 @@ namespace ProjectCodeEditor.ViewModels
 
                 picker.FileTypeFilter.Add("*");
                 var folder = await picker.PickSingleFolderAsync();
-                if (folder != null)
-                {
-                    ShellView view = null;
-                    if (StorageItemAlreadyOpen(folder, ref view)) viewModel.SelectedIndex = viewModel.Instances.IndexOf(view);
-                    else
-                    {
-                        Singleton<ShellViewModel>.Instance.AddLayout(new(folder.Name, folder.Path, new MUXC.FontIconSource()
-                        {
-                            Glyph = "&#xE8B7;",
-                            FontFamily = new("Segoe MDL2 Assets"),
-                        }, new ProjectView(folder)));
-                    }
-                }
-
+                if (folder != null) AddStorageItems(new IStorageItem2[] { folder });
                 DialogHelper.EndPresentation();
             }
         }

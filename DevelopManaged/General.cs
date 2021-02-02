@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace ProjectCodeEditor.Core
+namespace DevelopManaged
 {
-    public static class StringHelper
+    public static class General
     {
         public static bool StartsWithMultiple(string text, IEnumerable<string> strings)
         {
@@ -18,5 +18,9 @@ namespace ProjectCodeEditor.Core
 
             return startsWith;
         }
+
+        public static string TrimEndings(this string text) => text.TrimEnd().TrimEnd('\r').TrimEnd('\n');
+
+        public static string StorablePathName(string path) => path.Replace("\\", "-").Replace(":", "=");
     }
 }

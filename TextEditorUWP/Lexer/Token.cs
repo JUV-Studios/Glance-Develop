@@ -20,22 +20,5 @@
 
 namespace TextEditor.Lexer
 {
-    /// <summary>
-    /// Meaning full characters span
-    /// </summary>
-    public class Token
-    {
-        public Token(int startIndex, int length, string type)
-        {
-            StartIndex = startIndex;
-            Length = length;
-            Type = type;
-        }
-
-        public string Type { get; private set; }
-
-        public int StartIndex { get; private set; }
-
-        public int Length { get; private set; }
-    }
+    public sealed record Token(int StartIndex, int Length, string Type);
 }

@@ -17,6 +17,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+/*
 using System;
 using System.Text;
 using TextEditor.Lexer;
@@ -133,8 +134,6 @@ namespace TextEditor.UI
 
         #region Syntax Language
 
-        Tokenizer tokenizer = null;
-
         public static readonly DependencyProperty SyntaxLanguageProperty =
             DependencyProperty.Register("SyntaxLanguage", typeof(SyntaxLanguage), typeof(SyntaxViewer),
                                         new PropertyMetadata(null, OnSyntaxLanguagePropertyChanged));
@@ -157,8 +156,6 @@ namespace TextEditor.UI
                 tokenizer = null;
                 return;
             }
-
-            tokenizer = new Tokenizer(newValue.Grammer);
         }
 
         #endregion
@@ -298,3 +295,5 @@ namespace TextEditor.UI
         #endregion
     }
 }
+
+*/

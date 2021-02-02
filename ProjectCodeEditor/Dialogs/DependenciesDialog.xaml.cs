@@ -10,9 +10,6 @@ namespace ProjectCodeEditor.Dialogs
 
         public readonly string OkayStringId = "OkayText";
 
-        public DependenciesDialog()
-        {
-            InitializeComponent();
-        }
+        public DependenciesDialog() => InitializeComponent();
     }
 }

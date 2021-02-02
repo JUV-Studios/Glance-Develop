@@ -15,5 +15,7 @@ namespace ProjectCodeEditor.Core.Helpers
                 return _instances.GetOrAdd(typeof(T), (t) => new T());
             }
         }
+
+        public static bool Register(T item) => _instances.TryAdd(typeof(T), item);
     }
 }

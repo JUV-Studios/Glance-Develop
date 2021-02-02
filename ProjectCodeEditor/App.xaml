@@ -20,27 +20,6 @@
             <x:Double x:Key="MediumWindowBreakpoint">641</x:Double>
             <x:Double x:Key="LargeWindowBreakpoint">1008</x:Double>
             <StaticResource x:Key="TabViewBackground" ResourceKey="SystemControlAcrylicWindowBrush" />
-            <Style TargetType="Hub">
-                <Setter Property="HeaderTemplate">
-                    <Setter.Value>
-                        <DataTemplate>
-                            <TextBlock Style="{ThemeResource HeaderTextBlockStyle}" Text="{Binding}" />
-                        </DataTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-            <Style TargetType="HubSection">
-                <Setter Property="Margin" Value="0,0,0,16" />
-                <Setter Property="IsTabStop" Value="True" />
-                <Setter Property="UseSystemFocusVisuals" Value="True" />
-                <Setter Property="HeaderTemplate">
-                    <Setter.Value>
-                        <DataTemplate>
-                            <TextBlock Style="{ThemeResource TitleTextBlockStyle}" Text="{Binding}" />
-                        </DataTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
                 <ResourceDictionary>

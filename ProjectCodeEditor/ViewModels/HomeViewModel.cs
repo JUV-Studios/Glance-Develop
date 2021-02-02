@@ -1,45 +1,40 @@
 ﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Uwp.Extensions;
-using Windows.UI.Xaml.Controls;
-using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.Models;
 using ProjectCodeEditor.Services;
-using Windows.ApplicationModel.DataTransfer;
-using Windows.UI.Xaml;
 using System.Collections.Specialized;
-using Swordfish.NET.Collections.Auxiliary;
+using Windows.ApplicationModel.DataTransfer;
+using Windows.Storage;
+using Windows.UI.Xaml;
 
 namespace ProjectCodeEditor.ViewModels
 {
     public sealed class HomeViewModel : ObservableObject
     {
-        public readonly RecentsViewModel Recents = Singleton<RecentsViewModel>.Instance;
+        public Visibility RecentFilesVisibility => RecentsViewModel.RecentFiles.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
 
-        public Visibility RecentFilesVisibility => Recents.RecentFiles.IsEmpty() ? Visibility.Collapsed : Visibility.Visible;
-
-        internal RecentFile ContextedRecentFile;
+        internal RecentItem ContextedRecentFile;
 
         public void RemoveRecentFile()
         {
-            if (ContextedRecentFile != null) Recents.RemoveRecentFile(ContextedRecentFile);
+            if (ContextedRecentFile != null) RecentsViewModel.RemoveRecentFile(ContextedRecentFile);
         }
 
         public void OpenRecentFilePath()
         {
-            if (ContextedRecentFile != null) FileService.OpenFileLocationAsync(ContextedRecentFile.File).ConfigureAwait(false);
+            if (ContextedRecentFile != null) FileService.OpenFileLocationAsync(ContextedRecentFile.Item as StorageFile).ConfigureAwait(false);
         }
 
         public void ShareRecentFile() => DataTransferManager.ShowShareUI();
 
         public HomeViewModel()
         {
-            Recents.RecentFiles.CollectionChanged += RecentFiles_CollectionChanged;
+            RecentsViewModel.RecentFiles.CollectionChanged += RecentFiles_CollectionChanged;
         }
 
         internal bool ShowContextFlyoutForRecentList(object val)
         {
             if (val == null) return false;
-            if (val is RecentFile file && file != null)
+            if (val is RecentItem file && file != null)
             {
                 ContextedRecentFile = file;
                 return true;

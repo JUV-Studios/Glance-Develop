@@ -1,9 +1,10 @@
-﻿using Microsoft.Toolkit.Uwp.Helpers;
+﻿using AutoIt.Common;
+using Microsoft.Toolkit.Uwp.Helpers;
+using ProjectCodeEditor.Core.Helpers;
 using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using UtfUnknown;
 using Windows.Storage;
 using Windows.System;
 
@@ -26,14 +27,25 @@ namespace ProjectCodeEditor.Services
             return result;
         }
 
-        public static async Task<(string, object)> ReadTextFileAsync(StorageFile file)
+        public static async Task<(string, Encoding)> ReadTextFileAsync(StorageFile file)
         {
             var bytes = await file.ReadBytesAsync();
-            var encoding = CharsetDetector.DetectFromBytes(bytes);
-            if (encoding.Detected == null) return (Encoding.UTF8.GetString(bytes).TrimEnd().TrimEnd('\r').TrimEnd('\n'), Encoding.UTF8);
-            string text = encoding.Detected.Encoding.GetString(bytes).TrimEnd().TrimEnd('\r').TrimEnd('\n');
-            return (text, encoding);
+            var encoding = GetTextEncoding(bytes);
+            return (encoding?.GetString(bytes), encoding);
         }
+
+        public static Encoding GetTextEncoding(byte[] data)
+        {
+            var encoding = Singleton<TextEncodingDetect>.Instance.DetectEncoding(data, data.Length);
+            if (encoding == TextEncodingDetect.Encoding.Ansi) return Encoding.Default;
+            else if (encoding == TextEncodingDetect.Encoding.Utf8Bom || encoding == TextEncodingDetect.Encoding.Utf8Nobom) return Encoding.UTF8;
+            else if (encoding == TextEncodingDetect.Encoding.Utf16BeBom || encoding == TextEncodingDetect.Encoding.Utf16BeNoBom) return Encoding.BigEndianUnicode;
+            else if (encoding == TextEncodingDetect.Encoding.Utf16LeBom || encoding == TextEncodingDetect.Encoding.Utf16LeNoBom) return Encoding.Unicode;
+            else if (encoding == TextEncodingDetect.Encoding.Ascii) return Encoding.ASCII;
+            else return Encoding.UTF32;
+        }
+
+        public static string GetFolderPath(IStorageItem item) => item.Path.Remove(item.Path.IndexOf(item.Name) - 1);
 
         public static async Task OpenFileLocationAsync(StorageFile file) => await Launcher.LaunchFolderPathAsync(Path.GetDirectoryName(file.Path));
     }

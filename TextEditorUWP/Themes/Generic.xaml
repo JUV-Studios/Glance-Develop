@@ -43,7 +43,7 @@
                                     <Setter Property="BorderThickness" Value="0" />
                                     <Setter Property="Background" Value="Transparent" />
                                     <Setter Property="Margin" Value="0" />
-                                    <Setter Property="Padding" Value="12" />
+                                    <Setter Property="Padding" Value="12,12,12,4" />
                                     <Setter Property="HorizontalAlignment" Value="Stretch" />
                                     <Setter Property="VerticalAlignment" Value="Stretch" />
                                 </Style>
@@ -55,6 +55,7 @@
         </Setter>
     </Style>
 
+    <!--
     <Style TargetType="uix:SyntaxViewer">
         <Setter Property="FontFamily" Value="Consolas" />
         <Setter Property="FontSize" Value="14" />
@@ -106,6 +107,6 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-    </Style>
+    </Style>-->
 
 </ResourceDictionary>

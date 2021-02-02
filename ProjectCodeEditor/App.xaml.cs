@@ -1,7 +1,6 @@
 ﻿using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
-using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.Helpers;
 using ProjectCodeEditor.Models;
 using ProjectCodeEditor.Services;
@@ -9,6 +8,7 @@ using ProjectCodeEditor.ViewModels;
 using ProjectCodeEditor.Views;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Activation;
 using Windows.Storage;
@@ -18,7 +18,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Automation;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
-using WinRTXamlToolkit.IO.Extensions;
 
 namespace ProjectCodeEditor
 {
@@ -30,8 +29,6 @@ namespace ProjectCodeEditor
         public static readonly string CancelStringId = "CancelText";
 
         public static User CurrentUser;
-
-        public static readonly SettingsViewModel AppSettings = Singleton<SettingsViewModel>.Instance;
 
         public App()
         {
@@ -51,60 +48,44 @@ namespace ProjectCodeEditor
         public async Task ActivateAsync(object activationArgs)
         {
             bool firstLaunch = false;
-            ShellViewModel viewModel = Singleton<ShellViewModel>.Instance;
-            if (activationArgs is IActivatedEventArgs activation)
+            if (!AppCenter.Configured)
             {
-                if (!AppCenter.Configured)
-                {
-                    // Initialize services that you need before app activation
-                    // take into account that the splash screen is shown while this code runs.
-                    firstLaunch = true;
-                    AppCenter.SetUserId(await AppSettings.UniqueUserIdAsync());
-                    AppCenter.Start("dd9a81de-fe79-4ab8-be96-8f96c346c88e", typeof(Analytics), typeof(Crashes));
-                    await JumpListHelper.InitializeAsync();
-                    await Singleton<RecentsViewModel>.Instance.LoadRecentsAsync();
-                    await ApplicationData.Current.TemporaryFolder.DeleteFilesAsync(true);
-                    ViewService.Initialize();
-                }
+                // Initialize services while the splash screen is displayed
+                firstLaunch = true;
+                AppCenter.SetUserId(await Preferences.AppSettings.UniqueUserIdAsync());
+                AppCenter.Start("dd9a81de-fe79-4ab8-be96-8f96c346c88e", typeof(Analytics), typeof(Crashes));
+                await JumpListHelper.InitializeAsync();
+                await RecentsViewModel.LoadRecentsAsync();
+                // await ApplicationData.Current.TemporaryFolder.DeleteFilesAsync(true);
+                ViewService.Initialize();
+            }
 
-                // Do not repeat app initialization when the Window already has content,
-                // just ensure that the window is active
-                if (Window.Current.Content == null) Window.Current.Content = new MainPage();
+            // Do not repeat app initialization when the window already has content, just ensure that the window is active
+            if (Window.Current.Content == null) Window.Current.Content = new MainPage();
+            Window.Current.Activate();
+            string arguments = null;
+            if (activationArgs is LaunchActivatedEventArgs launchArgs)
+            {
+                arguments = launchArgs.Arguments;
+                CurrentUser = launchArgs.User;
+            }
+            else if (activationArgs is FileActivatedEventArgs fileActivationArgs)
+            {
+                Interactions.AddStorageItems(fileActivationArgs.Files.Where(item => item.IsOfType(StorageItemTypes.File)).Select(item => item as IStorageItem2).ToArray());
+            }
 
-                // Ensure the current window is active
-                Window.Current.Activate();
-                string arguments = null;
-                if (activationArgs is LaunchActivatedEventArgs launchArgs)
-                {
-                    arguments = launchArgs.Arguments;
-                    CurrentUser = launchArgs.User;
-                }
-                if (arguments == "OpenFiles") Interactions.OpenFiles();
-                else if (arguments == "NewFiles") Interactions.NewFile();
-                if (activationArgs is FileActivatedEventArgs fileActivationArgs)
-                {
-                    var filesArray = new StorageFile[fileActivationArgs.Files.Count];
-                    for (int i = 0; i < fileActivationArgs.Files.Count; i++)
-                    {
-                        if (fileActivationArgs.Files[i].IsOfType(StorageItemTypes.File)) filesArray[i] = fileActivationArgs.Files[i] as StorageFile;
-                    }
-
-                    Interactions.AddFiles(filesArray);
-                }
-
-                if (firstLaunch)
-                {
+            if (firstLaunch)
+            {
 #if DEBUG
-                    LaunchStopwatch.Stop();
-                    Debug.WriteLine($"Develop took {LaunchStopwatch.ElapsedMilliseconds} ms to launch");
+                LaunchStopwatch.Stop();
+                Debug.WriteLine($"Develop took {LaunchStopwatch.ElapsedMilliseconds} ms to launch");
 #endif
-                }
             }
         }
     }
 
     /// <summary>
-    /// Represent a Metro style vertical options list binded to an immutable vector
+    /// Represent a Metro style vertical options list bound to an immutable vector
     /// </summary>
     public sealed class ActionButtonList : ListView
     {
@@ -164,9 +145,4 @@ namespace ProjectCodeEditor
             });
         }
     }
-}
-
-namespace System.Runtime.CompilerServices
-{
-    public class IsExternalInit { }
 }

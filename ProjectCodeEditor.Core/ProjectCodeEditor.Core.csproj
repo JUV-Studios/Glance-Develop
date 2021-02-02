@@ -4,6 +4,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>ProjectCodeEditor.Core</RootNamespace>
     <LangVersion>preview</LangVersion>
+    <UserSecretsId>bb50aff2-c0c6-47e7-bca9-87ca2c2edd0e</UserSecretsId>
+    <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

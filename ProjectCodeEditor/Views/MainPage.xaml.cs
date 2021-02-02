@@ -1,10 +1,9 @@
-﻿using ProjectCodeEditor.Core.Helpers;
-using ProjectCodeEditor.Models;
-using ProjectCodeEditor.ViewModels;
+﻿using ProjectCodeEditor.Models;
+using ProjectCodeEditor.Services;
+using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
-using WinUI = Microsoft.UI.Xaml.Controls;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -15,24 +14,34 @@ namespace ProjectCodeEditor.Views
     /// </summary>
     public sealed partial class MainPage : UserControl
     {
-        public readonly ShellViewModel ViewModel = Singleton<ShellViewModel>.Instance;
-
-        public readonly string OpenLabelId = "OpenOption/Label";
-
-        public MainPage() => InitializeComponent();
-
-        private void TabView_TabCloseRequested(WinUI.TabView sender, WinUI.TabViewTabCloseRequestedEventArgs args) => ViewModel.CloseInstance(args.Item as ShellView);
-
-        private void Page_Loaded(object sender, RoutedEventArgs e)
+        public MainPage()
         {
-            Window.Current.SetTitleBar(DragRegion);
+            InitializeComponent();
+            ViewService.KeyShortcutPressed += ViewService_KeyShortcutPressed;
         }
 
-        private void CloseCurrent_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+        private async void CloseCurrent_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
         {
             args.Handled = true;
-            var item = ViewModel.Instances[ViewModel.SelectedIndex];
-            if (item.CanClose) ViewModel.CloseInstance(item);
+            var item = Preferences.AppShellViewModel.SelectedItem;
+            if (item.Content is IClosable closable)
+            {
+                if (await closable.CloseAsync()) Preferences.AppShellViewModel.TerminateInstance(item);
+            }
+        }
+
+        private void ViewService_KeyShortcutPressed(object sender, KeyShortcutPressedEventArgs e)
+        {
+            if (e.Accelerator.Key == VirtualKey.Tab && e.Accelerator.Modifiers == VirtualKeyModifiers.Control && e.Accelerator.IsEnabled)
+            {
+                e.SystemArgs.Handled = true;
+                Preferences.AppShellViewModel.FastSwitch();
+            }
+        }
+
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            Window.Current.SetTitleBar(DragRegion);
         }
     }
 }

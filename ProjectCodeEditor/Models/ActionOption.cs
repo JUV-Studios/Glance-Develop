@@ -72,7 +72,7 @@ namespace ProjectCodeEditor.Models
                 if (!string.IsNullOrWhiteSpace(value.AccessKey)) AccessKey = value.AccessKey;
             }
         }
-        
+
         public string ToolTipContent
         {
             get
@@ -81,7 +81,7 @@ namespace ProjectCodeEditor.Models
                 else return $"{Title} ({AccessKey})";
             }
         }
-        
+
         public override string ToString() => $"{Title}, {Description}";
     }
 }

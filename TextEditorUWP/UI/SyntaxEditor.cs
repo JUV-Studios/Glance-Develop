@@ -17,20 +17,22 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-// Edited by Jaiganesh Kumaran for the Universal Windows Platform with additional features for Develop
-
-using ColorCode.Common;
+using ColorCode.Styling;
+using ColorCode.UWP.Common;
+using ProjectCodeEditor.Core.Helpers;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using TextEditor.Languages;
 using TextEditor.Lexer;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
+using Windows.UI.Input.Preview.Injection;
 using Windows.UI.Text;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -40,35 +42,35 @@ namespace TextEditor.UI
 {
     public sealed class SyntaxEditor : Control, INotifyPropertyChanged, IDisposable
     {
-        // TODO: Implement line numbers properly
-        public bool ShowLineNumbers { get; set; } = false;
-
         public SyntaxEditor()
         {
+            SetValue(TextViewProperty, new RichEditBox());
             DefaultStyleKey = typeof(SyntaxEditor);
-            TextView = new RichEditBox();
+            Loaded += SyntaxEditor_Loaded;
         }
-    
+
+        private void SyntaxEditor_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Set default settings
+            AttachEvents(TextView);
+            TextView.TextDocument.UndoLimit = 0;
+            Loaded -= SyntaxEditor_Loaded;
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
+
+        private StyleDictionary TextStyles => ApplicationTheme.Light == ApplicationTheme.Dark ? StyleDictionary.DefaultDark : StyleDictionary.DefaultLight;
 
         #region Text View
 
+        public (int, int) TextSelection = (0, 0);
+
         public static readonly DependencyProperty TextViewProperty =
             DependencyProperty.Register("TextView", typeof(RichEditBox), typeof(SyntaxEditor),
-                                        new PropertyMetadata(null, OnTextViewPropertyChanged));
+                                        new PropertyMetadata(null));
 
-        private static void OnTextViewPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((SyntaxEditor)d).OnTextViewChanged((RichEditBox)e.OldValue, (RichEditBox)e.NewValue);
-        }
 
-        public Tuple<int, int> TextSelection = new Tuple<int, int>(0, 0);
-
-        public RichEditBox TextView
-        {
-            get { return (RichEditBox)GetValue(TextViewProperty); }
-            set { SetValue(TextViewProperty, value); }
-        }
+        public RichEditBox TextView => GetValue(TextViewProperty) as RichEditBox;
 
         public new double FontSize
         {
@@ -96,23 +98,6 @@ namespace TextEditor.UI
             }
         }
 
-        private void OnTextViewChanged(RichEditBox oldValue, RichEditBox newValue)
-        {
-            var isOldNull = DetachEvents(oldValue);
-            if (AttachEvents(newValue))
-            {
-                // Set default settings
-                newValue.TextDocument.UndoLimit = 0;
-                if (!isOldNull)
-                {
-                    newValue.FontFamily = new FontFamily(FontFamily);
-                    newValue.FontSize = FontSize;
-                    if (SyntaxLanguage?.IndentationProvider != null) SyntaxLanguage.IndentationProvider.TabWidth = TabSize;
-                    TextView.TextDocument.DefaultTabStop = TabSize + 4;
-                }
-            }
-        }
-
         private async void TextView_Pasting(object sender, TextControlPasteEventArgs e)
         {
             e.Handled = true;
@@ -136,7 +121,8 @@ namespace TextEditor.UI
 
         private void Editor_SelectionChanged(object sender, RoutedEventArgs e)
         {
-            TextSelection = new Tuple<int, int>(TextView.TextDocument.Selection.StartPosition, TextView.TextDocument.Selection.EndPosition);
+            TextSelection.Item1 = TextView.TextDocument.Selection.StartPosition;
+            TextSelection.Item2 = TextView.TextDocument.Selection.EndPosition;
             PropertyChanged(this, new PropertyChangedEventArgs(nameof(IsSelectionValid)));
         }
 
@@ -146,19 +132,12 @@ namespace TextEditor.UI
         {
             get
             {
-                string text = string.Empty;
-
-                if (TextView != null)
-                    TextView.Document.GetText(TextGetOptions.None, out text);
-
+                TextView.Document.GetText(TextGetOptions.None, out string text);
                 return text;
             }
             set
             {
-                if (TextView != null && Text != value)
-                {
-                    TextView.TextDocument.SetText(TextSetOptions.None, value);
-                }
+                if (Text != value) TextView.TextDocument.SetText(TextSetOptions.None, value);
             }
         }
 
@@ -213,59 +192,62 @@ namespace TextEditor.UI
 
         private void OnSyntaxLanguageChanged(SyntaxLanguage newValue)
         {
-            if (newValue == null)
-            {
-                tokenizer = null;
-                return;
-            }
-
-            TextView.IsSpellCheckEnabled = SyntaxLanguage.IsPlainText;
-            if (!SyntaxLanguage.IsPlainText) tokenizer = new Tokenizer(newValue.Grammer);
+            if (newValue != null) TextView.IsSpellCheckEnabled = newValue.IsPlainText;
         }
 
         #endregion
 
         #region Highlighting
 
-        Tokenizer tokenizer = null;
+        string previous = string.Empty;
 
-        int textLength = 0;
+        bool tokenizing = false;
 
-        public async void HandleTextViewTextChanged(object sender, RoutedEventArgs e)
+        private readonly Dictionary<Token, object> HighlightRanges = new();
+
+        public void HandleTextViewTextChanged(object sender, RoutedEventArgs e)
         {
             PropertyChanged(this, new PropertyChangedEventArgs(nameof(Text)));
-            if (tokenizer != null)
+            /* if (!SyntaxLanguage.IsPlainText && !tokenizing)
             {
-                var editor = sender as RichEditBox;
-                if (Text.Length == textLength) return;
-                textLength = Text.Length;
-                // Store a local copy to use from another thread
                 var text = Text;
-                await Task.Run(() =>
-                {
-                    if (tokenizer != null)
-                    {
-                        var t = tokenizer.Tokenize(text);
-                        while (t.MoveNext())
-                        {
-                            if (t.Current != null)
-                            {
-                                if (LanguageProvider.HighlightColors.TryGetValue(t.Current.Type, out Color foregroundColor)) ColourRegion(t.Current, foregroundColor);
-                                else ColourRegion(t.Current, LanguageProvider.HighlightColors[ScopeName.PlainText]);
-                            }
-                        }
-                    }
-                });
-            }
+                if (text == previous) return;
+                else previous = text;
+                tokenizing = true;
+                var rules = SyntaxLanguage.Rules as IList<GrammerRule>;
+                Task.Run(async () => { await TokenizePlusHighlight(text, rules); }).ContinueWith((t) => { if (t.IsCompleted) tokenizing = false; });
+            } */
         }
 
-        private void ColourRegion(Token token, Color color)
+        public async Task TokenizePlusHighlight(string text, IEnumerable<GrammerRule> rules)
         {
-            Dispatcher.RunAsync(CoreDispatcherPriority.Normal, new DispatchedHandler(() =>
+            HighlightRanges.Clear();
+            using var t = Tokenizer.Tokenize(text, rules);
+            Token token;
+            while (t.MoveNext())
             {
-                var range = TextView.Document.GetRange(token.StartIndex, token.StartIndex + token.Length);
-                if (range.CharacterFormat.ForegroundColor != color) range.CharacterFormat.ForegroundColor = color;
-            })).AsTask().ConfigureAwait(false);
+                if (t.Current != null)
+                {
+                    token = t.Current;
+                    if (TextStyles.TryGetValue(token.Type, out var item)) HighlightRanges.Add(t.Current, item.Foreground);
+                    else HighlightRanges.Add(t.Current, Singleton<UISettings>.Instance.GetColorValue(UIColorType.Foreground));
+                }
+            }
+
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, new DispatchedHandler(() =>
+            {
+                foreach (var item in HighlightRanges)
+                {
+                    var token = item.Key;
+                    var val = item.Value;
+                    var range = TextView.Document.GetRange(token.StartIndex, token.StartIndex + token.Length);
+                    Color colour;
+                    if (val is Color color) colour = color;
+                    else if (val == null) colour = Singleton<UISettings>.Instance.GetColorValue(UIColorType.Foreground);
+                    else colour = val.ToString().GetSolidColorBrush().Color;
+                    if (range.CharacterFormat.ForegroundColor != colour) range.CharacterFormat.ForegroundColor = colour;
+                }
+            }));
         }
 
         #endregion
@@ -315,24 +297,26 @@ namespace TextEditor.UI
 
         #region Interaction
 
+        static readonly InputInjector injector = InputInjector.TryCreate();
+
         public void SelectAll()
         {
-            TextView.TextDocument.Selection.Expand(TextRangeUnit.Story);
-            TextView.TextDocument.Selection.MoveEnd(TextRangeUnit.Character, -1);
+            TextView.Focus(FocusState.Keyboard);
+            TextView.TextDocument.Selection.StartPosition = 0;
+            TextView.TextDocument.Selection.MoveEnd(TextRangeUnit.Story, 1);
         }
 
         public void ClearSelection() => TextView.TextDocument.Selection.EndPosition = TextView.TextDocument.Selection.StartPosition;
 
         public void FindText(string text)
         {
-            
         }
 
         public void ScrollToLine(int line, bool extend)
         {
             TextView.Focus(FocusState.Keyboard);
             TextView.TextDocument.Selection.HomeKey(TextRangeUnit.Story, false);
-            if (line > 1) TextView.TextDocument.Selection.MoveStart(TextRangeUnit.Line, line - 1);
+            TextView.TextDocument.Selection.MoveStart(TextRangeUnit.Line, line - 1);
             if (extend)
             {
                 TextView.TextDocument.Selection.Expand(TextRangeUnit.Line);
@@ -342,14 +326,12 @@ namespace TextEditor.UI
 
         public void Dispose()
         {
-            if (DetachEvents(TextView)) SyntaxLanguage = null;
+            if (DetachEvents(TextView))
+            {
+                SyntaxLanguage = null;
+            }
         }
 
         #endregion
     }
-}
-
-namespace System.Runtime.CompilerServices
-{
-    public class IsExternalInit { }
 }

@@ -18,8 +18,9 @@
     Unloaded="UserControl_Unloaded"
     mc:Ignorable="d">
 
+    <!--
     <UserControl.Resources>
-        <MenuFlyout x:Key="RecentFileContextMenu">
+        <MenuFlyout x:Key="RecentFileContextMenu" Opening="RecentFileContextMenu_Opening">
             <MenuFlyoutItem IsEnabled="{x:Bind dataTransfer:DataTransferManager.IsSupported()}">
                 <MenuFlyoutItem.Command>
                     <StandardUICommand
@@ -38,17 +39,15 @@
                 Click="{x:Bind ViewModel.RemoveRecentFile}"
                 Icon="Remove" />
             <MenuFlyoutItem
+                x:Name="ClearFilesOption"
                 x:Uid="ClearRecentFilesItem"
-                Click="{x:Bind ViewModel.Recents.Clear}"
+                Click="{x:Bind vmodels:RecentsViewModel.Clear}"
                 Icon="Delete" />
         </MenuFlyout>
     </UserControl.Resources>
 
     <Grid>
-        <Hub
-            Margin="{x:Bind services:ViewService.Properties.RecommendedPageMargin, Mode=OneWay}"
-            Header="Develop"
-            Loaded="Layout_Loaded">
+        <Hub Header="Develop" Loaded="Layout_Loaded">
             <HubSection x:Uid="Hub_GettingStarted" DataContext="{x:Bind ViewModel}">
                 <DataTemplate x:DataType="vmodels:HomeViewModel">
                     <local:ActionButtonList HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -90,18 +89,57 @@
                             Width="360"
                             HorizontalAlignment="Left"
                             QueryIcon="Find"
-                            TextChanged="RecentsListViewSearch_TextChanged" />
+                            QuerySubmitted="RecentsListViewSearch_Submit" />
                         <vmodels:RecentFilesList
                             Grid.Row="2"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
+                            IsItemClickEnabled="True"
                             ItemClick="RecentFilesListItem_Click"
-                            Loaded="RecentFilesList_Loaded"
-                            Unloaded="RecentFilesList_Unloaded" />
+                            ItemContainerTransitions="{x:Null}"
+                            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                            ScrollViewer.HorizontalScrollMode="Disabled"
+                            ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                            ScrollViewer.VerticalScrollMode="Disabled"
+                            SelectionMode="None">
+                            <vmodels:RecentFilesList.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <ItemsWrapGrid ItemWidth="360" Orientation="Vertical" />
+                                </ItemsPanelTemplate>
+                            </vmodels:RecentFilesList.ItemsPanel>
+                            <vmodels:RecentFilesList.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="ContextFlyout" Value="{StaticResource RecentFileContextMenu}" />
+                                    <Setter Property="Padding" Value="0" />
+                                    <Setter Property="Margin" Value="0" />
+                                </Style>
+                            </vmodels:RecentFilesList.ItemContainerStyle>
+                            <vmodels:RecentFilesList.ItemTemplate>
+                                <DataTemplate x:DataType="models:RecentItem">
+                                    <StackPanel Margin="8,8,16,8" Spacing="4">
+                                        <TextBlock
+                                            Style="{ThemeResource BaseTextBlockStyle}"
+                                            Text="{x:Bind Item.Name}"
+                                            TextTrimming="CharacterEllipsis"
+                                            TextWrapping="NoWrap" />
+                                        <TextBlock
+                                            Style="{ThemeResource CaptionTextBlockStyle}"
+                                            Text="{x:Bind FileLocation}"
+                                            TextTrimming="CharacterEllipsis"
+                                            TextWrapping="NoWrap" />
+                                        <TextBlock
+                                            Style="{ThemeResource CaptionTextBlockStyle}"
+                                            Text="{Binding TimeString}"
+                                            TextTrimming="CharacterEllipsis"
+                                            TextWrapping="NoWrap" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </vmodels:RecentFilesList.ItemTemplate>
+                        </vmodels:RecentFilesList>
                     </Grid>
                 </DataTemplate>
             </HubSection>
-            <HubSection DataContext="{x:Bind local:App.AppSettings}" Header="{x:Bind SettingsTitleStringId, Converter={StaticResource ResourceLocator}}">
+            <HubSection DataContext="{x:Bind local:Preferences.AppSettings}" Header="{x:Bind SettingsTitleStringId, Converter={StaticResource ResourceLocator}}">
                 <DataTemplate x:DataType="vmodels:SettingsViewModel">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalScrollMode="Auto">
                         <StackPanel Margin="0,0,16,0" Spacing="8">
@@ -122,7 +160,6 @@
                                         x:Uid="FontOption"
                                         HorizontalAlignment="Stretch"
                                         IsEditable="True"
-                                        ItemsSource="{x:Bind InstalledFonts}"
                                         SelectedItem="{x:Bind FontFamily, Mode=TwoWay}"
                                         TextSubmitted="FontBox_TextSubmitted">
                                         <ComboBox.ItemTemplate>
@@ -166,4 +203,5 @@
             </HubSection>
         </Hub>
     </Grid>
+    -->
 </UserControl>

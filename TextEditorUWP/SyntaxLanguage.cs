@@ -17,26 +17,27 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-using TextEditor.IntelliSense;
-using TextEditor.Lexer;
+using ColorCode;
+using System.Collections.Generic;
 
 namespace TextEditor
 {
-    public abstract class SyntaxLanguage
+    public abstract class SyntaxLanguage : ILanguage
     {
-        public SyntaxLanguage(string name)
-        {
-            LanguageName = name;
-        }
-
-        public bool IsPlainText { get; protected set; } = false;
-
-        public string LanguageName { get; private set; }
-
-        public IGrammer Grammer { get; protected set; }
+        public bool IsPlainText => Id == ".txt";
 
         public IndentationProvider IndentationProvider { get; set; }
 
-        public abstract IFileIntelliSense CreateIntelliSenseEngine();
+        public string Id { get; protected set; }
+
+        public string FirstLinePattern { get; protected set; }
+
+        public string Name { get; protected set; }
+
+        public IList<LanguageRule> Rules { get; protected set; }
+
+        public string CssClassName => string.Empty;
+
+        public bool HasAlias(string lang) => false;
     }
 }

@@ -1,0 +1,8 @@
+namespace Develop
+{
+    [default_interface]
+    runtimeclass ModernHub : Windows.UI.Xaml.Controls.Hub
+    {
+        ModernHub();
+    }
+}

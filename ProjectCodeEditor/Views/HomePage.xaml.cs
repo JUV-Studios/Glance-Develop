@@ -1,12 +1,9 @@
-﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Uwp.Extensions;
+﻿using Microsoft.Toolkit.Uwp.Extensions;
 using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.Dialogs;
 using ProjectCodeEditor.Helpers;
 using ProjectCodeEditor.Models;
 using ProjectCodeEditor.ViewModels;
-using Swordfish.NET.Collections.Auxiliary;
-using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.UI.Xaml;
@@ -24,11 +21,9 @@ namespace ProjectCodeEditor.Views
 
         public readonly string SettingsTitleStringId = "SettingsHub/Header";
 
-        private RecentFilesList RecentFilesList = null;
-
         public HomePage() => InitializeComponent();
 
-        private void RecentFilesListItem_Click(object sender, ItemClickEventArgs e) => Interactions.AddFiles(new StorageFile[] { (e.ClickedItem as RecentFile).File });
+        private void RecentFilesListItem_Click(object sender, ItemClickEventArgs e) => Interactions.AddStorageItems(new IStorageItem2[] { (e.ClickedItem as RecentItem).Item });
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
@@ -45,9 +40,9 @@ namespace ProjectCodeEditor.Views
             var deferral = args.Request.GetDeferral();
             if (ViewModel.ContextedRecentFile != null)
             {
-                args.Request.Data.Properties.Title = string.Format("ShareFileTitle".GetLocalized(), ViewModel.ContextedRecentFile.File.Name);
-                args.Request.Data.Properties.Description = string.Format("ShareFileCaption".GetLocalized(), ViewModel.ContextedRecentFile.File.Name);
-                args.Request.Data.SetStorageItems(new StorageFile[] { ViewModel.ContextedRecentFile.File });
+                args.Request.Data.Properties.Title = string.Format("ShareFileTitle".GetLocalized(), ViewModel.ContextedRecentFile.Item.Name);
+                args.Request.Data.Properties.Description = string.Format("ShareFileCaption".GetLocalized(), ViewModel.ContextedRecentFile.Item.Name);
+                args.Request.Data.SetStorageItems(new IStorageItem[] { ViewModel.ContextedRecentFile.Item });
             }
 
             deferral.Complete();
@@ -60,23 +55,12 @@ namespace ProjectCodeEditor.Views
             layout.Loaded -= Layout_Loaded;
         }
 
-        private void RecentFilesList_Loaded(object sender, RoutedEventArgs e)
-        {
-            RecentFilesList = sender as RecentFilesList;
-            AccessibilityHelper.AttachContextMenu(RecentFilesList, Resources["RecentFileContextMenu"] as MenuFlyout, ViewModel.ShowContextFlyoutForRecentList);
-        }
-
-        private void RecentFilesList_Unloaded(object sender, RoutedEventArgs e)
-        {
-            if (RecentFilesList != null) AccessibilityHelper.DetachContextMenu(RecentFilesList);
-        }
-
         private void FontBox_TextSubmitted(ComboBox sender, ComboBoxTextSubmittedEventArgs args)
         {
             args.Handled = true;
             string input = args.Text.Trim();
-            var contains = App.AppSettings.InstalledFonts.Where(i => i.Trim() == input.Trim());
-            if (!contains.IsEmpty()) sender.SelectedValue = args.Text.Trim();
+            // var contains = App.AppSettings.InstalledFonts.Where(i => i.Trim() == input.Trim());
+            // if (!contains.IsEmpty()) sender.SelectedValue = args.Text.Trim();
         }
 
         private void SpecialThanksBlock_Loaded(object sender, RoutedEventArgs e)
@@ -93,10 +77,8 @@ namespace ProjectCodeEditor.Views
 
         private void DependenciesDialog_Click(object sender, RoutedEventArgs e) => DialogHelper.ShowPlusBlock(Singleton<DependenciesDialog>.Instance, null);
 
-        private void RecentsListViewSearch_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
-        {
-            var panel = sender.Parent;
-            ((panel as Grid).Children.Where(item => item is RecentFilesList).First() as RecentFilesList).Search(sender.Text);
-        }
+        private void RecentsListViewSearch_Submit(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args) => Singleton<RecentFilesList>.Instance.Search(args.QueryText);
+
+        // private void RecentFileContextMenu_Opening(object sender, object e) => ClearFilesOption.IsEnabled = Singleton<RecentFilesList>.Instance.ItemsSource == RecentsViewModel.RecentFiles;
     }
 }

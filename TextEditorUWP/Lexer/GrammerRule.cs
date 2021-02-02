@@ -32,7 +32,7 @@ namespace TextEditor.Lexer
 
         public GrammerRule(LanguageRule movableRule) : base(movableRule.Regex, movableRule.Captures)
         {
-            Pattern = new(movableRule.Regex);
+            Pattern = new($"^({movableRule.Regex})");
         }
 
         public Regex Pattern { get; private set; }

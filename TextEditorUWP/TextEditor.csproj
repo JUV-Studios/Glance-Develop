@@ -122,15 +122,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="IndentationProvider.cs" />
-    <Compile Include="IntelliSense\IFileIntelliSense.cs" />
+    <Compile Include="Languages\CurlyBracesIndentationProvider.cs" />
     <Compile Include="Languages\LanguageProvider.cs" />
     <Compile Include="Languages\PlainTextLanguage.cs" />
-    <Compile Include="Languages\Python\PythonGrammer.cs" />
     <Compile Include="Languages\Python\PythonIndentationProvider.cs" />
-    <Compile Include="Languages\Python\PythonIntelliSense.cs" />
     <Compile Include="Languages\Python\PythonSyntaxLanguage.cs" />
     <Compile Include="Lexer\GrammerRule.cs" />
-    <Compile Include="Lexer\IGrammer.cs" />
     <Compile Include="Lexer\Token.cs" />
     <Compile Include="Lexer\Tokenizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -143,8 +140,8 @@
     <PackageReference Include="ColorCode.Core">
       <Version>2.0.6</Version>
     </PackageReference>
-    <PackageReference Include="IronPython">
-      <Version>2.7.11</Version>
+    <PackageReference Include="ColorCode.UWP">
+      <Version>2.0.6</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.11</Version>
@@ -161,6 +158,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Yellow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ProjectCodeEditor.Core\ProjectCodeEditor.Core.csproj">
+      <Project>{d9f94a39-3e4f-47e1-8b93-5f906d411371}</Project>
+      <Name>ProjectCodeEditor.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

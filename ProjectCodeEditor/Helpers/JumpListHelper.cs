@@ -15,12 +15,6 @@ namespace ProjectCodeEditor.Helpers
                 AppJumpList = await JumpList.LoadCurrentAsync();
                 AppJumpList.SystemGroupKind = JumpListSystemGroupKind.None;
                 AppJumpList.Items.Clear();
-                var openItem = JumpListItem.CreateWithArguments("OpenFiles", "ms-resource:///Resources/OpenFilesOption/Title");
-                openItem.Description = "ms-resource:///Resources/OpenFilesOption/Description";
-                var newItem = JumpListItem.CreateWithArguments("NewFiles", "ms-resource:///Resources/NewFileOption/Title");
-                newItem.Description = "ms-resource:///Resources/NewFileOption/Description";
-                AppJumpList.Items.Add(openItem);
-                AppJumpList.Items.Add(newItem);
                 try
                 {
                     await AppJumpList.SaveAsync();

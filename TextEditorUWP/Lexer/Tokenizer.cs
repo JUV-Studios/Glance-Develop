@@ -26,47 +26,27 @@ using System.Text.RegularExpressions;
 
 namespace TextEditor.Lexer
 {
-    public class Tokenizer
+    public static class Tokenizer
     {
-        public Tokenizer(IGrammer grammer)
-        {
-            var grammerRules = new List<GrammerRule>(grammer.Rules);
-            if (grammer == null) throw new ArgumentNullException("grammer");
-            if (grammer.Keywords == null) throw new ArgumentException("Grammer Keywords must not be null");
-            else grammerRules.Insert(0, new(ScopeName.Keyword, WordRegex(grammer.Keywords)));
-            if (grammer.Builtins == null) throw new ArgumentException("Grammer Builtins must not be null");
-            else grammerRules.Insert(0, new GrammerRule(ScopeName.Predefined, WordRegex(grammer.Builtins)));
-            // grammerRules.Insert(0, new GrammerRule("Whitespace", new Regex("^\\s")));
-            GrammerRules = grammerRules;
-        }
+        public static Regex WordRegex(IEnumerable<string> words) => new Regex("^((" + string.Join(")|(", words.Where(s => !string.IsNullOrWhiteSpace(s))) + "))\\b");
 
-        public IEnumerable<GrammerRule> GrammerRules { get; private set; }
-
-        static Regex WordRegex(IEnumerable<string> words)
-        {
-            return new Regex("^((" + string.Join(")|(", words.Where(s => !string.IsNullOrWhiteSpace(s))) + "))\\b");
-        }
-
-        internal IEnumerator<Token> Tokenize(string script)
+        public static IEnumerator<Token> Tokenize(string script, IEnumerable<GrammerRule> rules)
         {
             var builder = new StringBuilder(script);
             int i = 0;
             int length = script.Length;
             Match match;
-            bool found;
             string str = script;
-
             while (i < length)
             {
-                found = false;
-
-                foreach (var rule in GrammerRules)
+                bool found = false;
+                foreach (var rule in rules)
                 {
                     match = rule.Pattern.Match(str);
                     if (match.Success)
                     {
                         if (match.Length == 0) throw new InvalidOperationException("Regex Pattern matches string of length zero");
-                        yield return new Token(i, match.Length, rule.Captures[0]);
+                        yield return new Token(i, match.Length, rule.Captures.First().Value);
                         i += match.Length;
                         builder.Remove(0, match.Length);
                         found = true;

@@ -1,6 +1,6 @@
 ﻿using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.Models;
-using Swordfish.NET.Collections.Auxiliary;
+using ProjectCodeEditor.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -18,16 +18,15 @@ namespace ProjectCodeEditor.ViewModels
 {
     public sealed class RecentFilesList : ListView
     {
-        internal ObservableCollection<RecentFile> OriginalItemSource = null;
-
+        private bool Registered = false;
         private string LastSearchString = string.Empty;
 
         public RecentFilesList()
         {
-            Style = App.Current.Resources["RecentListItemStyle"] as Style;
+            Singleton<RecentFilesList>.Register(this);
             SetBinding(ItemsSourceProperty, new Binding()
             {
-                Source = Singleton<RecentsViewModel>.Instance.RecentFiles,
+                Source = RecentsViewModel.RecentFiles,
                 Mode = BindingMode.OneWay,
             });
         }
@@ -36,12 +35,12 @@ namespace ProjectCodeEditor.ViewModels
         {
             if (string.IsNullOrWhiteSpace(searchQuery))
             {
-                ItemsSource = OriginalItemSource;
+                ItemsSource = RecentsViewModel.RecentFiles;
                 return;
             }
 
-            IEnumerable<RecentFile> newSource = null;
-            newSource = OriginalItemSource.Where(item => item.File.Name.Contains(searchQuery));
+            IEnumerable<RecentItem> newSource = null;
+            newSource = RecentsViewModel.RecentFiles.Where(item => item.Item.Name.Contains(searchQuery));
             LastSearchString = searchQuery;
             ItemsSource = newSource;
         }
@@ -49,51 +48,51 @@ namespace ProjectCodeEditor.ViewModels
         protected override void PrepareContainerForItemOverride(DependencyObject element, object item)
         {
             base.PrepareContainerForItemOverride(element, item);
-            if (OriginalItemSource == null)
+            if (!Registered)
             {
-                OriginalItemSource = ItemsSource as ObservableCollection<RecentFile>;
-                OriginalItemSource.CollectionChanged += OriginalItemSource_CollectionChanged;
+                RecentsViewModel.RecentFiles.CollectionChanged += OriginalItemSource_CollectionChanged;
+                Registered = true;
             }
 
             FrameworkElement source = element as FrameworkElement;
-            var context = item as RecentFile;
+            var context = item as RecentItem;
             ToolTipService.SetToolTip(source, new TextBlock()
             {
-                Text = context.File.Path,
+                Text = context.Item.Path,
                 TextWrapping = TextWrapping.Wrap,
             });
         }
 
         private void OriginalItemSource_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (ItemsSource != OriginalItemSource)
+            if (ItemsSource != RecentsViewModel.RecentFiles)
             {
-                ItemsSource = OriginalItemSource;
+                ItemsSource = RecentsViewModel.RecentFiles;
                 if (!string.IsNullOrWhiteSpace(LastSearchString)) Search(LastSearchString);
             }
         }
     }
 
-    public sealed class RecentsViewModel
+    public static class RecentsViewModel
     {
-        private readonly ApplicationDataContainer TimeContainer = ApplicationData.Current.LocalSettings.CreateContainer("RecentFileTime", ApplicationDataCreateDisposition.Always);
+        private static readonly ApplicationDataContainer TimeContainer = Preferences.LocalSettings.CreateContainer("RecentFileTime", ApplicationDataCreateDisposition.Always);
 
-        private readonly StorageItemMostRecentlyUsedList RecentsList = StorageApplicationPermissions.MostRecentlyUsedList;
+        private static readonly StorageItemMostRecentlyUsedList RecentsList = StorageApplicationPermissions.MostRecentlyUsedList;
 
-        public readonly RangedObservableCollection<RecentFile> RecentFiles = new();
+        public static readonly RangedObservableCollection<RecentItem> RecentFiles = new();
 
-        private bool Loading = false;
+        private static bool Loading = false;
 
-        public async Task LoadRecentsAsync()
+        public static async Task LoadRecentsAsync()
         {
             if (!Loading)
             {
                 Loading = true;
                 RecentFiles.Clear();
-                IOrderedEnumerable<RecentFile> filesSorted = null;
+                List<RecentItem> filesTemp = null;
                 await Task.Run(async () =>
                 {
-                    List<RecentFile> filesTemp = new(RecentsList.Entries.Count());
+                    filesTemp = new(RecentsList.Entries.Count());
                     foreach (var item in RecentsList.Entries)
                     {
                         try
@@ -102,7 +101,12 @@ namespace ProjectCodeEditor.ViewModels
                             if (TimeContainer.Values.TryGetValue(item.Token, out object timeOffset)) time = ((DateTimeOffset)timeOffset).DateTime;
                             else time = DateTime.Now;
                             var file = await RecentsList.GetFileAsync(item.Token);
-                            filesTemp.Add(new(file, time, item));
+                            filesTemp.Add(new RecentItem()
+                            {
+                                Item = file,
+                                Time = time,
+                                Entry = item
+                            });
                         }
                         catch (FileNotFoundException)
                         {
@@ -110,32 +114,39 @@ namespace ProjectCodeEditor.ViewModels
                         }
                     }
 
-                    filesSorted = filesTemp.OrderByDescending(item => item.Time);
+                    filesTemp.Sort((first, second) => second.Time.CompareTo(first.Time));
                 });
 
-                RecentFiles.AddRange(filesSorted.AsEnumerable());
+                RecentFiles.AddRange(filesTemp);
                 Loading = false;
             }
         }
 
-        public void AddRecentFile(StorageFile file)
+        public static void AddRecentFiles(IReadOnlyList<StorageFile> files)
         {
+            bool needsReload = false;
             var currentTime = DateTimeOffset.Now;
-            var token = file.Path.Replace("\\", "-");
-            TimeContainer.Values[token] = currentTime;
-            if (!RecentsList.ContainsItem(token))
+            foreach (var file in files)
             {
-                RecentsList.AddOrReplace(token, file);
-                RecentFiles.Insert(0, new(file, currentTime.DateTime, RecentsList.Entries.Where(item => item.Token == token).First()));
+                var token = General.StorablePathName(file.Path);
+                TimeContainer.Values[token] = currentTime;
+                if (!RecentsList.ContainsItem(token))
+                {
+                    RecentsList.AddOrReplace(token, file);
+                    RecentFiles.Insert(0, new RecentItem()
+                    {
+                        Item = file,
+                        Time = currentTime.DateTime,
+                        Entry = RecentsList.Entries.Where(item => item.Token == token).First(),
+                    });
+                }
+                else needsReload = true;
             }
-            else
-            {
-                var fileItem = RecentFiles.Where(item => item.File.IsEqual(file)).First();
-                if (RecentFiles.Remove(fileItem)) RecentFiles.Insert(0, fileItem);
-            }
+
+            if (needsReload) LoadRecentsAsync().ConfigureAwait(false);
         }
 
-        public void RemoveRecentFile(RecentFile file)
+        public static void RemoveRecentFile(RecentItem file)
         {
             if (RecentFiles.Contains(file))
             {
@@ -145,11 +156,11 @@ namespace ProjectCodeEditor.ViewModels
             }
         }
 
-        public void Clear()
+        public static void Clear()
         {
             RecentFiles.Clear();
             RecentsList.Clear();
-            foreach (var key in TimeContainer.Values.Keys) TimeContainer.Values.Remove(key);
+            TimeContainer.Values.Clear();
         }
     }
 }

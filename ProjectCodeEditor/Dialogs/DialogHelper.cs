@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProjectCodeEditor.Services;
+using System;
 using Windows.UI.Xaml.Controls;
 
 namespace ProjectCodeEditor.Dialogs
@@ -7,14 +8,14 @@ namespace ProjectCodeEditor.Dialogs
     {
         public static bool PreparePresentation()
         {
-            if (App.AppSettings.DialogShown) return false;
-            App.AppSettings.DialogShown = true;
+            if (Preferences.AppSettings.DialogShown) return false;
+            Preferences.AppSettings.DialogShown = true;
             return true;
         }
 
         public static void EndPresentation()
         {
-            if (App.AppSettings.DialogShown) App.AppSettings.DialogShown = false;
+            if (Preferences.AppSettings.DialogShown) Preferences.AppSettings.DialogShown = false;
         }
 
         public static async void ShowPlusBlock(ContentDialog dialog, Action<ContentDialogResult> continuation)

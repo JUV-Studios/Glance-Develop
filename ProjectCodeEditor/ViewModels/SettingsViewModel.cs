@@ -1,46 +1,30 @@
-﻿using Microsoft.Graphics.Canvas.Text;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Uwp.Extensions;
+﻿using Microsoft.Toolkit.Uwp.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
-using Windows.Storage;
+using Windows.Data.Json;
 using Windows.System;
 using Windows.UI.Xaml;
+using static ProjectCodeEditor.Services.Preferences;
 
 namespace ProjectCodeEditor.ViewModels
 {
-    public sealed record Dependency(string DependencyName, Uri ProjectUri);
+    internal sealed record Dependency(string DependencyName, Uri ProjectUri)
+    {
+        internal static Dependency FromJson(JsonObject obj) => new Dependency(obj.GetNamedString("Name"), new Uri(obj.GetNamedString("Url")));
+    }
 
     public sealed class SettingsViewModel : INotifyPropertyChanged
     {
-        private string[] _SupportedFileTypes = null;
-
-        public string[] SupportedFileTypes
+        public SettingsViewModel()
         {
-            get
-            {
-                if (_SupportedFileTypes == null) _SupportedFileTypes = File.ReadAllLines(Path.Combine(Package.Current.InstalledPath, "Assets", "FileTypes"));
-                return _SupportedFileTypes;
-            }
-        }
-
-        public readonly string[] InstalledFonts = CanvasTextFormat.GetSystemFontFamilies();
-
-        public ApplicationDataContainer LocalSettings = ApplicationData.Current.LocalSettings;
-
-        public T GetSetting<T>(string key, T fallback)
-        {
-            if (!LocalSettings.Values.ContainsKey(key)) return fallback;
-            else return (T)LocalSettings.Values[key];
-        }
-
-        public void SetSetting(string key, object value)
-        {
-            LocalSettings.Values[key] = value;
+            var dependencies = File.ReadAllText(Path.Combine(Package.Current.InstalledPath, "Assets", "Dependencies.json"));
+            var dependenciesRoot = JsonObject.Parse(dependencies).GetNamedArray("dependencies");
+            AppDependencies.AddRange(dependenciesRoot.Select(item => Dependency.FromJson(item.GetObject())));
         }
 
         public async Task<string> UniqueUserIdAsync()
@@ -113,18 +97,6 @@ namespace ProjectCodeEditor.ViewModels
             }
         }
 
-        public bool ExtendGoTo
-        {
-            get => GetSetting(nameof(ExtendGoTo), true);
-            set
-            {
-                if (ExtendGoTo != value)
-                {
-                    SetSetting(nameof(ExtendGoTo), value);
-                    PropertyChanged?.Invoke(this, new(nameof(ExtendGoTo)));
-                }
-            }
-        }
 
         public bool DisableSound
         {
@@ -142,15 +114,7 @@ namespace ProjectCodeEditor.ViewModels
 
         internal bool DialogShown = false;
 
-        public readonly IEnumerable<Dependency> AppDependencies = new Dependency[]
-        {
-            new("Windows UI Library", new Uri("https://aka.ms/winui")), new("Win2D", new Uri("http://microsoft.github.io/Win2D/html/Introduction.htm")),
-            new("WinRTXamlToolkit", new Uri("https://github.com/xyzzer/WinRTXamlToolkit")), new("XAML Behaviors", new Uri("http://go.microsoft.com/fwlink/?LinkID=651678")),
-            new("Visual Studio App Center", new Uri("https://azure.microsoft.com/en-us/services/app-center/")), new("UTF.Unknown", new Uri("https://github.com/CharsetDetector/UTF-unknown")),
-            new("Windows Community Toolkit", new Uri("https://github.com/windows-toolkit/WindowsCommunityToolkit")), new("Humanizer", new Uri("https://github.com/Humanizr/Humanizer")),
-            new("SwordfishCollections", new Uri("https://github.com/stewienj/SwordfishCollections")), 
-            new("ColorCode", new Uri("https://github.com/windows-toolkit/ColorCode-Universal")), new("IronPython", new Uri("https://github.com/IronLanguages/ironpython2"))
-        };
+        internal List<Dependency> AppDependencies = new List<Dependency>();
 
         public event PropertyChangedEventHandler PropertyChanged;
 
