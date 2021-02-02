@@ -6,7 +6,7 @@ namespace ProjectCodeEditor.Core.Helpers
     public static class Singleton<T>
         where T : new()
     {
-        private static ConcurrentDictionary<Type, T> _instances = new ConcurrentDictionary<Type, T>();
+        private static readonly ConcurrentDictionary<Type, T> _instances = new ConcurrentDictionary<Type, T>();
 
         public static T Instance
         {
@@ -15,5 +15,7 @@ namespace ProjectCodeEditor.Core.Helpers
                 return _instances.GetOrAdd(typeof(T), (t) => new T());
             }
         }
+
+        public static bool Register(T item) => _instances.TryAdd(typeof(T), item);
     }
 }

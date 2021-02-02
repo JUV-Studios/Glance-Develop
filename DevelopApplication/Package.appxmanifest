@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+  xmlns:genTemplate="http://schemas.microsoft.com/appx/developer/windowsTemplateStudio"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  IgnorableNamespaces="uap uap3 mp rescap genTemplate desktop">
+
+  <Identity
+    Name="JUVStudios.DevelopApp"
+    Publisher="CN=JUV Studios"
+    Version="0.0.3.0" />
+
+  <mp:PhoneIdentity PhoneProductId="8982C99F-A50D-47B3-B079-5A9077C936D0" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+
+  <Properties>
+    <DisplayName>Develop</DisplayName>
+    <PublisherDisplayName>JUV Studios</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.0.0" MaxVersionTested="10.0.0.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="x-generate" />
+  </Resources>
+
+  <Applications>
+    <Application Id="App"
+      Executable="Develop.exe"
+      EntryPoint="Develop.App">
+      <uap:VisualElements
+        DisplayName="Develop" 
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png"
+        Description="Code editing, reimagined."
+        BackgroundColor="transparent">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
+        <uap:SplashScreen Image="Assets\SplashScreen.png" />
+      </uap:VisualElements>
+      <Extensions>
+        <uap:Extension Category="windows.fileTypeAssociation">
+          <uap:FileTypeAssociation Name="develop-text">
+            <uap:SupportedFileTypes>
+              <uap:FileType ContentType="text/markdown">.md</uap:FileType>
+              <uap:FileType ContentType="application/json">.json</uap:FileType>
+              <uap:FileType ContentType="text/xml">.xml</uap:FileType>
+              <uap:FileType ContentType="text/yaml">.yaml</uap:FileType>
+              <uap:FileType ContentType="text/yaml">.yml</uap:FileType>
+              <uap:FileType ContentType="text/x-asm">.asm</uap:FileType>
+              <uap:FileType ContentType="text/x-c">.c</uap:FileType>
+              <uap:FileType ContentType="text/plain">.cc</uap:FileType>
+              <uap:FileType ContentType="application/java">.class</uap:FileType>
+              <uap:FileType ContentType="text/plain">.clj</uap:FileType>
+              <uap:FileType ContentType="text/plain">.cpp</uap:FileType>
+              <uap:FileType ContentType="text/plain">.cs</uap:FileType>
+              <uap:FileType ContentType="text/plain">.cxx</uap:FileType>
+              <uap:FileType ContentType="text/x-h">.ixx</uap:FileType>
+              <uap:FileType ContentType="text/x-h">.hpp</uap:FileType>
+              <uap:FileType ContentType="text/x-script.elisp">.el</uap:FileType>
+              <uap:FileType ContentType="text/plain">.go</uap:FileType>
+              <uap:FileType ContentType="text/x-h">.h</uap:FileType>
+              <uap:FileType ContentType="text/x-java-source">.java</uap:FileType>
+              <uap:FileType ContentType="text/plain">.lua</uap:FileType>
+              <uap:FileType ContentType="text/x-m">.m</uap:FileType>
+              <uap:FileType ContentType="text/plain">.m4</uap:FileType>
+              <uap:FileType ContentType="application/x-php">.php</uap:FileType>
+              <uap:FileType ContentType="text/plain">.pl</uap:FileType>
+              <uap:FileType ContentType="text/x-script.phyton">.py</uap:FileType>
+              <uap:FileType ContentType="text/plain">.rb</uap:FileType>
+              <uap:FileType ContentType="text/plain">.rs</uap:FileType>
+              <uap:FileType ContentType="text/x-shellscript">.sh</uap:FileType>
+              <uap:FileType ContentType="text/plain">.swift</uap:FileType>
+              <uap:FileType ContentType="text/plain">.vb</uap:FileType>
+              <uap:FileType ContentType="application/x-binary">.diff</uap:FileType>
+              <uap:FileType ContentType="application/x-binary">.patch</uap:FileType>
+              <uap:FileType ContentType="text/html">.html</uap:FileType>
+              <uap:FileType ContentType="text/html">.htm</uap:FileType>
+              <uap:FileType ContentType="text/css">.css</uap:FileType>
+              <uap:FileType ContentType="text/javascript">.js</uap:FileType>
+              <uap:FileType ContentType="text/plain">.jsx</uap:FileType>
+              <uap:FileType ContentType="text/javascript">.ts</uap:FileType>
+              <uap:FileType ContentType="text/plain">.tsx</uap:FileType>
+              <uap:FileType ContentType="text/plain">.less</uap:FileType>
+              <uap:FileType ContentType="text/plain">.scss</uap:FileType>
+              <uap:FileType ContentType="application/wasm">.wasm</uap:FileType>
+              <uap:FileType ContentType="text/plain">.hc</uap:FileType>
+              <uap:FileType ContentType="text/plain">.txt</uap:FileType>
+              <uap:FileType ContentType="application/x-binary">.ini</uap:FileType>
+            </uap:SupportedFileTypes>
+            <uap:DisplayName>Text source file</uap:DisplayName>
+            <uap:InfoTip>Edit this text file with Develop</uap:InfoTip>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
+        <uap3:Extension Category="windows.appExtensionHost">
+          <uap3:AppExtensionHost>
+            <uap3:Name>com.juvstudios.develop</uap3:Name>
+          </uap3:AppExtensionHost>
+        </uap3:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <Capability Name="internetClient" />
+	<uap:Capability Name="documentsLibrary" />
+	<rescap:Capability Name="inputInjectionBrokered" />
+	<rescap:Capability Name="confirmAppClose" />
+  </Capabilities>
+</Package>

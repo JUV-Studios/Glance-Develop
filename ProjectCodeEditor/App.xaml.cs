@@ -1,85 +1,148 @@
 ﻿using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
-using ProjectCodeEditor.Core.Helpers;
+using ProjectCodeEditor.Helpers;
+using ProjectCodeEditor.Models;
 using ProjectCodeEditor.Services;
 using ProjectCodeEditor.ViewModels;
 using ProjectCodeEditor.Views;
 using System;
-using Windows.ApplicationModel;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.Activation;
+using Windows.Storage;
+using Windows.System;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Automation;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Data;
 
 namespace ProjectCodeEditor
 {
     public sealed partial class App : Application
     {
-        private Lazy<ActivationService> _activationService;
-        private ActivationService ActivationService
-        {
-            get { return _activationService.Value; }
-        }
+#if DEBUG
+        private readonly Stopwatch LaunchStopwatch = new();
+#endif
+        public static readonly string CancelStringId = "CancelText";
 
-        public static SettingsViewModel AppSettings { get; } = new SettingsViewModel();
-        public static EditorShellViewModel ShellViewModel { get; } = new EditorShellViewModel();
+        public static User CurrentUser;
 
         public App()
         {
+#if DEBUG
+            LaunchStopwatch.Start();
+#endif
             InitializeComponent();
-
-            EnteredBackground += App_EnteredBackground;
-            Resuming += App_Resuming;
-            AppCenter.Start("dd9a81de-fe79-4ab8-be96-8f96c346c88e", typeof(Analytics), typeof(Crashes));
-            UnhandledException += OnAppUnhandledException;
-
-            // Deferred execution until used. Check https://docs.microsoft.com/dotnet/api/system.lazy-1 for further info on Lazy<T> class.
-            _activationService = new Lazy<ActivationService>(CreateActivationService);
+            ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Maximized;
         }
 
-        protected override async void OnLaunched(LaunchActivatedEventArgs args)
+        protected override void OnLaunched(LaunchActivatedEventArgs args) => ActivateAsync(args).ConfigureAwait(false);
+
+        protected override void OnActivated(IActivatedEventArgs args) => ActivateAsync(args).ConfigureAwait(false);
+
+        protected override void OnFileActivated(FileActivatedEventArgs args) => ActivateAsync(args).ConfigureAwait(false);
+
+        public async Task ActivateAsync(object activationArgs)
         {
-            if (!args.PrelaunchActivated)
+            bool firstLaunch = false;
+            if (!AppCenter.Configured)
             {
-                await ActivationService.ActivateAsync(args);
+                // Initialize services while the splash screen is displayed
+                firstLaunch = true;
+                AppCenter.SetUserId(await Preferences.AppSettings.UniqueUserIdAsync());
+                AppCenter.Start("dd9a81de-fe79-4ab8-be96-8f96c346c88e", typeof(Analytics), typeof(Crashes));
+                await JumpListHelper.InitializeAsync();
+                await RecentsViewModel.LoadRecentsAsync();
+                // await ApplicationData.Current.TemporaryFolder.DeleteFilesAsync(true);
+                ViewService.Initialize();
+            }
+
+            // Do not repeat app initialization when the window already has content, just ensure that the window is active
+            if (Window.Current.Content == null) Window.Current.Content = new MainPage();
+            Window.Current.Activate();
+            string arguments = null;
+            if (activationArgs is LaunchActivatedEventArgs launchArgs)
+            {
+                arguments = launchArgs.Arguments;
+                CurrentUser = launchArgs.User;
+            }
+            else if (activationArgs is FileActivatedEventArgs fileActivationArgs)
+            {
+                Interactions.AddStorageItems(fileActivationArgs.Files.Where(item => item.IsOfType(StorageItemTypes.File)).Select(item => item as IStorageItem2).ToArray());
+            }
+
+            if (firstLaunch)
+            {
+#if DEBUG
+                LaunchStopwatch.Stop();
+                Debug.WriteLine($"Develop took {LaunchStopwatch.ElapsedMilliseconds} ms to launch");
+#endif
+            }
+        }
+    }
+
+    /// <summary>
+    /// Represent a Metro style vertical options list bound to an immutable vector
+    /// </summary>
+    public sealed class ActionButtonList : ListView
+    {
+        public ActionButtonList()
+        {
+            Style = App.Current.Resources["ActionButtonListStyle"] as Style;
+            ItemClick += ActionButtonList_ItemClick;
+        }
+
+        public event Func<ActionOption, bool> ShouldRunCommand;
+
+        private void ActionButtonList_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            if (e.ClickedItem is ActionOption option)
+            {
+                if (option.IsEnabled)
+                {
+                    if (ShouldRunCommand != null)
+                    {
+                        if (!ShouldRunCommand.Invoke(option)) return;
+                    }
+
+                    if (option.Command != null) option.Command();
+                    else option.RaiseClick();
+                }
             }
         }
 
-        protected override async void OnActivated(IActivatedEventArgs args)
+        protected override void PrepareContainerForItemOverride(DependencyObject element, object item)
         {
-            await ActivationService.ActivateAsync(args);
-        }
-
-        protected override async void OnFileActivated(FileActivatedEventArgs args)
-        {
-            await ActivationService.ActivateAsync(args);
-        }
-
-        private void OnAppUnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
-        {
-            // TODO WTS: Please log and handle the exception as appropriate to your scenario
-            // For more info see https://docs.microsoft.com/uwp/api/windows.ui.xaml.application.unhandledexception
-
-            if (e.Exception is InsufficientMemoryException || e.Exception is OutOfMemoryException)
+            base.PrepareContainerForItemOverride(element, item);
+            FrameworkElement source = element as FrameworkElement;
+            var context = item as ActionOption;
+            TextBlock toolTipBlock = new();
+            toolTipBlock.SetBinding(TextBlock.TextProperty, new Binding()
             {
-                GC.Collect();
-            }
-        }
+                Source = context,
+                Mode = BindingMode.OneWay,
+                Path = new PropertyPath("ToolTipContent"),
+            });
 
-        private ActivationService CreateActivationService()
-        {
-            return new ActivationService(this, typeof(EditorShellPage));
-        }
+            ToolTipService.SetToolTip(source, toolTipBlock);
 
-        private void App_EnteredBackground(object sender, EnteredBackgroundEventArgs e)
-        {
-            var deferral = e.GetDeferral();
-            Singleton<SuspendAndResumeService>.Instance.SaveStateAsync();
-            deferral.Complete();
-        }
+            source.SetBinding(IsEnabledProperty, new Binding()
+            {
+                Source = context,
+                Path = new PropertyPath("IsEnabled"),
+                Mode = BindingMode.OneWay
+            });
 
-        private void App_Resuming(object sender, object e)
-        {
-            Singleton<SuspendAndResumeService>.Instance.ResumeApp();
+            source.SetBinding(AutomationProperties.AcceleratorKeyProperty, new Binding()
+            {
+                Source = context,
+                Path = new PropertyPath("AccessKey"),
+                Mode = BindingMode.OneWay,
+                FallbackValue = string.Empty
+            });
         }
     }
 }

@@ -1,134 +1,133 @@
-﻿using Microsoft.Graphics.Canvas.Text;
-using Microsoft.Toolkit.Uwp.Extensions;
-using MyToolkit.Storage;
-using ProjectCodeEditor.Helpers;
-using ProjectCodeEditor.Models;
-using ProjectCodeEditor.Services;
+﻿using Microsoft.Toolkit.Uwp.Extensions;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.Data.Json;
+using Windows.System;
+using Windows.UI.Xaml;
+using static ProjectCodeEditor.Services.Preferences;
 
 namespace ProjectCodeEditor.ViewModels
 {
-    // Add other settings as necessary. For help see https://github.com/Microsoft/WindowsTemplateStudio/blob/release/docs/UWP/pages/settings.md
-    public class SettingsViewModel : Observable
+    internal sealed record Dependency(string DependencyName, Uri ProjectUri)
     {
-        private BitArray SmallStorage = new BitArray(2);
+        internal static Dependency FromJson(JsonObject obj) => new Dependency(obj.GetNamedString("Name"), new Uri(obj.GetNamedString("Url")));
+    }
 
-        private string _versionDescription;
-
-        public string VersionDescription
+    public sealed class SettingsViewModel : INotifyPropertyChanged
+    {
+        public SettingsViewModel()
         {
-            get { return _versionDescription; }
+            var dependencies = File.ReadAllText(Path.Combine(Package.Current.InstalledPath, "Assets", "Dependencies.json"));
+            var dependenciesRoot = JsonObject.Parse(dependencies).GetNamedArray("dependencies");
+            AppDependencies.AddRange(dependenciesRoot.Select(item => Dependency.FromJson(item.GetObject())));
+        }
 
-            set { Set(ref _versionDescription, value); }
+        public async Task<string> UniqueUserIdAsync()
+        {
+            string accountId = GetSetting("UserId", string.Empty);
+            if (accountId == string.Empty)
+            {
+                if (App.CurrentUser != null)
+                {
+                    accountId = (await App.CurrentUser.GetPropertyAsync(KnownUserProperties.AccountName)).ToString();
+                    if (string.IsNullOrEmpty(accountId)) accountId = (await App.CurrentUser.GetPropertyAsync(KnownUserProperties.FirstName)).ToString();
+                }
+                // This user wants some privacy. Let's not try to enumerate users which will need capability
+                else accountId = Guid.NewGuid().ToString();
+                SetSetting("UserId", accountId);
+            }
+
+            return accountId;
+        }
+
+        public string FontFamily
+        {
+            get => GetSetting(nameof(FontFamily), "Consolas");
+            set
+            {
+                if (FontFamily != value)
+                {
+                    SetSetting(nameof(FontFamily), value);
+                    PropertyChanged?.Invoke(this, new(nameof(FontFamily)));
+                }
+            }
+        }
+
+        public int TabSize
+        {
+            get => GetSetting(nameof(TabSize), 4);
+            set
+            {
+                if (TabSize != value)
+                {
+                    SetSetting(nameof(TabSize), value);
+                    PropertyChanged?.Invoke(this, new(nameof(TabSize)));
+                }
+            }
+        }
+
+        public uint FontSize
+        {
+            get => GetSetting(nameof(FontSize), 18u);
+            set
+            {
+                if (FontSize != value)
+                {
+                    SetSetting(nameof(FontSize), value);
+                    PropertyChanged?.Invoke(this, new(nameof(FontSize)));
+                }
+            }
         }
 
         public bool AutoSave
         {
-            get => SmallStorage.Get(0);
+            get => GetSetting(nameof(AutoSave), false);
             set
             {
-                SmallStorage.Set(0, value);
-                OnPropertyChanged(nameof(AutoSave));
-                ApplicationSettings.SetSetting(nameof(AutoSave), value, false, true);
-            }
-        }
-
-        public bool TextModeBrowser
-        {
-            get => SmallStorage.Get(1);
-            set
-            {
-                SmallStorage.Set(1, value);
-                OnPropertyChanged(nameof(TextModeBrowser));
-                ApplicationSettings.SetSetting(nameof(TextModeBrowser), value, false, true);
-            }
-        }
-
-        private string _EditorFont;
-
-        public string EditorFont
-        {
-            get => _EditorFont;
-            set
-            {
-                Set(ref _EditorFont, value);
-                ApplicationSettings.SetSetting(nameof(EditorFont), value, false, true);
-            }
-        }
-
-        public StringCollection FontList = new StringCollection();
-
-        private EditorFontSize _SelectedFontSize;
-
-        public EditorFontSize SelectedFontSize
-        {
-            get => _SelectedFontSize;
-            set
-            {
-                Set(ref _SelectedFontSize, value);
-                ApplicationSettings.SetSetting(nameof(SelectedFontSize), value.PropertyName, false, true);
-            }
-        }
-
-        public readonly EditorFontSize[] BindableFontSizes = new EditorFontSize[]
-        {
-            new EditorFontSize() { FontSizeEnum = EditorFontSizes.Small },
-            new EditorFontSize() { FontSizeEnum = EditorFontSizes.Medium },
-            new EditorFontSize() { FontSizeEnum = EditorFontSizes.Large }
-        };
-
-        public readonly Dependency[] AppDependencies = new Dependency[]
-        {
-            new Dependency() { DependencyName = "Windows UI Library", ProjectUri = new Uri("https://aka.ms/winui") },
-            new Dependency() { DependencyName = "Win2D", ProjectUri = new Uri("http://microsoft.github.io/Win2D/html/Introduction.htm") },
-            new Dependency() { DependencyName = "Template10", ProjectUri = new Uri("http://aka.ms/Template10-Nuget") },
-            new Dependency() { DependencyName = "WinRTXamlToolkit", ProjectUri = new Uri("https://github.com/xyzzer/WinRTXamlToolkit") },
-            new Dependency() { DependencyName = "MyToolkit", ProjectUri = new Uri("http://mytoolkit.io/")},
-            new Dependency() { DependencyName = "XAML Behaviors", ProjectUri = new Uri("http://go.microsoft.com/fwlink/?LinkID=651678") },
-            new Dependency() { DependencyName = "Monaco Editor UWP", ProjectUri = new Uri("https://github.com/hawkerm/monaco-editor-uwp") },
-            new Dependency() { DependencyName = "Visual Studio App Center", ProjectUri = new Uri("https://azure.microsoft.com/en-us/services/app-center/") },
-            new Dependency() { DependencyName = "LibGit2Sharp", ProjectUri = new Uri("https://github.com/libgit2/libgit2sharp/") },
-            new Dependency() { DependencyName = "Windows Community Toolkit", ProjectUri = new Uri("https://github.com/windows-toolkit/WindowsCommunityToolkit") }
-        };
-
-        public SettingsViewModel()
-        {
-        }
-
-        public async Task InitializeAsync()
-        {
-            VersionDescription = GetVersionDescription();
-            foreach (var fontName in CanvasTextFormat.GetSystemFontFamilies()) { FontList.Add(fontName); }
-            EditorFont = ApplicationSettings.GetSetting(nameof(EditorFont), "Segoe UI");
-            AutoSave = ApplicationSettings.GetSetting(nameof(AutoSave), false);
-            TextModeBrowser = ApplicationSettings.GetSetting(nameof(TextModeBrowser), false);
-            var selectedFontSize = ApplicationSettings.GetSetting(nameof(SelectedFontSize), "Medium");
-            foreach (var fontSizeName in BindableFontSizes)
-            {
-                if (selectedFontSize == fontSizeName.PropertyName)
+                if (AutoSave != value)
                 {
-                    _SelectedFontSize = fontSizeName;
-                    break;
+                    SetSetting(nameof(AutoSave), value);
+                    PropertyChanged?.Invoke(this, new(nameof(AutoSave)));
                 }
             }
-
-            await Task.CompletedTask;
-
         }
 
-        private string GetVersionDescription()
+
+        public bool DisableSound
         {
-            var package = Package.Current;
-            var packageId = package.Id;
-            var version = packageId.Version;
-
-            return $"{"Settings_AboutVersionText".GetLocalized()} {version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
+            get => GetSetting(nameof(DisableSound), false);
+            set
+            {
+                if (DisableSound != value)
+                {
+                    SetSetting(nameof(DisableSound), value);
+                    PropertyChanged?.Invoke(this, new(nameof(DisableSound)));
+                    ElementSoundPlayer.State = !value ? ElementSoundPlayerState.On : ElementSoundPlayerState.Off;
+                }
+            }
         }
+
+        internal bool DialogShown = false;
+
+        internal List<Dependency> AppDependencies = new List<Dependency>();
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public string AboutText
+        {
+            get
+            {
+                var packageVersion = Package.Current.Id.Version;
+                string versionString = $"{"VersionText".GetLocalized()} {packageVersion.Major}.{packageVersion.Minor}.{packageVersion.Build}.{packageVersion.Revision}";
+                return $"Develop\r{versionString}\r{"CopyrightBlock/Text".GetLocalized()}\r{"DevelopedBlock/Text".GetLocalized()}";
+            }
+        }
+
+        public string AboutTextForAutomation => AboutText.Replace("\r", ", ");
     }
 }

@@ -3,49 +3,66 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:ProjectCodeEditor"
+    xmlns:develop="using:Develop"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:ProjectCodeEditor.Models"
-    xmlns:views="using:ProjectCodeEditor.Views"
+    xmlns:services="using:ProjectCodeEditor.Services"
+    xmlns:vmodels="using:ProjectCodeEditor.ViewModels"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     Loaded="UserControl_Loaded"
-    Style="{StaticResource PageStyle}"
     mc:Ignorable="d">
 
+    <UserControl.KeyboardAccelerators>
+        <KeyboardAccelerator
+            Key="O"
+            Invoked="{x:Bind vmodels:Interactions.OpenFiles}"
+            Modifiers="Control" />
+        <KeyboardAccelerator
+            Key="O"
+            Invoked="{x:Bind vmodels:Interactions.OpenProject}"
+            Modifiers="Control, Shift" />
+        <KeyboardAccelerator
+            Key="N"
+            Invoked="{x:Bind vmodels:Interactions.NewFile}"
+            Modifiers="Control" />
+        <KeyboardAccelerator
+            Key="W"
+            Invoked="CloseCurrent_Invoked"
+            Modifiers="Control" />
+    </UserControl.KeyboardAccelerators>
+
     <Grid>
-        <Pivot
-            x:Name="pivot"
-            Margin="{StaticResource SmallLeftTopRightBottomMargin}"
-            SelectionChanged="Pivot_SelectionChanged">
-            <PivotItem x:Uid="RecentsPivot" Tag="Recent">
-                <Grid>
-                    <TextBlock
-                        x:Uid="RecentEmpty_Title"
-                        Margin="{StaticResource SmallTopBottomMargin}"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
-                        Visibility="{x:Bind ViewModel.IsEmpty, Converter={StaticResource BoolToVisibility}, Mode=OneWay}" />
-                    <ListView
-                        x:Name="recentList"
-                        Margin="{StaticResource SmallTopBottomMargin}"
-                        DoubleTapped="RecentList_DoubleClick"
-                        IsDoubleTapEnabled="True"
-                        ItemsSource="{x:Bind ViewModel.RecentItems, Mode=OneWay}"
-                        SelectionChanged="recentList_SelectionChanged"
-                        SelectionMode="Single">
-                        <ListView.ItemTemplate>
-                            <DataTemplate x:DataType="models:RecentItem">
-                                <StackPanel Margin="{StaticResource XSmallLeftTopRightBottomMargin}" Spacing="4">
-                                    <TextBlock Style="{StaticResource BodyTextStyle}" Text="{x:Bind Title}" />
-                                    <TextBlock Opacity=".6" Text="{x:Bind Location}" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </Grid>
-            </PivotItem>
-            <PivotItem x:Uid="SettingsPivot" Tag="Setting">
-                <views:SettingsPage />
-            </PivotItem>
-        </Pivot>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ComboBox
+                Grid.Column="0"
+                BorderThickness="0"
+                CornerRadius="0"
+                ItemsSource="{x:Bind services:Preferences.AppShellViewModel.Instances, Mode=OneWay}" />
+            <Rectangle
+                x:Name="DragRegion"
+                Grid.Column="1"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Fill="Transparent" />
+        </Grid>
+        <ContentPresenter
+            Grid.Row="1"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            Content="{x:Bind services:Preferences.AppShellViewModel.SelectedItem.Content, Mode=OneWay}">
+            <ContentPresenter.ContentTransitions>
+                <TransitionCollection>
+                    <EntranceThemeTransition />
+                </TransitionCollection>
+            </ContentPresenter.ContentTransitions>
+        </ContentPresenter>
     </Grid>
 </UserControl>

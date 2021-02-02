@@ -1,24 +1,24 @@
-﻿using Windows.Storage;
+﻿using Humanizer;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using ProjectCodeEditor.Services;
+using System;
+using Windows.Storage;
+using Windows.Storage.AccessCache;
 
 namespace ProjectCodeEditor.Models
 {
-    public sealed class RecentItem
+    public sealed class RecentItem : ObservableObject
     {
-        public string Title { get; set; }
+        public IStorageItem2 Item { get; init; }
 
-        public string Location
-        {
-            get
-            {
-                if (IsWeb) return Token;
-                else return FileHandle.Path;
-            }
-        }
+        public DateTime Time { get; init; }
 
-        public bool IsWeb = false;
+        public AccessListEntry Entry { get; init; }
 
-        public StorageFile FileHandle { get; set; }
+        public string FileLocation => FileService.GetFolderPath(Item);
 
-        public string Token { get; set; }
+        public string TimeString => Time.Humanize(false);
+
+        public override string ToString() => $"{Item.Name}, {FileLocation}, {TimeString}";
     }
 }

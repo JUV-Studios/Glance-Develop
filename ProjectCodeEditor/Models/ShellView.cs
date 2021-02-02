@@ -1,13 +1,13 @@
-﻿namespace ProjectCodeEditor.Models
+﻿using System;
+using Windows.Storage;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+
+namespace ProjectCodeEditor.Models
 {
-    public sealed class ShellView
+    public sealed record ShellView(string Title, IconSource Icon, UIElement Content, IStorageItem2 ReferenceSource)
     {
-        public string Title { get; set; }
-
-        public string Caption { get; set; }
-
-        public object Parameter { get; set; }
-
-        public ILayoutView Content { get; set; }
+        public bool CanClose => Content is IDisposable;
+        public override string ToString() => $"{Title}";
     }
 }

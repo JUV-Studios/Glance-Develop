@@ -1,98 +1,47 @@
-﻿using Microsoft.Toolkit.Uwp.UI.Extensions;
-using ProjectCodeEditor.Models;
-using ProjectCodeEditor.ViewModels;
-using System;
-using System.IO;
+﻿using ProjectCodeEditor.Models;
+using ProjectCodeEditor.Services;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 
+// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
+
 namespace ProjectCodeEditor.Views
 {
-    public sealed partial class MainPage : UserControl, ILayoutView
+    /// <summary>
+    /// An empty page that can be used on its own or navigated to within a Frame.
+    /// </summary>
+    public sealed partial class MainPage : UserControl
     {
-        public MainViewModel ViewModel { get; } = new MainViewModel();
-
         public MainPage()
         {
             InitializeComponent();
+            ViewService.KeyShortcutPressed += ViewService_KeyShortcutPressed;
         }
 
-        private void ViewModel_RecentListChanged(object sender, EventArgs e) => ShowHideCommandBar();
-
-        private void RecentList_DoubleClick(object sender, DoubleTappedRoutedEventArgs e)
+        private async void CloseCurrent_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
         {
-            var clickedItem = recentList.SelectedItem as RecentItem;
-            if (clickedItem != null)
+            args.Handled = true;
+            var item = Preferences.AppShellViewModel.SelectedItem;
+            if (item.Content is IClosable closable)
             {
-                if (clickedItem.IsWeb)
-                {
-                    App.ShellViewModel.AddWebPage(clickedItem.Location);
-                }
-                else
-                {
-                    App.ShellViewModel.AddFile(clickedItem.FileHandle);
-                }
+                if (await closable.CloseAsync()) Preferences.AppShellViewModel.TerminateInstance(item);
             }
         }
 
-        private void RemoveSelected_Click(object sender, RoutedEventArgs e)
+        private void ViewService_KeyShortcutPressed(object sender, KeyShortcutPressedEventArgs e)
         {
-            ShowHideCommandBar();
-            ViewModel.RemoveRecentItem(recentList.SelectedIndex);
-        }
-
-        private void recentList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (recentList.SelectedItem != null)
+            if (e.Accelerator.Key == VirtualKey.Tab && e.Accelerator.Modifiers == VirtualKeyModifiers.Control && e.Accelerator.IsEnabled)
             {
-
+                e.SystemArgs.Handled = true;
+                Preferences.AppShellViewModel.FastSwitch();
             }
         }
 
-        private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e) => ShowHideCommandBar();
-
-        private void ShowHideCommandBar()
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            /* if (pivot.SelectedItem != null)
-            {
-                if ((pivot.SelectedItem as PivotItem).Tag.ToString() == "Recent" && !ViewModel.IsEmpty)
-                {
-                    RecentsCommandBar.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    RecentsCommandBar.Visibility = Visibility.Collapsed;
-                }
-            }*/
+            Window.Current.SetTitleBar(DragRegion);
         }
-
-        public void Dispose()
-        {
-            ViewModel.RecentListChanged -= ViewModel_RecentListChanged;
-            ViewModel.DisposeRecentItems();
-        }
-
-        private void UserControl_Loaded(object sender, RoutedEventArgs e) => ShowHideCommandBar();
-
-        public UIElement GetUserInterface() => this;
-
-        public void Initialize(ShellView e)
-        {
-            ViewModel.LoadRecentItems();
-            ViewModel.RecentListChanged += ViewModel_RecentListChanged;
-            ShowHideCommandBar();
-        }
-
-        public void OnTabAdded()
-        {
-        }
-
-        public void OnTabRemoveRequested() => App.ShellViewModel.TerminateSelected();
-
-        public void SaveState() { }
-
-        public void RestoreState() { }
     }
 }

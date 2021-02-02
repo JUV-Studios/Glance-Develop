@@ -12,19 +12,23 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.19041.0</TargetPlatformVersion>
-    <TargetPlatformMinVersion>10.0.18362.0</TargetPlatformMinVersion>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
-    <PackageCertificateKeyFile>ProjectCodeEditor_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateKeyFile>
+    </PackageCertificateKeyFile>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>x64</AppxBundlePlatforms>
+    <AppxBundlePlatforms>x86|x64</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+    <PackageCertificateThumbprint>F7677655475B0105AF6BD9F80FB925E2C854FAD1</PackageCertificateThumbprint>
+    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -37,6 +41,7 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
     <LangVersion>preview</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -50,6 +55,7 @@
     <Prefer32Bit>true</Prefer32Bit>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
     <LangVersion>preview</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>
@@ -62,6 +68,7 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
     <LangVersion>preview</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
     <OutputPath>bin\ARM\Release\</OutputPath>
@@ -75,6 +82,7 @@
     <Prefer32Bit>true</Prefer32Bit>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
     <LangVersion>preview</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM64'">
     <DebugSymbols>true</DebugSymbols>
@@ -88,6 +96,7 @@
     <Prefer32Bit>true</Prefer32Bit>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
     <LangVersion>preview</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM64'">
     <OutputPath>bin\ARM64\Release\</OutputPath>
@@ -101,6 +110,7 @@
     <Prefer32Bit>true</Prefer32Bit>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
     <LangVersion>preview</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -113,6 +123,7 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
     <LangVersion>preview</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -126,55 +137,50 @@
     <Prefer32Bit>true</Prefer32Bit>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
     <LangVersion>preview</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="LibGit2Sharp">
-      <Version>0.27.0-preview-0034</Version>
+    <PackageReference Include="Humanizer.Core">
+      <Version>2.8.26</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.AppCenter.Analytics">
-      <Version>3.4.1</Version>
+      <Version>4.1.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.AppCenter.Crashes">
-      <Version>3.4.1</Version>
+      <Version>4.1.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.2.10</Version>
+      <Version>6.2.11</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.HighPerformance">
+      <Version>7.0.0-preview4</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Mvvm">
+      <Version>7.0.0-preview4</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications">
+      <Version>7.0.0-preview4</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Uwp.PlatformSpecificAnalyzer">
       <Version>7.0.0-preview2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.UI">
-      <Version>7.0.0-preview2</Version>
+      <Version>7.0.0-preview4</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Controls">
-      <Version>7.0.0-preview2</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Controls.DataGrid">
-      <Version>7.0.0-preview2</Version>
+      <Version>7.0.0-preview4</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
-      <Version>2.5.0-prerelease.200812001</Version>
+      <Version>2.6.0-prerelease.210113001</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Xaml.Behaviors.Uwp.Managed">
       <Version>2.0.1</Version>
     </PackageReference>
-    <PackageReference Include="Monaco.Editor">
-      <Version>0.8.1-alpha</Version>
-    </PackageReference>
-    <PackageReference Include="MyToolkit.Extended">
-      <Version>2.5.16</Version>
-    </PackageReference>
-    <PackageReference Include="Template10">
-      <Version>1.1.12</Version>
-    </PackageReference>
-    <PackageReference Include="Win2D.uwp">
-      <Version>1.25.0</Version>
-    </PackageReference>
-    <PackageReference Include="WinRTXamlToolkit.UWP">
-      <Version>2.3.0</Version>
+    <PackageReference Include="RangedObservableCollection">
+      <Version>1.0.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -183,55 +189,55 @@
     </PRIResource>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Activation\ActivationHandler.cs" />
-    <Compile Include="CodeEditorBase.cs" />
-    <Compile Include="Helpers\EnumToBooleanConverter.cs" />
-    <Compile Include="Helpers\ImageHelper.cs" />
-    <Compile Include="Helpers\Observable.cs" />
-    <Compile Include="Helpers\RelayCommand.cs" />
-    <Compile Include="ILayoutView.cs" />
-    <Compile Include="Models\Dependency.cs" />
-    <Compile Include="Models\EditorFontSize.cs" />
-    <Compile Include="Models\ShellView.cs" />
+    <Compile Include="Dialogs\DependenciesDialog.xaml.cs">
+      <DependentUpon>DependenciesDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\DialogHelper.cs" />
+    <Compile Include="Dialogs\GoToDialog.cs" />
+    <Compile Include="Dialogs\HelpDialog.xaml.cs">
+      <DependentUpon>HelpDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\UnsavedChangesDialog.xaml.cs">
+      <DependentUpon>UnsavedChangesDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\AccessibilityHelper.cs" />
+    <Compile Include="Helpers\FlagsModel.cs" />
+    <Compile Include="Helpers\JumpListHelper.cs" />
+    <Compile Include="Helpers\NotificationHelper.cs" />
+    <Compile Include="Models\ActionOption.cs" />
+    <Compile Include="Models\IClosable.cs" />
+    <Compile Include="Models\IViewPage.cs" />
     <Compile Include="Models\RecentItem.cs" />
-    <Compile Include="Services\ActivationService.cs" />
-    <Compile Include="Activation\DefaultActivationHandler.cs" />
+    <Compile Include="Models\ShellView.cs" />
     <Compile Include="Services\FileService.cs" />
-    <Compile Include="Services\NavigationService.cs" />
-    <Compile Include="Services\SuspendAndResumeService.cs" />
+    <Compile Include="Services\Preferences.cs" />
     <Compile Include="Services\ViewService.cs" />
-    <Compile Include="ViewModels\BrowserViewModel.cs" />
-    <Compile Include="ViewModels\EditorShellViewModel.cs" />
     <Compile Include="ViewModels\EditorViewModel.cs" />
-    <Compile Include="ViewModels\Interaction.cs" />
-    <Compile Include="ViewModels\LowLatencyEditorViewModel.cs" />
-    <Compile Include="ViewModels\MainViewModel.cs" />
-    <Compile Include="ViewModels\MonacoEditorViewModel.cs" />
-    <Compile Include="ViewModels\ProjectWorkerViewModel.cs" />
+    <Compile Include="ViewModels\HomeViewModel.cs" />
+    <Compile Include="ViewModels\Interactions.cs" />
+    <Compile Include="ViewModels\RecentsViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
-    <Compile Include="Views\BrowserPage.xaml.cs">
-      <DependentUpon>BrowserPage.xaml</DependentUpon>
+    <Compile Include="ViewModels\ShellViewModel.cs" />
+    <Compile Include="Views\CodeEditor.xaml.cs">
+      <DependentUpon>CodeEditor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\EditorPage.xaml.cs">
-      <DependentUpon>EditorPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\EditorShellPage.xaml.cs">
-      <DependentUpon>EditorShellPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\LowLatencyEditorPage.xaml.cs">
-      <DependentUpon>LowLatencyEditorPage.xaml</DependentUpon>
+    <Compile Include="Views\HomePage.xaml.cs">
+      <DependentUpon>HomePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\ProjectWorkerPage.xaml.cs">
-      <DependentUpon>ProjectWorkerPage.xaml</DependentUpon>
+    <Compile Include="Views\ProjectView.xaml.cs">
+      <DependentUpon>ProjectView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SettingsPage.xaml.cs">
+    <Compile Include="Views\Start pages\OpenCreatePage.xaml.cs">
+      <DependentUpon>OpenCreatePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Start pages\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\TextModeBrowserPage.xaml.cs">
-      <DependentUpon>TextModeBrowserPage.xaml</DependentUpon>
+    <Compile Include="Views\StartPage.xaml.cs">
+      <DependentUpon>StartPage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -241,57 +247,45 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Styles\Page.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Styles\_Colors.xaml">
+    <Page Include="Dialogs\DependenciesDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Styles\_FontSizes.xaml">
+    <Page Include="Dialogs\HelpDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Styles\_Thickness.xaml">
+    <Page Include="Dialogs\UnsavedChangesDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Styles\TextBlock.xaml">
+    <Page Include="Views\CodeEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\BrowserPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="Views\HomePage.xaml">
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\EditorPage.xaml">
       <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\EditorShellPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\LowLatencyEditorPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\MainPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\ProjectWorkerPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="Views\ProjectView.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SettingsPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="Views\Start pages\OpenCreatePage.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\TextModeBrowserPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="Views\Start pages\SettingsPage.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\StartPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -301,6 +295,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\FileTypes" />
+    <Content Include="Assets\Languages\Python\Keywords" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -312,7 +307,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
-    <None Include="ProjectCodeEditor_TemporaryKey.pfx" />
+    <Content Include="Assets\Languages\Python\Builtins" />
+    <Content Include="Assets\Dependencies.json" />
+    <None Include="Certificate.pfx" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -321,9 +318,17 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\GraphicsLib\GraphicsLib.vcxproj">
+      <Project>{efc84817-4070-44a5-b06a-7f4b68eccad2}</Project>
+      <Name>GraphicsLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ProjectCodeEditor.Core\ProjectCodeEditor.Core.csproj">
       <Project>{D9F94A39-3E4F-47E1-8B93-5F906D411371}</Project>
       <Name>ProjectCodeEditor.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TextEditorUWP\TextEditor.csproj">
+      <Project>{2c931298-eef0-4dce-8b23-09735edff721}</Project>
+      <Name>TextEditor</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
