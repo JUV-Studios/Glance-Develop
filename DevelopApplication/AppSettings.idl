@@ -1,0 +1,11 @@
+namespace Develop
+{
+    [bindable]
+    [default_interface]
+    static runtimeclass AppSettings
+    {
+        static IVectorView<String> SupportedFileTypes { get; };
+        static Windows.Foundation.IAsyncAction Initialize();
+        static DevelopManaged.SettingsViewModel Preferences { get; };
+    }
+}

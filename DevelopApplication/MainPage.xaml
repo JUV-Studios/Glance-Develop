@@ -4,7 +4,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Develop"
+    xmlns:managed="using:DevelopManaged"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Loaded="UserControl_Loaded"
     mc:Ignorable="d">
 
     <Grid>
@@ -12,10 +14,55 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <ComboBox
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ComboBox
+                x:Name="TabSwitcher"
+                Grid.Column="0"
+                HorizontalAlignment="Left"
+                BorderThickness="0"
+                CornerRadius="0"
+                ItemsSource="{x:Bind ViewModel.Instances, Mode=OneWay}"
+                SelectedItem="{x:Bind ViewModel.SelectedInstance, Mode=TwoWay}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="managed:ShellView">
+                        <StackPanel
+                            HorizontalAlignment="Stretch"
+                            Orientation="Horizontal"
+                            Spacing="4">
+                            <IconSourceElement IconSource="{x:Bind IconSource}" />
+                            <TextBlock
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Center"
+                                Text="{x:Bind Title}" />
+                            <TextBlock
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Center"
+                                Text="{x:Bind Caption}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <Rectangle
+                x:Name="DragRegion"
+                Grid.Column="1"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Fill="Transparent" />
+        </Grid>
+        <ContentPresenter
             Grid.Row="1"
-            Width="3"
-            HorizontalAlignment="Center"
-            BorderThickness="0" />
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            Content="{x:Bind ViewModel.SelectedInstance.Content, Mode=OneWay}">
+            <ContentPresenter.ContentTransitions>
+                <TransitionCollection>
+                    <EntranceThemeTransition />
+                </TransitionCollection>
+            </ContentPresenter.ContentTransitions>
+        </ContentPresenter>
     </Grid>
 </UserControl>

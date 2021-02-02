@@ -1,7 +1,6 @@
 ﻿#include "pch.h"
 #include "App.h"
 #include "MainPage.h"
-#include "Preferences.h"
 #include <winrt/DevelopManaged.h>
 
 using namespace winrt;
@@ -59,9 +58,9 @@ fire_and_forget App::ActivateApp(IActivatedEventArgs const& args)
 {
     if (Window::Current().Content() == nullptr)
     {
+        DevelopManaged::JumpListHelper::InitializeAsync();
+        co_await Develop::AppSettings::Initialize();
         Window::Current().Content(make<MainPage>());
-        co_await DevelopManaged::JumpListHelper::InitializeAsync();
-        co_await Preferences::Initialize();
     }
 
     Window::Current().Activate();

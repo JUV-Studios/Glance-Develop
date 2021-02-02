@@ -6,11 +6,19 @@
 
 using namespace winrt;
 using namespace Windows::UI::Xaml;
+using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::UI::Xaml::Media::Animation;
 
 namespace winrt::Develop::implementation
 {
     HomePage::HomePage()
     {
         InitializeComponent();
+    }
+
+    void HomePage::NavigationView_ItemInvoked(NavigationView const& sender, NavigationViewItemInvokedEventArgs const& args)
+    {
+        auto frame = sender.Content().as<Frame>();
+        if (args.IsSettingsInvoked()) frame.Navigate(xaml_typename<SettingsPage>(), nullptr, DrillInNavigationTransitionInfo());
     }
 }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
-using Windows.Foundation;
 using Windows.UI.StartScreen;
 
 namespace DevelopManaged
@@ -9,25 +7,22 @@ namespace DevelopManaged
     {
         private static JumpList AppJumpList = null;
 
-        public static IAsyncAction InitializeAsync()
+        public static async void InitializeAsync()
         {
-            return Task.Run(async () =>
+            if (JumpList.IsSupported())
             {
-                if (JumpList.IsSupported())
+                AppJumpList = await JumpList.LoadCurrentAsync();
+                AppJumpList.SystemGroupKind = JumpListSystemGroupKind.None;
+                AppJumpList.Items.Clear();
+                try
                 {
-                    AppJumpList = await JumpList.LoadCurrentAsync();
-                    AppJumpList.SystemGroupKind = JumpListSystemGroupKind.None;
-                    AppJumpList.Items.Clear();
-                    try
-                    {
-                        await AppJumpList.SaveAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        if (ex.HResult != 80070497) throw ex;
-                    }
+                    await AppJumpList.SaveAsync();
                 }
-            }).AsAsyncAction();
+                catch (Exception ex)
+                {
+                    if (ex.HResult != 80070497) throw ex;
+                }
+            }
         }
     }
 }

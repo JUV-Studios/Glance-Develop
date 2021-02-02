@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "pch.h"
 #include "ModernHub.g.h"
 
 namespace winrt::Develop::implementation
@@ -7,7 +8,9 @@ namespace winrt::Develop::implementation
     struct ModernHub : ModernHubT<ModernHub>
     {
         ModernHub();
-        void Hub_SizeChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Windows::UI::Xaml::SizeChangedEventArgs const& e);
+        hstring Header();
+        void Header(hstring const& value);
+        void Layout_SizeChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Windows::UI::Xaml::SizeChangedEventArgs const& e);
     };
 }
 

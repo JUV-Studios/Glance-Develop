@@ -198,7 +198,7 @@
   <data name="HistoryFlyoutBtn.Label" xml:space="preserve">
     <value>History</value>
   </data>
-  <data name="HubTitle" xml:space="preserve">
+  <data name="HomePage.Header" xml:space="preserve">
     <value>Home</value>
   </data>
   <data name="Hub_GettingStarted.Header" xml:space="preserve">
@@ -252,7 +252,7 @@
   <data name="SaveBtn.ToolTipService.ToolTip" xml:space="preserve">
     <value>Save (Ctrl+S)</value>
   </data>
-  <data name="SettingsHub.Title" xml:space="preserve">
+  <data name="SettingsHub.Header" xml:space="preserve">
     <value>Settings</value>
   </data>
   <data name="Settings_About.Header" xml:space="preserve">

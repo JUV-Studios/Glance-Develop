@@ -7,5 +7,12 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <local:ModernHub />
+    <NavigationView
+        CompactModeThresholdWidth="0"
+        IsBackButtonVisible="Collapsed"
+        IsPaneToggleButtonVisible="False"
+        ItemInvoked="NavigationView_ItemInvoked"
+        PaneDisplayMode="Auto">
+        <Frame IsNavigationStackEnabled="False" />
+    </NavigationView>
 </UserControl>

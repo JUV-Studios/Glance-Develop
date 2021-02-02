@@ -7,6 +7,7 @@ namespace winrt::Develop::implementation
     struct HomePage : HomePageT<HomePage>
     {
         HomePage();
+        void NavigationView_ItemInvoked(winrt::Windows::UI::Xaml::Controls::NavigationView const& sender, winrt::Windows::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs const& args);
     };
 }
 

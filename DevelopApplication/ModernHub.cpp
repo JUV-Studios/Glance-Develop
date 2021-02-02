@@ -5,8 +5,8 @@
 #endif
 
 using namespace winrt;
-using namespace Windows::Foundation;
 using namespace Windows::UI::Xaml;
+using namespace Windows::Foundation;
 
 namespace winrt::Develop::implementation
 {
@@ -15,10 +15,15 @@ namespace winrt::Develop::implementation
         InitializeComponent();
     }
 
-    void ModernHub::Hub_SizeChanged(IInspectable const&, SizeChangedEventArgs const& e)
+    hstring ModernHub::Header() { return HeadingBlock().Text(); }
+
+    void ModernHub::Header(hstring const& value) { HeadingBlock().Text(value); }
+
+    void ModernHub::Layout_SizeChanged(IInspectable const& sender, SizeChangedEventArgs const& e)
     {
-        if (e.NewSize().Width < 641) Margin(unbox_value<Thickness>(Resources().Lookup(box_value(L"SmallMargin"))));
-        else if (e.NewSize().Width < 1008) Margin(unbox_value<Thickness>(Resources().Lookup(box_value(L"MediumMargin"))));
-        else Margin(unbox_value<Thickness>(Resources().Lookup(box_value(L"LargeMargin"))));
+
+            if (e.NewSize().Width < 641) Margin(ThicknessHelper::FromLengths(24, 24, 24, 0));
+            else if (e.NewSize().Width < 1008) Margin(ThicknessHelper::FromLengths(36, 36, 36, 0));
+            else Margin(ThicknessHelper::FromLengths(48, 48, 48, 0));
     }
 }
