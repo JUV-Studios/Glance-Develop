@@ -28,9 +28,9 @@ namespace TextEditor.Lexer
 {
     public static class Tokenizer
     {
-        public static Regex WordRegex(IEnumerable<string> words) => new Regex("^((" + string.Join(")|(", words.Where(s => !string.IsNullOrWhiteSpace(s))) + "))\\b");
+        public static string WordRegex(IEnumerable<string> words) => "^((" + string.Join(")|(", words.Where(s => !string.IsNullOrWhiteSpace(s))) + "))\\b";
 
-        public static IEnumerator<Token> Tokenize(string script, IEnumerable<GrammerRule> rules)
+        /* public static IEnumerator<Token> Tokenize(string script, IEnumerable<GrammerRule> rules)
         {
             var builder = new StringBuilder(script);
             int i = 0;
@@ -63,6 +63,6 @@ namespace TextEditor.Lexer
 
                 str = builder.ToString();
             }
-        }
+        }*/
     }
 }

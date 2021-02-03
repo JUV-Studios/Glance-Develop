@@ -5,7 +5,8 @@ namespace Develop
     static runtimeclass AppSettings
     {
         static IVectorView<String> SupportedFileTypes { get; };
-        static Windows.Foundation.IAsyncAction Initialize();
+        static Windows.Foundation.IAsyncAction InitializeAsync();
         static DevelopManaged.SettingsViewModel Preferences { get; };
+        static String GetLocalized(String key);
     }
 }

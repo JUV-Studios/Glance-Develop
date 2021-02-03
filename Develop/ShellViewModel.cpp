@@ -16,39 +16,32 @@ namespace winrt::Develop::implementation
 	ShellViewModel::ShellViewModel()
 	{
 		m_Instances = single_threaded_observable_vector<ShellView>();
-		ShellView startPageView;
 		SymbolIconSource iconSource;
 		iconSource.Symbol(Symbol::Home);
-		startPageView.Title(General::GetLocalized(L"HomePage/Header"));
-		startPageView.IconSource(iconSource);
-		startPageView.Content(make<HomePage>());
-		startPageView.ReferenceSource(nullptr);
+		auto startPageView = ShellView(Develop::AppSettings::GetLocalized(L"HomePage/Header"), make<HomePage>(), iconSource, nullptr);
 		AddInstances((single_threaded_vector<ShellView>({ startPageView }).GetView()));
 	}
 
 	IObservableVector<ShellView> ShellViewModel::Instances() { return m_Instances; }
 
-	ShellView ShellViewModel::SelectedInstance() { return m_SelectedInstance; }
+	ShellView ShellViewModel::SelectedInstance() { return m_SelectedItem; }
 
 	void ShellViewModel::SelectedInstance(ShellView const& value)
 	{
-		if (m_SelectedInstance != value)
+		if (m_SelectedItem != value)
 		{
-			m_SelectedInstance = value;
-			m_ViewModel.RaisePropertyChanged(L"SelectedInstance", *this);
+			m_SelectedItem = value;
+			m_PropertyChanged(*this, PropertyChangedEventArgs(L"SelectedInstance"));
 		}
 	}
 
 	void ShellViewModel::AddInstances(IVectorView<ShellView> views)
 	{
-		std::vector<ShellView> items;
-		items.insert(end(items), begin(m_Instances), end(m_Instances));
-		for (auto&& view : views) items.emplace_back(view);
-		m_Instances.ReplaceAll(items);
+		for (auto&& view : views) m_Instances.Append(view);
 		SelectedInstance(m_Instances.GetAt(m_Instances.Size() - 1));
 	}
 
-	event_token ShellViewModel::PropertyChanged(PropertyChangedEventHandler const& handler) { return m_ViewModel.PropertyChanged.add(handler); }
+	event_token ShellViewModel::PropertyChanged(PropertyChangedEventHandler const& handler) { return m_PropertyChanged.add(handler); }
 
-	void ShellViewModel::PropertyChanged(event_token const& token) noexcept { m_ViewModel.PropertyChanged.remove(token); }
+	void ShellViewModel::PropertyChanged(winrt::event_token const& token) noexcept { m_PropertyChanged.remove(token); }
 }

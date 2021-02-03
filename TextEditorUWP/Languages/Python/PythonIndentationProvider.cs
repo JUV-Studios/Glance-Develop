@@ -19,7 +19,7 @@
 
 namespace TextEditor.Languages
 {
-    internal sealed class PythonIndentationProvider : IndentationProvider
+    internal sealed class PythonIndentationProvider //: IndentationProvider
     {
         bool NeedIndentation(string text)
         {
@@ -45,7 +45,7 @@ namespace TextEditor.Languages
             return indentLevel;
         } */
 
-        public override int GuessIndentLevel(string text, int index)
+        /* public override int GuessIndentLevel(string text, int index)
         {
             var lineText = ExtractLineText(ref text, index - 2).TrimEnd('\r');
             int indentLevel = GetIndentLevel(lineText);
@@ -53,6 +53,6 @@ namespace TextEditor.Languages
             lineText = lineText.TrimStart(' ');
             if (indentLevel >= TabWidth && (lineText.StartsWith("return") || lineText.StartsWith("pass"))) return indentLevel - TabWidth;
             return indentLevel;
-        }
+        }*/
     }
 }

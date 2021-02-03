@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using Windows.ApplicationModel.Resources;
+using System.IO;
+using Windows.Foundation;
 
 namespace DevelopManaged
 {
     public static class General
     {
-        private static readonly ResourceLoader ResourceLocator = ResourceLoader.GetForViewIndependentUse();
-
         public static bool StartsWithMultiple(string text, IEnumerable<string> strings)
         {
             bool startsWith = false;
@@ -26,6 +25,24 @@ namespace DevelopManaged
 
         public static string StorablePathName(string path) => path.Replace("\\", "-").Replace(":", "=");
 
-        public static string GetLocalized(string key) => ResourceLocator.GetString(key);
+        public static string FolderPath(string path) => Path.GetDirectoryName(path);
+    }
+
+    /// <summary>
+    /// Represents an object that can be requested for close asynchronously
+    /// </summary>
+    public interface IAsyncClosable
+    {
+        IAsyncOperation<bool> CloseAsync();
+    }
+
+    /// <summary>
+    /// Represents an object that can be suspended and resumes
+    /// </summary>
+    public interface ISuspendable : IAsyncClosable
+    {
+        IAsyncAction SuspendAsync();
+
+        IAsyncAction ResumeAsync();
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace TextEditor.Languages
 {
-    public class CurlyBracesIndentationProvider : IndentationProvider
+    /* public class CurlyBracesIndentationProvider : IndentationProvider
     {
         public override int GuessIndentLevel(string text, int index)
         {
@@ -11,5 +11,5 @@
             if (indentLevel >= TabWidth && lineText.EndsWith('}')) return indentLevel - TabWidth;
             return indentLevel;
         }
-    }
+    } */
 }

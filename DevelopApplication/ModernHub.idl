@@ -1,9 +1,0 @@
-namespace Develop
-{
-    [default_interface]
-    runtimeclass ModernHub : Windows.UI.Xaml.Controls.UserControl
-    {
-        ModernHub();
-        String Header { get; set; };
-    }
-}

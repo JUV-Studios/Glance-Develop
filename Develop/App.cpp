@@ -58,8 +58,7 @@ fire_and_forget App::ActivateApp(IActivatedEventArgs const& args)
 {
     if (Window::Current().Content() == nullptr)
     {
-        DevelopManaged::JumpListHelper::InitializeAsync();
-        co_await Develop::AppSettings::Initialize();
+        co_await Develop::AppSettings::InitializeAsync();
         Window::Current().Content(make<MainPage>());
     }
 

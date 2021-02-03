@@ -15,43 +15,34 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+            <Rectangle
+                x:Name="DragRegion"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Fill="Transparent" />
             <ComboBox
                 x:Name="TabSwitcher"
-                Grid.Column="0"
-                HorizontalAlignment="Left"
+                HorizontalAlignment="Center"
                 BorderThickness="0"
                 CornerRadius="0"
                 ItemsSource="{x:Bind ViewModel.Instances, Mode=OneWay}"
                 SelectedItem="{x:Bind ViewModel.SelectedInstance, Mode=TwoWay}">
                 <ComboBox.ItemTemplate>
-                    <DataTemplate x:DataType="managed:ShellView">
+                    <DataTemplate x:DataType="local:ShellView">
                         <StackPanel
                             HorizontalAlignment="Stretch"
                             Orientation="Horizontal"
                             Spacing="4">
-                            <IconSourceElement IconSource="{x:Bind IconSource}" />
+                            <IconSourceElement IconSource="{x:Bind Icon}" />
                             <TextBlock
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Center"
                                 Text="{x:Bind Title}" />
-                            <TextBlock
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Center"
-                                Text="{x:Bind Caption}" />
+                            <TextBlock HorizontalAlignment="Stretch" VerticalAlignment="Center" />
                         </StackPanel>
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-            <Rectangle
-                x:Name="DragRegion"
-                Grid.Column="1"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch"
-                Fill="Transparent" />
         </Grid>
         <ContentPresenter
             Grid.Row="1"

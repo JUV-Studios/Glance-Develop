@@ -52,7 +52,3 @@ namespace ProjectCodeEditor.Core.Helpers
     }
 }
 
-namespace System.Runtime.CompilerServices
-{
-    public class IsExternalInit { }
-}

@@ -19,7 +19,6 @@
 
 using ColorCode.Styling;
 using ColorCode.UWP.Common;
-using ProjectCodeEditor.Core.Helpers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -63,9 +62,9 @@ namespace TextEditor.UI
 
         #region Text View
 
-        public (int, int) TextSelection = (0, 0);
+        private (int, int) TextSelection = (0, 0);
 
-        public static readonly DependencyProperty TextViewProperty =
+        private static readonly DependencyProperty TextViewProperty =
             DependencyProperty.Register("TextView", typeof(RichEditBox), typeof(SyntaxEditor),
                                         new PropertyMetadata(null));
 
@@ -84,7 +83,7 @@ namespace TextEditor.UI
             set => TextView.FontFamily = new FontFamily(value);
         }
 
-        public int TabSize
+        /* public int TabSize
         {
             get
             {
@@ -96,7 +95,7 @@ namespace TextEditor.UI
                 if (SyntaxLanguage?.IndentationProvider != null) SyntaxLanguage.IndentationProvider.TabWidth = value;
                 TextView.TextDocument.DefaultTabStop = value + 8;
             }
-        }
+        } */
 
         private async void TextView_Pasting(object sender, TextControlPasteEventArgs e)
         {
@@ -111,11 +110,11 @@ namespace TextEditor.UI
             {
                 // Tab support
                 e.Handled = true;
-                int size;
+                /* int size;
                 var indentationProvider = SyntaxLanguage?.IndentationProvider;
-                if (indentationProvider != null) size = indentationProvider.TabWidth;
+                /* if (indentationProvider != null) size = indentationProvider.TabWidth;
                 else size = TabSize;
-                TextView.TextDocument.Selection.TypeText(new string(' ', size));
+                TextView.TextDocument.Selection.TypeText(new string(' ', size));*/
             }
         }
 
@@ -145,7 +144,7 @@ namespace TextEditor.UI
         {
             if (editBox != null)
             {
-                editBox.TextChanged += HandleTextViewTextChanged;
+                // editBox.TextChanged += HandleTextViewTextChanged;
                 editBox.KeyUp += HandleTextViewKeyUp;
                 editBox.KeyDown += HandleTextViewKeyDown;
                 editBox.SelectionChanged += Editor_SelectionChanged;
@@ -161,7 +160,7 @@ namespace TextEditor.UI
             if (editBox != null)
             {
                 editBox.SelectionChanged -= Editor_SelectionChanged;
-                editBox.TextChanged -= HandleTextViewTextChanged;
+                // editBox.TextChanged -= HandleTextViewTextChanged;
                 editBox.KeyUp -= HandleTextViewKeyUp;
                 editBox.Paste -= TextView_Pasting;
                 editBox.KeyDown -= HandleTextViewKeyDown;
@@ -175,7 +174,7 @@ namespace TextEditor.UI
 
         #region Syntax Language
 
-        public static readonly DependencyProperty SyntaxLanguageProperty =
+        /* private static readonly DependencyProperty SyntaxLanguageProperty =
             DependencyProperty.Register("SyntaxLanguage", typeof(SyntaxLanguage), typeof(SyntaxEditor),
                                         new PropertyMetadata(null, OnSyntaxLanguagePropertyChanged));
 
@@ -194,12 +193,12 @@ namespace TextEditor.UI
         {
             if (newValue != null) TextView.IsSpellCheckEnabled = newValue.IsPlainText;
         }
-
+        */
         #endregion
 
         #region Highlighting
 
-        string previous = string.Empty;
+        /* string previous = string.Empty;
 
         bool tokenizing = false;
 
@@ -216,7 +215,7 @@ namespace TextEditor.UI
                 tokenizing = true;
                 var rules = SyntaxLanguage.Rules as IList<GrammerRule>;
                 Task.Run(async () => { await TokenizePlusHighlight(text, rules); }).ContinueWith((t) => { if (t.IsCompleted) tokenizing = false; });
-            } */
+            }
         }
 
         public async Task TokenizePlusHighlight(string text, IEnumerable<GrammerRule> rules)
@@ -230,7 +229,7 @@ namespace TextEditor.UI
                 {
                     token = t.Current;
                     if (TextStyles.TryGetValue(token.Type, out var item)) HighlightRanges.Add(t.Current, item.Foreground);
-                    else HighlightRanges.Add(t.Current, Singleton<UISettings>.Instance.GetColorValue(UIColorType.Foreground));
+                    else HighlightRanges.Add(t.Current, new UISettings().GetColorValue(UIColorType.Foreground));
                 }
             }
 
@@ -243,13 +242,13 @@ namespace TextEditor.UI
                     var range = TextView.Document.GetRange(token.StartIndex, token.StartIndex + token.Length);
                     Color colour;
                     if (val is Color color) colour = color;
-                    else if (val == null) colour = Singleton<UISettings>.Instance.GetColorValue(UIColorType.Foreground);
+                    else if (val == null) colour = new UISettings().GetColorValue(UIColorType.Foreground);
                     else colour = val.ToString().GetSolidColorBrush().Color;
                     if (range.CharacterFormat.ForegroundColor != colour) range.CharacterFormat.ForegroundColor = colour;
                 }
             }));
         }
-
+         */
         #endregion
 
         #region Indentation
@@ -261,13 +260,13 @@ namespace TextEditor.UI
                 string text = Text;
                 // RefreshLineNumbers(text.Count<char>(c => c == '\r'));
 
-                var indentLevel = GetIndentLevel(ref text);
+                /* var indentLevel = GetIndentLevel(ref text);
                 e.Handled = true;
                 if (indentLevel == 0) return;
 
                 TextView.Document.Selection.SetText(TextSetOptions.None, new String(' ', indentLevel));
                 var x = TextView.Document.Selection.StartPosition + indentLevel;
-                TextView.Document.Selection.SetRange(x, x);
+                TextView.Document.Selection.SetRange(x, x);*/
             }
             else e.Handled = false;
             // else if (TextView.Document.Selection.Length > 0 ||
@@ -275,7 +274,7 @@ namespace TextEditor.UI
             // RefreshLineNumbers(Text.Count<char>(c => c == '\r'));
         }
 
-        int GetIndentLevel(ref string text)
+        /* int GetIndentLevel(ref string text)
         {
             if (!SyntaxLanguage.IsPlainText)
             {
@@ -291,7 +290,7 @@ namespace TextEditor.UI
             }
 
             return 0;
-        }
+        } */
 
         #endregion
 
@@ -328,7 +327,7 @@ namespace TextEditor.UI
         {
             if (DetachEvents(TextView))
             {
-                SyntaxLanguage = null;
+                // SyntaxLanguage = null;
             }
         }
 
