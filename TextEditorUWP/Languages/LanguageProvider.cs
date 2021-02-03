@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace TextEditor.Languages
 {
-    public static class LanguageProvider
+    /* public static class LanguageProvider
     {
         public static readonly List<SyntaxLanguage> CodeLanguages = new() { new PythonSyntaxLanguage(), new PlainTextLanguage() };
 
@@ -22,5 +22,5 @@ namespace TextEditor.Languages
             foundLanguage = CodeLanguages.Last();
             return false;
         }
-    }
+    } */
 }

@@ -21,7 +21,7 @@ using System.Collections.Generic;
 
 namespace TextEditor
 {
-    public abstract class IndentationProvider
+    /* public abstract class IndentationProvider
     {
         public int TabWidth { get; set; } = 4;
 
@@ -84,8 +84,8 @@ namespace TextEditor
             }
 
             return stack.Count > 0;
-        } */
+        } 
 
         public abstract int GuessIndentLevel(string text, int index);
-    }
+    } */
 }

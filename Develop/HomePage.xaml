@@ -8,7 +8,8 @@
     mc:Ignorable="d">
 
     <NavigationView
-        CompactModeThresholdWidth="0"
+        CompactModeThresholdWidth="{StaticResource MinWindowBreakpoint}"
+        ExpandedModeThresholdWidth="{StaticResource MediumWindowBreakpoint}"
         IsBackButtonVisible="Collapsed"
         IsPaneToggleButtonVisible="False"
         ItemInvoked="NavigationView_ItemInvoked"

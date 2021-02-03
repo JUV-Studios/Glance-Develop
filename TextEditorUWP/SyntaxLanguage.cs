@@ -22,7 +22,7 @@ using System.Collections.Generic;
 
 namespace TextEditor
 {
-    public abstract class SyntaxLanguage : ILanguage
+    /* public abstract class SyntaxLanguage : ILanguage
     {
         public bool IsPlainText => Id == ".txt";
 
@@ -39,5 +39,10 @@ namespace TextEditor
         public string CssClassName => string.Empty;
 
         public bool HasAlias(string lang) => false;
-    }
+    } */
+}
+
+namespace System.Runtime.CompilerServices
+{
+    internal class IsExternalInit { }
 }

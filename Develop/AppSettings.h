@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "AppSettings.g.h"
-#include <winrt\DevelopManaged.h>
 
 namespace winrt::Develop::implementation
 {
@@ -9,8 +8,9 @@ namespace winrt::Develop::implementation
     {
         AppSettings() = delete;
         static Windows::Foundation::Collections::IVectorView<hstring> SupportedFileTypes();
-        static Windows::Foundation::IAsyncAction Initialize();
+        static Windows::Foundation::IAsyncAction InitializeAsync();
         static DevelopManaged::SettingsViewModel Preferences();
+        static hstring GetLocalized(hstring const& key);
     };
 }
 

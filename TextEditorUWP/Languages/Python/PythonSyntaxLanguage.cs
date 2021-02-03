@@ -26,29 +26,10 @@ using Windows.ApplicationModel;
 
 namespace TextEditor.Languages
 {
-    public class PythonSyntaxLanguage : SyntaxLanguage
+    internal sealed class PythonSyntaxLanguage
     {
         public PythonSyntaxLanguage()
         {
-            Name = "Python";
-            Id = ".py";
-            Rules = new GrammerRule[]
-            {
-                new GrammerRule(ScopeName.Keyword, Tokenizer.WordRegex(Keywords)),
-                new GrammerRule(ScopeName.BuiltinFunction, Tokenizer.WordRegex(Builtins)),
-                new GrammerRule(ScopeName.Comment, new Regex("^(#.*)", RegexOptions.Singleline)), // Comment
-                new GrammerRule(ScopeName.Operator, new Regex("^[\\+\\-\\*/%&|\\^~<>!]")), // Single Char Operator
-                new GrammerRule(ScopeName.Operator, new Regex("^((==)|(!=)|(<=)|(>=)|(<>)|(<<)|(>>)|(//)|(\\*\\*))")), // Double Char Operator
-                new GrammerRule(ScopeName.Delimiter, new Regex("^[\\(\\)\\[\\]\\{\\}@,:`=;\\.]")), // Single Delimiter
-                new GrammerRule(ScopeName.Delimiter, new Regex("^((\\+=)|(\\-=)|(\\*=)|(%=)|(/=)|(&=)|(\\|=)|(\\^=))")), // Double Char Operator
-                new GrammerRule(ScopeName.Delimiter, new Regex("^((//=)|(>>=)|(<<=)|(\\*\\*=))")), // Triple Delimiter
-                new GrammerRule(ScopeName.TypeVariable, new Regex("^[_A-Za-z][_A-Za-z0-9]*")), // Identifier
-                new GrammerRule(ScopeName.String, new Regex("^((\"\"\"(.*)\"\"\")|('''(.)*'''))", RegexOptions.IgnoreCase | RegexOptions.Multiline)),
-                new GrammerRule(ScopeName.String, new Regex("^((@'(?:[^']|'')*'|'(?:\\.|[^\\']|)*('|\\b))|(@\"(?:[^\"]|\"\")*\"|\"(?:\\.|[^\\\"])*(\"|\\b)))",
-                    RegexOptions.IgnoreCase | RegexOptions.Singleline)), // String Marker
-            };
-
-            IndentationProvider = new PythonIndentationProvider();
         }
 
         private static readonly string PythonFolderPath = Path.Combine(Package.Current.InstalledPath, "Assets", "Languages", "Python");

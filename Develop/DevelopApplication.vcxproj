@@ -136,10 +136,6 @@
       <DependentUpon>HomePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="ModernHub.h">
-      <DependentUpon>ModernHub.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </ClInclude>
     <ClInclude Include="pch.h" />
     <ClInclude Include="App.h">
       <DependentUpon>App.xaml</DependentUpon>
@@ -147,15 +143,14 @@
     <ClInclude Include="MainPage.h">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </ClInclude>
-    <ClInclude Include="SettingsPage.h">
-      <DependentUpon>SettingsPage.xaml</DependentUpon>
+    <ClInclude Include="ShellView.h">
+      <DependentUpon>ShellView.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ShellViewModel.h">
       <DependentUpon>ShellViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="ViewModelHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -165,12 +160,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="MainPage.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="ModernHub.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="SettingsPage.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
@@ -197,10 +186,6 @@
       <DependentUpon>HomePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="ModernHub.cpp">
-      <DependentUpon>ModernHub.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </ClCompile>
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
@@ -211,8 +196,8 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
-    <ClCompile Include="SettingsPage.cpp">
-      <DependentUpon>SettingsPage.xaml</DependentUpon>
+    <ClCompile Include="ShellView.cpp">
+      <DependentUpon>ShellView.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ShellViewModel.cpp">
@@ -234,13 +219,8 @@
     <Midl Include="MainPage.idl">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Midl>
-    <Midl Include="ModernHub.idl">
-      <DependentUpon>ModernHub.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Midl>
-    <Midl Include="SettingsPage.idl">
-      <DependentUpon>SettingsPage.xaml</DependentUpon>
-      <SubType>Code</SubType>
+    <Midl Include="ShellView.idl">
+      <SubType>Designer</SubType>
     </Midl>
     <Midl Include="ShellViewModel.idl">
       <SubType>Designer</SubType>
@@ -262,9 +242,6 @@
   <ItemGroup>
     <ProjectReference Include="..\DevelopManaged\DevelopManaged.csproj">
       <Project>{30cf1f17-d53a-482e-98e7-b86ab2cff65b}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\GraphicsLib\GraphicsLib.vcxproj">
-      <Project>{efc84817-4070-44a5-b06a-7f4b68eccad2}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -9,13 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectCodeEditor.Core", "P
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextEditor", "TextEditorUWP\TextEditor.csproj", "{2C931298-EEF0-4DCE-8B23-09735EDFF721}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Automation", "Automation", "{9C8D842F-175F-4C57-B070-D645F542F4EA}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArrayWriter", "ArrayWriter\ArrayWriter.csproj", "{F9D785A2-4EA0-416B-A64C-5842EA84C7C0}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GraphicsLib", "GraphicsLib\GraphicsLib.vcxproj", "{EFC84817-4070-44A5-B06A-7F4B68ECCAD2}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Develop", "DevelopApplication\DevelopApplication.vcxproj", "{B805AE08-AA6D-46C6-9771-BC8E5AE2F8CD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Develop", "Develop\DevelopApplication.vcxproj", "{B805AE08-AA6D-46C6-9771-BC8E5AE2F8CD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevelopManaged", "DevelopManaged\DevelopManaged.csproj", "{30CF1F17-D53A-482E-98E7-B86AB2CFF65B}"
 EndProject
