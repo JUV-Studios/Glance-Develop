@@ -1,0 +1,10 @@
+namespace Develop
+{
+    [bindable]
+    [default_interface]
+    static runtimeclass Recents 
+    {
+        static IObservableVector<DevelopManaged.RecentItem> RecentItems { get; };
+        static Windows.Foundation.IAsyncAction LoadRecentsAsync();
+    }
+}

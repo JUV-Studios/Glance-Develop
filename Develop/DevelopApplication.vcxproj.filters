@@ -6,6 +6,13 @@
   <ItemGroup>
     <Page Include="MainPage.xaml" />
     <Page Include="HomePage.xaml" />
+    <Page Include="SettingsView.xaml">
+      <Filter>HomeViews</Filter>
+    </Page>
+    <Page Include="AboutDialog.xaml">
+      <Filter>Dialogs</Filter>
+    </Page>
+    <Page Include="CodeEditor.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="App.idl" />
@@ -18,6 +25,12 @@
     </Midl>
     <Midl Include="ShellView.idl">
       <Filter>Models</Filter>
+    </Midl>
+    <Midl Include="Recents.idl">
+      <Filter>ViewModels</Filter>
+    </Midl>
+    <Midl Include="BindableBase.idl">
+      <Filter>ViewModels</Filter>
     </Midl>
   </ItemGroup>
   <ItemGroup>
@@ -51,6 +64,9 @@
     <Image Include="Assets\LockScreenLogo.scale-200.png">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Assets\PdfFile.png">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />
@@ -74,11 +90,23 @@
     <Filter Include="Models">
       <UniqueIdentifier>{f600a1f9-9524-4238-822f-04629fbd72cc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Helpers">
+      <UniqueIdentifier>{7c1462df-2b67-4384-96a0-08e5df8539cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HomeViews">
+      <UniqueIdentifier>{f520273c-3fcd-402d-bbb4-0f0bb09f6de6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dialogs">
+      <UniqueIdentifier>{a9d6bff1-a2ed-49e9-a825-60d5fff73e67}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
     <None Include="packages.config" />
     <None Include="Assets\FileTypes">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="Assets\Develop.svg">
       <Filter>Assets</Filter>
     </None>
   </ItemGroup>

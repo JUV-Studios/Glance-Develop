@@ -1,23 +1,21 @@
 ﻿#pragma once
 
 #include "ShellViewModel.g.h"
-#include <winrt/DevelopManaged.h>
+#include "BindableBase.h"
 
 namespace winrt::Develop::implementation
 {
-    struct ShellViewModel : ShellViewModelT<ShellViewModel>
+    struct ShellViewModel : ShellViewModelT<ShellViewModel, BindableBase>
     {
         ShellViewModel();
         Windows::Foundation::Collections::IObservableVector<Develop::ShellView> Instances();
         Develop::ShellView SelectedInstance();
         void SelectedInstance(Develop::ShellView const& value);
-        void AddInstances(Windows::Foundation::Collections::IVectorView<Develop::ShellView> views);
-        winrt::event_token PropertyChanged(winrt::Windows::UI::Xaml::Data::PropertyChangedEventHandler const& handler);
-        void PropertyChanged(winrt::event_token const& token) noexcept;
+        void AddInstances(array_view<ShellView> instances);
+        void AddStorageItems(Windows::Foundation::Collections::IVectorView<Windows::Storage::IStorageItem2> const& sItems);
     private:
+        bool StorageItemOpen(Windows::Storage::IStorageItem2 const& item, ShellView* foundItem);
         Windows::Foundation::Collections::IObservableVector<Develop::ShellView> m_Instances;
-        Develop::ShellView m_SelectedItem{ nullptr };
-        event<winrt::Windows::UI::Xaml::Data::PropertyChangedEventHandler> m_PropertyChanged;
     };
 }
 

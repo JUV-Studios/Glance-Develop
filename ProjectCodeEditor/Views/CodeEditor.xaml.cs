@@ -1,11 +1,4 @@
-﻿using Microsoft.Toolkit.Uwp.Extensions;
-using Microsoft.Toolkit.Uwp.UI.Animations;
-using ProjectCodeEditor.Core.Helpers;
-using ProjectCodeEditor.Dialogs;
-using ProjectCodeEditor.Models;
-using ProjectCodeEditor.Services;
-using ProjectCodeEditor.ViewModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -25,9 +18,9 @@ using Windows.UI.Xaml.Input;
 
 namespace ProjectCodeEditor.Views
 {
-    public sealed partial class CodeEditor : UserControl, IClosable
+    public sealed partial class CodeEditor : UserControl
     {
-        public EditorViewModel ViewModel { get; private set; }
+        /* public EditorViewModel ViewModel { get; private set; }
 
         private readonly Dictionary<VirtualKey, Action> FastCtrlKeyboardShortcuts;
 
@@ -219,6 +212,6 @@ namespace ProjectCodeEditor.Views
 
             if (ViewModel.TabClosing) ViewService.AppClosingEvent.Remove(ViewModel.SaveAsync);
             return ViewModel.TabClosing;
-        }
+        } */
     }
 }

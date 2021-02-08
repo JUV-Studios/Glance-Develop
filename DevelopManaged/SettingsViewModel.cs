@@ -1,11 +1,21 @@
 ﻿using System.ComponentModel;
 using Windows.UI.Xaml;
 using Windows.Storage;
+using System;
+using Windows.ApplicationModel;
 
 namespace DevelopManaged
 {
     public sealed class SettingsViewModel : INotifyPropertyChanged
     {
+        static internal SettingsViewModel Instance = null;
+
+        public SettingsViewModel()
+        {
+            if (Instance == null) Instance = this;
+            else throw new InvalidOperationException();
+        }
+
         public static ApplicationDataContainer LocalSettings => ApplicationData.Current.LocalSettings;
 
         private static T GetSetting<T>(string key, T fallback)
@@ -85,20 +95,16 @@ namespace DevelopManaged
             }
         }
 
-        internal bool DialogShown = false;
-
         public event PropertyChangedEventHandler PropertyChanged;
 
-        /* public string AboutText
+        public static string AboutText
         {
             get
             {
                 var packageVersion = Package.Current.Id.Version;
                 string versionString = $"{"VersionText".GetLocalized()} {packageVersion.Major}.{packageVersion.Minor}.{packageVersion.Build}.{packageVersion.Revision}";
-                return $"Develop\r{versionString}\r{"CopyrightBlock/Text".GetLocalized()}\r{"DevelopedBlock/Text".GetLocalized()}";
+                return $"Develop\r{versionString}\r{"DevelopedBlock/Text".GetLocalized()}\r{ "CopyrightBlock/Text".GetLocalized()}";
             }
         }
-
-        public string AboutTextForAutomation => AboutText.Replace("\r", ", "); */
     }
 }

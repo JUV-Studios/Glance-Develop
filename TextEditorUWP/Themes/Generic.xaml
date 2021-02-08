@@ -37,13 +37,14 @@
                         <ContentPresenter Content="{TemplateBinding TextView}">
                             <ContentPresenter.Resources>
                                 <Style TargetType="RichEditBox">
-                                    <Setter Property="DisabledFormattingAccelerators" Value="All" />
+                                    <Setter Property="FontFamily" Value="{TemplateBinding FontFamily}" />
+                                    <Setter Property="FontSize" Value="{TemplateBinding FontSize}" />
                                     <Setter Property="ClipboardCopyFormat" Value="PlainText" />
                                     <Setter Property="TextWrapping" Value="NoWrap" />
                                     <Setter Property="BorderThickness" Value="0" />
                                     <Setter Property="Background" Value="Transparent" />
                                     <Setter Property="Margin" Value="0" />
-                                    <Setter Property="Padding" Value="12,12,12,4" />
+                                    <Setter Property="Padding" Value="24,24,24,4" />
                                     <Setter Property="HorizontalAlignment" Value="Stretch" />
                                     <Setter Property="VerticalAlignment" Value="Stretch" />
                                 </Style>

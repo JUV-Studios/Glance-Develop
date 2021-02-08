@@ -1,4 +1,5 @@
 import "ShellViewModel.idl";
+
 namespace Develop
 {
     [default_interface]

@@ -1,4 +1,4 @@
-﻿using Microsoft.Toolkit.HighPerformance.Extensions;
+﻿/* using Microsoft.Toolkit.HighPerformance.Extensions;
 using Microsoft.Toolkit.Uwp.Extensions;
 using ProjectCodeEditor.Core.Helpers;
 using ProjectCodeEditor.Helpers;
@@ -303,3 +303,5 @@ namespace ProjectCodeEditor.ViewModels
         #endregion
     }
 }
+
+*/

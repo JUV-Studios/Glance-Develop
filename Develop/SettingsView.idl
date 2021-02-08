@@ -1,0 +1,8 @@
+namespace Develop
+{
+    [default_interface]
+    runtimeclass SettingsView : Windows.UI.Xaml.Controls.Page
+    {
+        SettingsView();
+    }
+}

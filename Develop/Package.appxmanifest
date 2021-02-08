@@ -103,6 +103,16 @@
             <uap3:Name>com.juvstudios.develop</uap3:Name>
           </uap3:AppExtensionHost>
         </uap3:Extension>
+        <uap:Extension Category="windows.fileTypeAssociation">
+          <uap:FileTypeAssociation Name="develop-pdf">
+            <uap:SupportedFileTypes>
+              <uap:FileType ContentType="application/pdf">.pdf</uap:FileType>
+            </uap:SupportedFileTypes>
+            <uap:DisplayName>PDF file</uap:DisplayName>
+            <uap:InfoTip>Read this PDF file with Develop</uap:InfoTip>
+            <uap:Logo>Assets/PdfFile.png</uap:Logo>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
       </Extensions>
     </Application>
   </Applications>

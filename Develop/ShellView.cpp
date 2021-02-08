@@ -15,11 +15,9 @@ namespace winrt::Develop::implementation
     ShellView::ShellView(hstring const& title, UIElement const& content, IconSource const& icon, IStorageItem2 const& refSource) : m_Title(title), m_Content(content), m_IconSource(icon), 
         m_ReferenceSource(refSource) {}
 
-    hstring ShellView::Title() { return m_Title; }
-
     hstring ShellView::Caption()
     {
-        if (m_ReferenceSource == nullptr) return hstring();
+        if (m_ReferenceSource == nullptr) return L"";
         else return DevelopManaged::General::FolderPath(m_ReferenceSource.Path());
     }
 

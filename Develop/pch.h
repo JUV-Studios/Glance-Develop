@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <map>
+#include <mutex>
 #include <windows.h>
 #include <unknwn.h>
 #include <restrictederrorinfo.h>
@@ -12,7 +12,12 @@
 #include <winrt/Windows.UI.ViewManagement.h>
 #include <winrt/Windows.Data.Json.h>
 #include <winrt/Windows.UI.Xaml.Input.h>
+#include <winrt/Windows.System.h>
 #include <winrt/Windows.Storage.h>
+#include <winrt/Windows.Storage.Streams.h>
+#include <winrt/Windows.Storage.AccessCache.h>
+#include <winrt/Windows.Storage.Pickers.h>
+#include <winrt/Windows.UI.Text.h>
 #include <winrt/Windows.UI.Xaml.h>
 #include <winrt/Windows.UI.Xaml.Controls.h>
 #include <winrt/Windows.UI.Xaml.Shapes.h>

@@ -1,0 +1,11 @@
+namespace Develop
+{
+	[default_interface]
+	unsealed runtimeclass BindableBase : Windows.UI.Xaml.DependencyObject, Windows.UI.Xaml.Data.INotifyPropertyChanged
+	{
+		BindableBase();
+		[noexcept] protected void RaisePropertyChanged(String propertyName);
+		[noexcept] protected Object GetProperty(String propertyName);
+		protected void SetProperty(String propertyName, Object value);
+	}
+}

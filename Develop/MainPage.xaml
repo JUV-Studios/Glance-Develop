@@ -9,6 +9,40 @@
     Loaded="UserControl_Loaded"
     mc:Ignorable="d">
 
+    <UserControl.Resources>
+        <MenuFlyout
+            x:Key="AppFlyout"
+            Opening="AppFlyout_Opening"
+            Placement="Bottom">
+            <MenuFlyoutItem
+                x:Uid="OpenFileItem"
+                Click="OpenFile_Click"
+                Icon="OpenFile">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="O" Modifiers="Control" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem x:Uid="OpenProjectItem" Click="OpenProject_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xED25;" />
+                </MenuFlyoutItem.Icon>
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="O" Modifiers="Control, Shift" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem Click="AboutItem_Click" Loaded="AboutItem_Loaded">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE946;" />
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem
+                x:Uid="CloseCurrentTab"
+                Icon="Clear"
+                IsEnabled="{x:Bind ViewModel.SelectedInstance.CanClose, Mode=OneWay}" />
+        </MenuFlyout>
+    </UserControl.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -20,9 +54,27 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 Fill="Transparent" />
+            <Button
+                x:Uid="AppMenu"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Stretch"
+                HorizontalContentAlignment="Center"
+                Background="Transparent"
+                Click="AppMenu_Click"
+                ContextFlyout="{StaticResource AppFlyout}"
+                CornerRadius="0">
+                <Button.Content>
+                    <Image
+                        Width="20"
+                        Height="20"
+                        Source="ms-appx:///Assets/Develop.svg" />
+                </Button.Content>
+            </Button>
             <ComboBox
                 x:Name="TabSwitcher"
+                x:Uid="TabSwitcher"
                 HorizontalAlignment="Center"
+                VerticalAlignment="Stretch"
                 BorderThickness="0"
                 CornerRadius="0"
                 ItemsSource="{x:Bind ViewModel.Instances, Mode=OneWay}"
@@ -37,8 +89,12 @@
                             <TextBlock
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Center"
-                                Text="{x:Bind Title}" />
-                            <TextBlock HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                                Style="{ThemeResource BaseTextBlockStyle}"
+                                Text="{x:Bind ToString()}" />
+                            <TextBlock
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Center"
+                                Text="{x:Bind Caption}" />
                         </StackPanel>
                     </DataTemplate>
                 </ComboBox.ItemTemplate>

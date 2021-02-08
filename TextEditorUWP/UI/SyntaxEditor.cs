@@ -18,42 +18,43 @@
 // DEALINGS IN THE SOFTWARE.
 
 using ColorCode.Styling;
-using ColorCode.UWP.Common;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using TextEditor.Lexer;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Foundation;
 using Windows.System;
-using Windows.UI;
-using Windows.UI.Core;
 using Windows.UI.Input.Preview.Injection;
 using Windows.UI.Text;
-using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 
 namespace TextEditor.UI
 {
-    public sealed class SyntaxEditor : Control, INotifyPropertyChanged, IDisposable
+    public struct SelectionInfo
     {
-        public SyntaxEditor()
-        {
-            SetValue(TextViewProperty, new RichEditBox());
-            DefaultStyleKey = typeof(SyntaxEditor);
-            Loaded += SyntaxEditor_Loaded;
-        }
+        public uint SelectionStart;
+        public uint SelectionEnd;
+    }
 
-        private void SyntaxEditor_Loaded(object sender, RoutedEventArgs e)
+    public sealed class SyntaxEditor : INotifyPropertyChanged, IDisposable
+    {
+        public SyntaxEditor(RichEditBox editor, bool isRichText)
         {
+            TextView = editor;
+            IsRichText = isRichText;
             // Set default settings
             AttachEvents(TextView);
-            TextView.TextDocument.UndoLimit = 0;
-            Loaded -= SyntaxEditor_Loaded;
+            if (!isRichText)
+            {
+                TextView.DisabledFormattingAccelerators = DisabledFormattingAccelerators.All;
+                TextView.TextDocument.UndoLimit = 0;
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -62,40 +63,21 @@ namespace TextEditor.UI
 
         #region Text View
 
-        private (int, int) TextSelection = (0, 0);
+        private const byte TabSizeIncrement = 8;
 
-        private static readonly DependencyProperty TextViewProperty =
-            DependencyProperty.Register("TextView", typeof(RichEditBox), typeof(SyntaxEditor),
-                                        new PropertyMetadata(null));
-
-
-        public RichEditBox TextView => GetValue(TextViewProperty) as RichEditBox;
-
-        public new double FontSize
+        public byte TabSize
         {
-            get => TextView.FontSize;
-            set => TextView.FontSize = value;
+            get => (byte)(Convert.ToByte(TextView.TextDocument.DefaultTabStop) - TabSizeIncrement);
+            set => TextView.TextDocument.DefaultTabStop = value + TabSizeIncrement;
         }
 
-        public new string FontFamily
-        {
-            get => TextView.FontFamily.Source;
-            set => TextView.FontFamily = new FontFamily(value);
-        }
+        private SelectionInfo _TextSelection = new();
 
-        /* public int TabSize
-        {
-            get
-            {
-                if (SyntaxLanguage?.IndentationProvider != null) return SyntaxLanguage.IndentationProvider.TabWidth;
-                else return Convert.ToInt32(TextView.TextDocument.DefaultTabStop) - 8;
-            }
-            set
-            {
-                if (SyntaxLanguage?.IndentationProvider != null) SyntaxLanguage.IndentationProvider.TabWidth = value;
-                TextView.TextDocument.DefaultTabStop = value + 8;
-            }
-        } */
+        public SelectionInfo TextSelection => _TextSelection;
+
+        private readonly RichEditBox TextView;
+
+        private readonly bool IsRichText;
 
         private async void TextView_Pasting(object sender, TextControlPasteEventArgs e)
         {
@@ -104,28 +86,30 @@ namespace TextEditor.UI
             if (clipboardContent.AvailableFormats.Contains("Text")) TextView.TextDocument.Selection.TypeText(await clipboardContent.GetTextAsync());
         }
 
-        private void HandleTextViewKeyDown(object sender, KeyRoutedEventArgs e)
+        private async void HandleTextViewKeyDown(object sender, KeyRoutedEventArgs e)
         {
             if (e.Key == VirtualKey.Tab)
             {
-                // Tab support
                 e.Handled = true;
-                /* int size;
-                var indentationProvider = SyntaxLanguage?.IndentationProvider;
-                /* if (indentationProvider != null) size = indentationProvider.TabWidth;
-                else size = TabSize;
-                TextView.TextDocument.Selection.TypeText(new string(' ', size));*/
+                TextView.TextDocument.Selection.TypeText("\t");
+            }
+            else if (e.Key == VirtualKey.Escape)
+            {
+                e.Handled = true;
+                await FocusManager.TryFocusAsync(FocusManager.FindFirstFocusableElement(null), FocusState.Keyboard);
             }
         }
 
         private void Editor_SelectionChanged(object sender, RoutedEventArgs e)
         {
-            TextSelection.Item1 = TextView.TextDocument.Selection.StartPosition;
-            TextSelection.Item2 = TextView.TextDocument.Selection.EndPosition;
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(IsSelectionValid)));
+            _TextSelection.SelectionStart = Convert.ToUInt32(TextView.TextDocument.Selection.StartPosition);
+            _TextSelection.SelectionEnd = Convert.ToUInt32(TextView.TextDocument.Selection.EndPosition);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelectionValid)));
         }
 
-        public bool IsSelectionValid => TextSelection.Item1 != TextSelection.Item2 && !string.IsNullOrWhiteSpace(TextView.TextDocument.GetRange(TextSelection.Item1, TextSelection.Item2).Text);
+        public bool IsSelectionValid => IsSelectionValidImpl(TextSelection.SelectionStart, TextSelection.SelectionEnd);
+
+        private bool IsSelectionValidImpl(uint start, uint end) => start != end && !string.IsNullOrWhiteSpace(TextView.TextDocument.GetRange(Convert.ToInt32(start), Convert.ToInt32(end)).Text);
 
         public string Text
         {
@@ -144,7 +128,7 @@ namespace TextEditor.UI
         {
             if (editBox != null)
             {
-                // editBox.TextChanged += HandleTextViewTextChanged;
+                editBox.TextChanged += Editor_TextChanged;
                 editBox.KeyUp += HandleTextViewKeyUp;
                 editBox.KeyDown += HandleTextViewKeyDown;
                 editBox.SelectionChanged += Editor_SelectionChanged;
@@ -155,12 +139,16 @@ namespace TextEditor.UI
             return false;
         }
 
+        private void Editor_TextChanged(object sender, RoutedEventArgs e)
+        {
+        }
+
         public bool DetachEvents(RichEditBox editBox)
         {
             if (editBox != null)
             {
                 editBox.SelectionChanged -= Editor_SelectionChanged;
-                // editBox.TextChanged -= HandleTextViewTextChanged;
+                editBox.TextChanged -= Editor_TextChanged;
                 editBox.KeyUp -= HandleTextViewKeyUp;
                 editBox.Paste -= TextView_Pasting;
                 editBox.KeyDown -= HandleTextViewKeyDown;
@@ -198,57 +186,35 @@ namespace TextEditor.UI
 
         #region Highlighting
 
-        /* string previous = string.Empty;
+        readonly CancellationTokenSource HighlightCancellation = new();
 
-        bool tokenizing = false;
+        bool HighlightLock = false;
 
-        private readonly Dictionary<Token, object> HighlightRanges = new();
+        public IAsyncOperation<bool> SyntaxHighlighting(IReadOnlyList<HighlightToken> tokens) => SyntaxHighlightingImpl(tokens, HighlightCancellation.Token).AsAsyncOperation();
 
-        public void HandleTextViewTextChanged(object sender, RoutedEventArgs e)
+        private Task<bool> SyntaxHighlightingImpl(IReadOnlyList<HighlightToken> tokens, CancellationToken cancelToken)
         {
-            PropertyChanged(this, new PropertyChangedEventArgs(nameof(Text)));
-            /* if (!SyntaxLanguage.IsPlainText && !tokenizing)
+            if (tokens.Count <= 0 || HighlightLock) return Task.FromResult(false);
+            HighlightLock = true;
+            while (true)
             {
-                var text = Text;
-                if (text == previous) return;
-                else previous = text;
-                tokenizing = true;
-                var rules = SyntaxLanguage.Rules as IList<GrammerRule>;
-                Task.Run(async () => { await TokenizePlusHighlight(text, rules); }).ContinueWith((t) => { if (t.IsCompleted) tokenizing = false; });
-            }
-        }
-
-        public async Task TokenizePlusHighlight(string text, IEnumerable<GrammerRule> rules)
-        {
-            HighlightRanges.Clear();
-            using var t = Tokenizer.Tokenize(text, rules);
-            Token token;
-            while (t.MoveNext())
-            {
-                if (t.Current != null)
+                if (cancelToken.IsCancellationRequested) break;
+                else
                 {
-                    token = t.Current;
-                    if (TextStyles.TryGetValue(token.Type, out var item)) HighlightRanges.Add(t.Current, item.Foreground);
-                    else HighlightRanges.Add(t.Current, new UISettings().GetColorValue(UIColorType.Foreground));
+                    HighlightToken token;
+                    for (int i = 0; i < tokens.Count; i++)
+                    {
+                        token = tokens[i];
+                        var range = TextView.Document.GetRange(token.StartIndex, Convert.ToInt32(token.StartIndex + token.Length));
+                        if (range.CharacterFormat.ForegroundColor != token.Colour) range.CharacterFormat.ForegroundColor = token.Colour;
+                    }
                 }
             }
 
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, new DispatchedHandler(() =>
-            {
-                foreach (var item in HighlightRanges)
-                {
-                    var token = item.Key;
-                    var val = item.Value;
-                    var range = TextView.Document.GetRange(token.StartIndex, token.StartIndex + token.Length);
-                    Color colour;
-                    if (val is Color color) colour = color;
-                    else if (val == null) colour = new UISettings().GetColorValue(UIColorType.Foreground);
-                    else colour = val.ToString().GetSolidColorBrush().Color;
-                    if (range.CharacterFormat.ForegroundColor != colour) range.CharacterFormat.ForegroundColor = colour;
-                }
-            }));
+            HighlightLock = false;
+            return Task.FromResult(true);
         }
-         */
+
         #endregion
 
         #region Indentation
@@ -257,7 +223,6 @@ namespace TextEditor.UI
         {
             if (e.Key == VirtualKey.Enter)
             {
-                string text = Text;
                 // RefreshLineNumbers(text.Count<char>(c => c == '\r'));
 
                 /* var indentLevel = GetIndentLevel(ref text);
@@ -327,6 +292,7 @@ namespace TextEditor.UI
         {
             if (DetachEvents(TextView))
             {
+                HighlightCancellation.Cancel();
                 // SyntaxLanguage = null;
             }
         }

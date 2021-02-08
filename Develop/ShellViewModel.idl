@@ -1,13 +1,15 @@
 import "ShellView.idl";
+import "BindableBase.idl";
+
 namespace Develop
 {
     [bindable]
     [default_interface]
-    runtimeclass ShellViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged
+    runtimeclass ShellViewModel : BindableBase
     {
         ShellViewModel();
-        Windows.Foundation.Collections.IObservableVector<ShellView> Instances{ get; };
+        IObservableVector<ShellView> Instances{ get; };
         ShellView SelectedInstance{ get; set; };
-        void AddInstances(Windows.Foundation.Collections.IVectorView<ShellView> views);
+        void AddStorageItems(IVectorView<Windows.Storage.IStorageItem2> sItems);
     }
 }

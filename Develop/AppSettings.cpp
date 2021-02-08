@@ -15,6 +15,8 @@ using namespace Windows::Foundation::Collections;
 
 namespace winrt::Develop::implementation
 {
+    bool dialogShown = false;
+
 	DevelopManaged::SettingsViewModel preferences = nullptr;
 
     ResourceLoader stringLoader = nullptr;
@@ -54,4 +56,8 @@ namespace winrt::Develop::implementation
         if (stringLoader == nullptr) stringLoader = ResourceLoader::GetForViewIndependentUse();
         return stringLoader.GetString(key);
     }
+
+    bool AppSettings::DialogShown() { return dialogShown; }
+
+    void AppSettings::DialogShown(bool value) { dialogShown = value; }
 }

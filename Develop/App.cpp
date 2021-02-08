@@ -15,6 +15,18 @@ using namespace Windows::UI::Xaml::Navigation;
 using namespace Develop;
 using namespace Develop::implementation;
 
+int __stdcall wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
+{
+    init_apartment();
+    Application::Start([](auto&&)
+        {
+            make<Develop::implementation::App>();
+            Develop::AppSettings::InitializeAsync();
+        });
+
+    return 0;
+}
+
 /// <summary>
 /// Initializes the singleton application object.  This is the first line of authored code
 /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -56,11 +68,16 @@ void App::OnSuspending([[maybe_unused]] IInspectable const& sender, [[maybe_unus
 
 fire_and_forget App::ActivateApp(IActivatedEventArgs const& args)
 {
+    Develop::MainPage mainPage{ nullptr };
     if (Window::Current().Content() == nullptr)
     {
-        co_await Develop::AppSettings::InitializeAsync();
-        Window::Current().Content(make<MainPage>());
+        mainPage = make<MainPage>();
+        Window::Current().Content(mainPage);
     }
+    else mainPage = Window::Current().Content().as<Develop::MainPage>();
 
+    FileActivatedEventArgs fileArgs{ nullptr };
+    if (args.try_as<FileActivatedEventArgs>(fileArgs)) mainPage.ViewModel().AddStorageItems(collection_view_as<IStorageItem2>(fileArgs.Files()));
     Window::Current().Activate();
+    return fire_and_forget();
 }

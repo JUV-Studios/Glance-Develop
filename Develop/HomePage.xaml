@@ -14,6 +14,7 @@
         IsPaneToggleButtonVisible="False"
         ItemInvoked="NavigationView_ItemInvoked"
         PaneDisplayMode="Auto">
-        <Frame IsNavigationStackEnabled="False" />
+        <NavigationView.MenuItems />
+        <Frame Background="{ThemeResource ModernPageBackground}" />
     </NavigationView>
 </UserControl>

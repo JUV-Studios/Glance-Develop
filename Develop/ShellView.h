@@ -8,7 +8,6 @@ namespace winrt::Develop::implementation
         ShellView() = default;
         ShellView(hstring const& title, Windows::UI::Xaml::UIElement const& content, Windows::UI::Xaml::Controls::IconSource const& icon, Windows::Storage::IStorageItem2 const& refSource);
         hstring Caption();
-        hstring Title();
         Windows::UI::Xaml::UIElement Content();
         Windows::UI::Xaml::Controls::IconSource Icon();
         Windows::Storage::IStorageItem2 ReferenceSource();

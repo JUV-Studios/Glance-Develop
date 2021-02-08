@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "AppSettings.g.h"
+#include <winrt/JUVStudios.h>
 
 namespace winrt::Develop::implementation
 {
@@ -11,6 +12,8 @@ namespace winrt::Develop::implementation
         static Windows::Foundation::IAsyncAction InitializeAsync();
         static DevelopManaged::SettingsViewModel Preferences();
         static hstring GetLocalized(hstring const& key);
+        static bool DialogShown();
+        static void DialogShown(bool value);
     };
 }
 

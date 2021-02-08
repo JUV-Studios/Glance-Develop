@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using Windows.ApplicationModel.Resources;
 using Windows.Foundation;
+using Windows.Foundation.Collections;
+using Windows.UI.Xaml.Controls;
 
 namespace DevelopManaged
 {
@@ -26,6 +29,8 @@ namespace DevelopManaged
         public static string StorablePathName(string path) => path.Replace("\\", "-").Replace(":", "=");
 
         public static string FolderPath(string path) => Path.GetDirectoryName(path);
+
+        internal static string GetLocalized(this string key) => ResourceLoader.GetForViewIndependentUse().GetString(key);
     }
 
     /// <summary>
@@ -44,5 +49,13 @@ namespace DevelopManaged
         IAsyncAction SuspendAsync();
 
         IAsyncAction ResumeAsync();
+    }
+
+    /// <summary>
+    /// Represents an object that can provide menu items for display
+    /// </summary>
+    public interface IMenuItemProvider
+    {
+        IIterator<MenuFlyoutItem> ItemsProvider { get; }
     }
 }

@@ -1,11 +1,10 @@
-﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
-using System;
+﻿/* using System;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 
 namespace ProjectCodeEditor.Models
 {
-    public sealed class ActionOption : ObservableObject
+    public sealed class ActionOption
     {
         private string _Title;
         private string _Description;
@@ -85,3 +84,4 @@ namespace ProjectCodeEditor.Models
         public override string ToString() => $"{Title}, {Description}";
     }
 }
+*/

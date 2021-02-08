@@ -1,4 +1,4 @@
-﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+﻿/* using Microsoft.Toolkit.Mvvm.ComponentModel;
 using ProjectCodeEditor.Models;
 using ProjectCodeEditor.Services;
 using System.Collections.Specialized;
@@ -46,3 +46,4 @@ namespace ProjectCodeEditor.ViewModels
         private void RecentFiles_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) => OnPropertyChanged(nameof(RecentFilesVisibility));
     }
 }
+*/

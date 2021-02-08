@@ -18,7 +18,7 @@ namespace winrt::Develop::implementation
 
     void HomePage::NavigationView_ItemInvoked(NavigationView const& sender, NavigationViewItemInvokedEventArgs const& args)
     {
-        /* auto frame = sender.Content().as<Frame>();
-        if (args.IsSettingsInvoked()) frame.Navigate(xaml_typename<SettingsPage>(), nullptr, DrillInNavigationTransitionInfo()); */
+        auto frame = sender.Content().as<Frame>();
+        if (args.IsSettingsInvoked()) frame.Navigate(xaml_typename<SettingsView>(), nullptr, DrillInNavigationTransitionInfo());
     }
 }

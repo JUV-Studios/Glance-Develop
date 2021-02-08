@@ -5,14 +5,14 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{1C4E3B76-75E0-477D-BB93-10D79EAC876D}</ProjectGuid>
-    <OutputType>AppContainerExe</OutputType>
+    <OutputType>winmdobj</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ProjectCodeEditor</RootNamespace>
     <AssemblyName>ProjectCodeEditor</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.19041.0</TargetPlatformVersion>
-    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <TargetPlatformMinVersion>10.0.15063.0</TargetPlatformMinVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
@@ -143,9 +143,6 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Humanizer.Core">
-      <Version>2.8.26</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.AppCenter.Analytics">
       <Version>4.1.0</Version>
     </PackageReference>
@@ -158,174 +155,39 @@
     <PackageReference Include="Microsoft.Toolkit.HighPerformance">
       <Version>7.0.0-preview4</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.Toolkit.Mvvm">
-      <Version>7.0.0-preview4</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications">
-      <Version>7.0.0-preview4</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.PlatformSpecificAnalyzer">
       <Version>7.0.0-preview2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.UI">
       <Version>7.0.0-preview4</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Controls">
-      <Version>7.0.0-preview4</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.UI.Xaml">
-      <Version>2.6.0-prerelease.210113001</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Xaml.Behaviors.Uwp.Managed">
-      <Version>2.0.1</Version>
-    </PackageReference>
     <PackageReference Include="RangedObservableCollection">
       <Version>1.0.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <PRIResource Include="Strings\en-us\Resources.resw">
-      <SubType>Designer</SubType>
-    </PRIResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Dialogs\DependenciesDialog.xaml.cs">
-      <DependentUpon>DependenciesDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\DialogHelper.cs" />
-    <Compile Include="Dialogs\GoToDialog.cs" />
-    <Compile Include="Dialogs\HelpDialog.xaml.cs">
-      <DependentUpon>HelpDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\UnsavedChangesDialog.xaml.cs">
-      <DependentUpon>UnsavedChangesDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Helpers\AccessibilityHelper.cs" />
-    <Compile Include="Helpers\FlagsModel.cs" />
-    <Compile Include="Helpers\JumpListHelper.cs" />
-    <Compile Include="Helpers\NotificationHelper.cs" />
     <Compile Include="Models\ActionOption.cs" />
-    <Compile Include="Models\IClosable.cs" />
-    <Compile Include="Models\IViewPage.cs" />
-    <Compile Include="Models\RecentItem.cs" />
-    <Compile Include="Models\ShellView.cs" />
-    <Compile Include="Services\FileService.cs" />
-    <Compile Include="Services\Preferences.cs" />
-    <Compile Include="Services\ViewService.cs" />
+    <Compile Include="Services\AppCenterService.cs" />
     <Compile Include="ViewModels\EditorViewModel.cs" />
     <Compile Include="ViewModels\HomeViewModel.cs" />
-    <Compile Include="ViewModels\Interactions.cs" />
-    <Compile Include="ViewModels\RecentsViewModel.cs" />
-    <Compile Include="ViewModels\SettingsViewModel.cs" />
-    <Compile Include="ViewModels\ShellViewModel.cs" />
     <Compile Include="Views\CodeEditor.xaml.cs">
       <DependentUpon>CodeEditor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\HomePage.xaml.cs">
-      <DependentUpon>HomePage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\MainPage.xaml.cs">
-      <DependentUpon>MainPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\ProjectView.xaml.cs">
-      <DependentUpon>ProjectView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Start pages\OpenCreatePage.xaml.cs">
-      <DependentUpon>OpenCreatePage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Start pages\SettingsPage.xaml.cs">
-      <DependentUpon>SettingsPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\StartPage.xaml.cs">
-      <DependentUpon>StartPage.xaml</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Dialogs\DependenciesDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Dialogs\HelpDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Dialogs\UnsavedChangesDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\CodeEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\HomePage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\MainPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\ProjectView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Start pages\OpenCreatePage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Start pages\SettingsPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\StartPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
-    <AppxManifest Include="Package.appxmanifest">
-      <SubType>Designer</SubType>
-    </AppxManifest>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Assets\FileTypes" />
-    <Content Include="Assets\Languages\Python\Keywords" />
     <Content Include="Properties\Default.rd.xml" />
-    <Content Include="Assets\LockScreenLogo.scale-200.png" />
-    <Content Include="Assets\SplashScreen.scale-200.png" />
-    <Content Include="Assets\Square150x150Logo.scale-200.png" />
-    <Content Include="Assets\Square44x44Logo.scale-200.png" />
-    <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
-    <Content Include="Assets\StoreLogo.png" />
-    <Content Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include=".editorconfig" />
-    <Content Include="Assets\Languages\Python\Builtins" />
-    <Content Include="Assets\Dependencies.json" />
-    <None Include="Certificate.pfx" />
-  </ItemGroup>
-  <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\GraphicsLib\GraphicsLib.vcxproj">
-      <Project>{efc84817-4070-44a5-b06a-7f4b68eccad2}</Project>
-      <Name>GraphicsLib</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ProjectCodeEditor.Core\ProjectCodeEditor.Core.csproj">
-      <Project>{D9F94A39-3E4F-47E1-8B93-5F906D411371}</Project>
-      <Name>ProjectCodeEditor.Core</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TextEditorUWP\TextEditor.csproj">
       <Project>{2c931298-eef0-4dce-8b23-09735edff721}</Project>
       <Name>TextEditor</Name>

@@ -1,0 +1,9 @@
+namespace Develop
+{
+    [default_interface]
+    runtimeclass CodeEditor : Windows.UI.Xaml.Controls.UserControl, Windows.UI.Xaml.Data.INotifyPropertyChanged, DevelopManaged.IAsyncClosable
+    {
+        CodeEditor(Windows.Storage.StorageFile file);
+        Windows.Storage.StorageFile WorkingFile { get; };
+    }
+}
