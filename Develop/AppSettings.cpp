@@ -7,7 +7,6 @@
 
 using namespace winrt;
 using namespace Windows::ApplicationModel;
-using namespace Windows::ApplicationModel::Resources;
 using namespace Windows::UI::StartScreen;
 using namespace Windows::Storage;
 using namespace Windows::Foundation;
@@ -18,8 +17,6 @@ namespace winrt::Develop::implementation
     bool dialogShown = false;
 
 	DevelopManaged::SettingsViewModel preferences = nullptr;
-
-    ResourceLoader stringLoader = nullptr;
 
     JumpList AppJumpList = nullptr;
 
@@ -50,12 +47,6 @@ namespace winrt::Develop::implementation
             }
         }
 	}
-
-    hstring AppSettings::GetLocalized(hstring const& key)
-    {
-        if (stringLoader == nullptr) stringLoader = ResourceLoader::GetForViewIndependentUse();
-        return stringLoader.GetString(key);
-    }
 
     bool AppSettings::DialogShown() { return dialogShown; }
 

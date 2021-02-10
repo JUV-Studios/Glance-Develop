@@ -4,6 +4,7 @@
 #include "AboutDialog.g.cpp"
 #endif
 #include "AppSettings.h"
+#include <winrt/JUVStudios.h>
 
 using namespace winrt;
 using namespace Windows::Foundation;
@@ -21,7 +22,7 @@ namespace winrt::Develop::implementation
 
 	void AboutDialog::ContentDialog_Loaded(IInspectable const&, RoutedEventArgs const&)
 	{
-		if (CloseButtonText().empty()) CloseButtonText(AppSettings::GetLocalized(L"OkayText"));
+		if (CloseButtonText().empty()) CloseButtonText(JUVStudios::ResourceController::GetTranslation(L"OkayText"));
 	}
 
 	IAsyncAction AboutDialog::ShowDialogAsync()
@@ -39,6 +40,6 @@ namespace winrt::Develop::implementation
 	void AboutDialog::BuiltonBlock_Loaded(IInspectable const& sender, RoutedEventArgs const&)
 	{
 		auto target = sender.as<TextBlock>();
-		if (target.Text().empty()) target.Text(AppSettings::GetLocalized(L"BuiltOnBlock/Text") + L" " + TEXT(__TIMESTAMP__));
+		if (target.Text().empty()) target.Text(JUVStudios::ResourceController::GetTranslation(L"BuiltOnBlock/Text") + L" " + TEXT(__TIMESTAMP__));
 	}
 }

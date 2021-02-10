@@ -2,6 +2,7 @@
 using Windows.UI.Xaml;
 using Windows.Storage;
 using System;
+using JUVStudios;
 using Windows.ApplicationModel;
 
 namespace DevelopManaged
@@ -37,19 +38,6 @@ namespace DevelopManaged
                 {
                     SetSetting(nameof(FontFamily), value);
                     PropertyChanged?.Invoke(this, new(nameof(FontFamily)));
-                }
-            }
-        }
-
-        public int TabSize
-        {
-            get => GetSetting(nameof(TabSize), 4);
-            set
-            {
-                if (TabSize != value)
-                {
-                    SetSetting(nameof(TabSize), value);
-                    PropertyChanged?.Invoke(this, new(nameof(TabSize)));
                 }
             }
         }
@@ -102,8 +90,8 @@ namespace DevelopManaged
             get
             {
                 var packageVersion = Package.Current.Id.Version;
-                string versionString = $"{"VersionText".GetLocalized()} {packageVersion.Major}.{packageVersion.Minor}.{packageVersion.Build}.{packageVersion.Revision}";
-                return $"Develop\r{versionString}\r{"DevelopedBlock/Text".GetLocalized()}\r{ "CopyrightBlock/Text".GetLocalized()}";
+                string versionString = $"{ResourceController.GetTranslation("VersionText")} {packageVersion.Major}.{packageVersion.Minor}.{packageVersion.Build}.{packageVersion.Revision}";
+                return $"Develop\r{versionString}\r{ResourceController.GetTranslation("DevelopedBlock/Text")}\r{ResourceController.GetTranslation("CopyrightBlock/Text")}";
             }
         }
     }

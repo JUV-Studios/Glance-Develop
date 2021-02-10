@@ -129,18 +129,6 @@
   <data name="CancelText" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="ClearHistoryItem.Text" xml:space="preserve">
-    <value>Clear undo/redo history</value>
-  </data>
-  <data name="ClearRecentFilesItem.Text" xml:space="preserve">
-    <value>Clear recent files</value>
-  </data>
-  <data name="ClearSelectionItem.Description" xml:space="preserve">
-    <value>Clears text selection</value>
-  </data>
-  <data name="ClearSelectionItem.Title" xml:space="preserve">
-    <value>Clear selection</value>
-  </data>
   <data name="CloseCurrentTab.Text" xml:space="preserve">
     <value>Close current tab</value>
   </data>
@@ -198,7 +186,7 @@
   <data name="GoToOption.Title" xml:space="preserve">
     <value>Go to line</value>
   </data>
-  <data name="HistoryFlyoutBtn.Label" xml:space="preserve">
+  <data name="HistorySubItem.Text" xml:space="preserve">
     <value>History</value>
   </data>
   <data name="HomePage.Header" xml:space="preserve">
@@ -246,11 +234,11 @@
   <data name="SaveBtn.ToolTipService.ToolTip" xml:space="preserve">
     <value>Save (Ctrl+S)</value>
   </data>
-  <data name="SettingsHub.Text" xml:space="preserve">
+  <data name="SettingsHub.Header" xml:space="preserve">
     <value>Settings</value>
   </data>
-  <data name="Settings_Editor.Text" xml:space="preserve">
-    <value>Editor settings</value>
+  <data name="Settings_Editor.Header" xml:space="preserve">
+    <value>Editor options</value>
   </data>
   <data name="Settings_General.Header" xml:space="preserve">
     <value>General settings</value>
@@ -290,5 +278,8 @@
   </data>
   <data name="VersionText" xml:space="preserve">
     <value>Version</value>
+  </data>
+  <data name="VisitRepoLink.Content" xml:space="preserve">
+    <value>Visit GitHub repository</value>
   </data>
 </root>

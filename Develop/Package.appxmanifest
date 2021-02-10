@@ -104,13 +104,12 @@
           </uap3:AppExtensionHost>
         </uap3:Extension>
         <uap:Extension Category="windows.fileTypeAssociation">
-          <uap:FileTypeAssociation Name="develop-pdf">
+          <uap:FileTypeAssociation Name="develop-rtf">
             <uap:SupportedFileTypes>
-              <uap:FileType ContentType="application/pdf">.pdf</uap:FileType>
+              <uap:FileType ContentType="application/rtf">.rtf</uap:FileType>
             </uap:SupportedFileTypes>
-            <uap:DisplayName>PDF file</uap:DisplayName>
-            <uap:InfoTip>Read this PDF file with Develop</uap:InfoTip>
-            <uap:Logo>Assets/PdfFile.png</uap:Logo>
+            <uap:DisplayName>Rich text file</uap:DisplayName>
+            <uap:InfoTip>Edit this RTF document with Develop</uap:InfoTip>
           </uap:FileTypeAssociation>
         </uap:Extension>
       </Extensions>
@@ -120,7 +119,6 @@
   <Capabilities>
     <Capability Name="internetClient" />
 	<uap:Capability Name="documentsLibrary" />
-	<rescap:Capability Name="inputInjectionBrokered" />
 	<rescap:Capability Name="confirmAppClose" />
   </Capabilities>
 </Package>

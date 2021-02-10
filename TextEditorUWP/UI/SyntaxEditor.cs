@@ -16,7 +16,6 @@
 // FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
-
 using ColorCode.Styling;
 using System;
 using System.Collections.Generic;
@@ -25,10 +24,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TextEditor.Lexer;
+using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.System;
-using Windows.UI.Input.Preview.Injection;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -42,18 +41,25 @@ namespace TextEditor.UI
         public uint SelectionEnd;
     }
 
-    public sealed class SyntaxEditor : INotifyPropertyChanged, IDisposable
+    public delegate void HistoryItemDone(bool lastElem, string text, int index);
+
+    public delegate bool AcceptTextChange(string text, RoutedEventArgs args);
+
+    public sealed class SyntaxEditor : RichEditBox, INotifyPropertyChanged, IDisposable
     {
-        public SyntaxEditor(RichEditBox editor, bool isRichText)
+        public SyntaxEditor() { }
+
+        public void Initialize(bool isRichText)
         {
-            TextView = editor;
-            IsRichText = isRichText;
             // Set default settings
-            AttachEvents(TextView);
+            IsRichText = isRichText;
+            AttachEvents();
             if (!isRichText)
             {
-                TextView.DisabledFormattingAccelerators = DisabledFormattingAccelerators.All;
-                TextView.TextDocument.UndoLimit = 0;
+                IsSpellCheckEnabled = false;
+                TextDocument.DefaultTabStop = 8;
+                DisabledFormattingAccelerators = DisabledFormattingAccelerators.All;
+                TextDocument.UndoLimit = 0;
             }
         }
 
@@ -63,27 +69,17 @@ namespace TextEditor.UI
 
         #region Text View
 
-        private const byte TabSizeIncrement = 8;
-
-        public byte TabSize
-        {
-            get => (byte)(Convert.ToByte(TextView.TextDocument.DefaultTabStop) - TabSizeIncrement);
-            set => TextView.TextDocument.DefaultTabStop = value + TabSizeIncrement;
-        }
-
         private SelectionInfo _TextSelection = new();
 
         public SelectionInfo TextSelection => _TextSelection;
 
-        private readonly RichEditBox TextView;
-
-        private readonly bool IsRichText;
+        private bool IsRichText;
 
         private async void TextView_Pasting(object sender, TextControlPasteEventArgs e)
         {
             e.Handled = true;
             var clipboardContent = Clipboard.GetContent();
-            if (clipboardContent.AvailableFormats.Contains("Text")) TextView.TextDocument.Selection.TypeText(await clipboardContent.GetTextAsync());
+            if (clipboardContent.AvailableFormats.Contains("Text")) TextDocument.Selection.TypeText(await clipboardContent.GetTextAsync());
         }
 
         private async void HandleTextViewKeyDown(object sender, KeyRoutedEventArgs e)
@@ -91,7 +87,7 @@ namespace TextEditor.UI
             if (e.Key == VirtualKey.Tab)
             {
                 e.Handled = true;
-                TextView.TextDocument.Selection.TypeText("\t");
+                TextDocument.Selection.TypeText("\t");
             }
             else if (e.Key == VirtualKey.Escape)
             {
@@ -102,86 +98,62 @@ namespace TextEditor.UI
 
         private void Editor_SelectionChanged(object sender, RoutedEventArgs e)
         {
-            _TextSelection.SelectionStart = Convert.ToUInt32(TextView.TextDocument.Selection.StartPosition);
-            _TextSelection.SelectionEnd = Convert.ToUInt32(TextView.TextDocument.Selection.EndPosition);
+            _TextSelection.SelectionStart = Convert.ToUInt32(TextDocument.Selection.StartPosition);
+            _TextSelection.SelectionEnd = Convert.ToUInt32(TextDocument.Selection.EndPosition);
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelectionValid)));
         }
 
         public bool IsSelectionValid => IsSelectionValidImpl(TextSelection.SelectionStart, TextSelection.SelectionEnd);
 
-        private bool IsSelectionValidImpl(uint start, uint end) => start != end && !string.IsNullOrWhiteSpace(TextView.TextDocument.GetRange(Convert.ToInt32(start), Convert.ToInt32(end)).Text);
+        private bool IsSelectionValidImpl(uint start, uint end) => start != end && !string.IsNullOrWhiteSpace(TextDocument.GetRange(Convert.ToInt32(start), Convert.ToInt32(end)).Text);
 
         public string Text
         {
             get
             {
-                TextView.Document.GetText(TextGetOptions.None, out string text);
-                return text;
+                TextDocument.GetText(TextGetOptions.None, out string text);
+                return text.Replace("\r", Environment.NewLine);
             }
             set
             {
-                if (Text != value) TextView.TextDocument.SetText(TextSetOptions.None, value);
+                if (Text != value) TextDocument.SetText(TextSetOptions.None, value);
             }
         }
 
-        public bool AttachEvents(RichEditBox editBox)
+        private static readonly string[] SplitValue = new string[] { Environment.NewLine };
+
+        public long LinesCount => Text.TrimEnd().TrimEnd('\r', '\n').Split(SplitValue, StringSplitOptions.None).Length;
+
+        public bool AttachEvents()
         {
-            if (editBox != null)
-            {
-                editBox.TextChanged += Editor_TextChanged;
-                editBox.KeyUp += HandleTextViewKeyUp;
-                editBox.KeyDown += HandleTextViewKeyDown;
-                editBox.SelectionChanged += Editor_SelectionChanged;
-                editBox.Paste += TextView_Pasting;
-                return true;
-            }
-
-            return false;
+            TextChanged += Editor_TextChanged;
+            KeyDown += HandleTextViewKeyDown;
+            SelectionChanged += Editor_SelectionChanged;
+            Paste += TextView_Pasting;
+            return true;
         }
+
+        public AcceptTextChange TextChangeDelegate { get; set; }
 
         private void Editor_TextChanged(object sender, RoutedEventArgs e)
         {
-        }
-
-        public bool DetachEvents(RichEditBox editBox)
-        {
-            if (editBox != null)
+            var text = Text;
+            if ((TextChangeDelegate?.Invoke(text, e)).GetValueOrDefault(false) && !IsRichText)
             {
-                editBox.SelectionChanged -= Editor_SelectionChanged;
-                editBox.TextChanged -= Editor_TextChanged;
-                editBox.KeyUp -= HandleTextViewKeyUp;
-                editBox.Paste -= TextView_Pasting;
-                editBox.KeyDown -= HandleTextViewKeyDown;
-                return true;
+                UndoStack.Push(new(text, TextDocument.Selection.EndPosition));
+                UpdateHistoryProperties();
             }
-
-            return false;
         }
 
-        #endregion
-
-        #region Syntax Language
-
-        /* private static readonly DependencyProperty SyntaxLanguageProperty =
-            DependencyProperty.Register("SyntaxLanguage", typeof(SyntaxLanguage), typeof(SyntaxEditor),
-                                        new PropertyMetadata(null, OnSyntaxLanguagePropertyChanged));
-
-        private static void OnSyntaxLanguagePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        public bool DetachEvents()
         {
-            ((SyntaxEditor)d).OnSyntaxLanguageChanged((SyntaxLanguage)e.NewValue);
+            SelectionChanged -= Editor_SelectionChanged;
+            TextChanged -= Editor_TextChanged;
+            Paste -= TextView_Pasting;
+            KeyDown -= HandleTextViewKeyDown;
+            return true;
         }
 
-        public SyntaxLanguage SyntaxLanguage
-        {
-            get { return (SyntaxLanguage)GetValue(SyntaxLanguageProperty); }
-            set { SetValue(SyntaxLanguageProperty, value); }
-        }
-
-        private void OnSyntaxLanguageChanged(SyntaxLanguage newValue)
-        {
-            if (newValue != null) TextView.IsSpellCheckEnabled = newValue.IsPlainText;
-        }
-        */
         #endregion
 
         #region Highlighting
@@ -205,7 +177,7 @@ namespace TextEditor.UI
                     for (int i = 0; i < tokens.Count; i++)
                     {
                         token = tokens[i];
-                        var range = TextView.Document.GetRange(token.StartIndex, Convert.ToInt32(token.StartIndex + token.Length));
+                        var range = TextDocument.GetRange(token.StartIndex, Convert.ToInt32(token.StartIndex + token.Length));
                         if (range.CharacterFormat.ForegroundColor != token.Colour) range.CharacterFormat.ForegroundColor = token.Colour;
                     }
                 }
@@ -217,84 +189,87 @@ namespace TextEditor.UI
 
         #endregion
 
-        #region Indentation
-
-        private void HandleTextViewKeyUp(object sender, KeyRoutedEventArgs e)
-        {
-            if (e.Key == VirtualKey.Enter)
-            {
-                // RefreshLineNumbers(text.Count<char>(c => c == '\r'));
-
-                /* var indentLevel = GetIndentLevel(ref text);
-                e.Handled = true;
-                if (indentLevel == 0) return;
-
-                TextView.Document.Selection.SetText(TextSetOptions.None, new String(' ', indentLevel));
-                var x = TextView.Document.Selection.StartPosition + indentLevel;
-                TextView.Document.Selection.SetRange(x, x);*/
-            }
-            else e.Handled = false;
-            // else if (TextView.Document.Selection.Length > 0 ||
-            // e.Key == Windows.System.VirtualKey.Back)
-            // RefreshLineNumbers(Text.Count<char>(c => c == '\r'));
-        }
-
-        /* int GetIndentLevel(ref string text)
-        {
-            if (!SyntaxLanguage.IsPlainText)
-            {
-                if (SyntaxLanguage.IndentationProvider == null || TextView.Document.Selection.Length != 0) return 0;
-                try
-                {
-                    return SyntaxLanguage.IndentationProvider.GuessIndentLevel(text, TextView.Document.Selection.EndPosition);
-                }
-                catch (Exception)
-                {
-
-                }
-            }
-
-            return 0;
-        } */
-
-        #endregion
-
         #region Interaction
 
-        static readonly InputInjector injector = InputInjector.TryCreate();
+        public bool CanUndo => UndoStack.Count > 0;
+
+        public bool CanRedo => RedoStack.Count > 0;
+
+        public bool CanClearHistory => CanUndo || CanRedo;
+
+        private readonly Stack<Tuple<string, int>> UndoStack = new();
+
+        private readonly Stack<Tuple<string, int>> RedoStack = new();
+
+        public HistoryItemDone HistoryDone { get; set; }
+
+        public string PreviousText => UndoStack.Peek().Item1;
+
+        private void UpdateHistoryProperties()
+        {
+            PropertyChanged?.Invoke(this, new(nameof(CanUndo)));
+            PropertyChanged?.Invoke(this, new(nameof(CanRedo)));
+            PropertyChanged?.Invoke(this, new(nameof(CanClearHistory)));
+        }
+
+        public void Undo()
+        {
+            if (!CanUndo) return;
+            Tuple<string, int> retVal;
+            // Remove current one first
+            RedoStack.Push(UndoStack.Pop());
+            // Return second one
+            if (UndoStack.Count == 0) retVal = new("", -1);
+            else retVal = UndoStack.Pop();
+            UpdateHistoryProperties();
+            HistoryDone?.Invoke(retVal.Item2 == -1, retVal.Item1, retVal.Item2);
+        }
+
+        public void Redo()
+        {
+            if (!CanRedo) return;
+            Tuple<string, int> retVal = RedoStack.Pop();
+            UpdateHistoryProperties();
+            HistoryDone?.Invoke(false, retVal.Item1, retVal.Item2);
+        }
+
+        public void ClearHistory()
+        {
+            UndoStack.Clear();
+            RedoStack.Clear();
+            UpdateHistoryProperties();
+        }
 
         public void SelectAll()
         {
-            TextView.Focus(FocusState.Keyboard);
-            TextView.TextDocument.Selection.StartPosition = 0;
-            TextView.TextDocument.Selection.MoveEnd(TextRangeUnit.Story, 1);
+            TextDocument.Selection.StartPosition = 0;
+            TextDocument.Selection.EndOf(TextRangeUnit.Story, true);
         }
 
-        public void ClearSelection() => TextView.TextDocument.Selection.EndPosition = TextView.TextDocument.Selection.StartPosition;
+        public void ClearSelection() => TextDocument.Selection.EndPosition = TextDocument.Selection.StartPosition;
 
         public void FindText(string text)
         {
+
         }
 
         public void ScrollToLine(int line, bool extend)
         {
-            TextView.Focus(FocusState.Keyboard);
-            TextView.TextDocument.Selection.HomeKey(TextRangeUnit.Story, false);
-            TextView.TextDocument.Selection.MoveStart(TextRangeUnit.Line, line - 1);
+            Focus(FocusState.Keyboard);
+            TextDocument.Selection.HomeKey(TextRangeUnit.Story, false);
+            TextDocument.Selection.MoveStart(TextRangeUnit.Line, line - 1);
             if (extend)
             {
-                TextView.TextDocument.Selection.Expand(TextRangeUnit.Line);
-                TextView.TextDocument.Selection.EndPosition = TextView.TextDocument.Selection.EndPosition - 1;
+                TextDocument.Selection.Expand(TextRangeUnit.Line);
+                TextDocument.Selection.EndPosition = TextDocument.Selection.EndPosition - 1;
             }
         }
 
         public void Dispose()
         {
-            if (DetachEvents(TextView))
-            {
-                HighlightCancellation.Cancel();
-                // SyntaxLanguage = null;
-            }
+            DetachEvents();
+            HighlightCancellation.Cancel();
+            HighlightCancellation.Dispose();
         }
 
         #endregion

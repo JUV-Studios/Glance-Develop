@@ -4,6 +4,7 @@
 #include "ShellViewModel.g.cpp"
 #endif
 #include <winrt/DevelopManaged.h>
+#include <winrt/JUVStudios.h>
 #include "AppSettings.h"
 
 using namespace winrt;
@@ -21,17 +22,17 @@ namespace winrt::Develop::implementation
 		m_Instances = single_threaded_observable_vector<ShellView>();
 		SymbolIconSource iconSource;
 		iconSource.Symbol(Symbol::Home);
-		auto startPageView = ShellView(AppSettings::GetLocalized(L"HomePage/Header"), HomePage(), iconSource, nullptr);
+		auto startPageView = ShellView(JUVStudios::ResourceController::GetTranslation(L"HomePage/Header"), HomePage(), iconSource, nullptr);
 		AddInstances(array_view<ShellView>(&startPageView, 1));
 	}
 
 	IObservableVector<ShellView> ShellViewModel::Instances() { return m_Instances; }
 
-	ShellView ShellViewModel::SelectedInstance() { return GetProperty(L"SelectedInstance").as<ShellView>(); }
+	ShellView ShellViewModel::SelectedInstance() { return m_Bindable.GetProperty(L"SelectedInstance").as<ShellView>(); }
 
 	void ShellViewModel::SelectedInstance(ShellView const& value) 
 	{
-		if (!AppSettings::DialogShown()) SetProperty(L"SelectedInstance", value);
+		if (!AppSettings::DialogShown()) m_Bindable.SetProperty(L"SelectedInstance", value);
 	}
 
 	void ShellViewModel::AddInstances(array_view<ShellView> instances)
@@ -53,13 +54,9 @@ namespace winrt::Develop::implementation
 			else if (item.IsOfType(StorageItemTypes::File))
 			{
 				StorageFile file = item.as<StorageFile>();
-				if (file.FileType() != L".pdf" && file.FileType() != L".PDF")
-				{
-					SymbolIconSource iconSource;
-					iconSource.Symbol(Symbol::Document);
-					viewsToAdd.emplace_back(file.Name(), CodeEditor(file), iconSource, file);
-				}
-				//else Launcher::LaunchFileAsync(file);
+				SymbolIconSource iconSource;
+				iconSource.Symbol(Symbol::Document);
+				viewsToAdd.emplace_back(file.Name(), CodeEditor(file), iconSource, file);
 			}
 			else
 			{

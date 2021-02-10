@@ -31,11 +31,7 @@ winrt::com_ptr<D> as_self(T&& o)
         result.attach(winrt::get_self<D>(o));
         winrt::detach_abi(o);
     }
-    else
-    {
-        result.copy_from(winrt::get_self<D>(o));
-    }
-
+    else result.copy_from(winrt::get_self<D>(o));
     return result;
 }
 

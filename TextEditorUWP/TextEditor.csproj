@@ -121,6 +121,7 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="UI\GoToDialog.cs" />
     <Compile Include="IndentationProvider.cs" />
     <Compile Include="Languages\CurlyBracesIndentationProvider.cs" />
     <Compile Include="Languages\LanguageProvider.cs" />
@@ -142,14 +143,14 @@
     <PackageReference Include="ColorCode.UWP">
       <Version>2.0.6</Version>
     </PackageReference>
+    <PackageReference Include="JUVStudios">
+      <Version>0.0.0.10</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.2.11</Version>
+      <Version>6.2.12</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.HighPerformance">
       <Version>6.1.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.ValueTuple">
-      <Version>4.5.0</Version>
     </PackageReference>
   </ItemGroup>
   <ItemDefinitionGroup>
@@ -160,9 +161,7 @@
   <ItemGroup>
     <Content Include="Yellow.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Themes\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

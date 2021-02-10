@@ -4,6 +4,7 @@
 #include "AppSettings.h"
 #include "ShellViewModel.h"
 #include "App.h"
+#include <winrt/JUVStudios.h>
 
 using namespace winrt;
 using namespace Windows::UI::Xaml;
@@ -33,7 +34,7 @@ namespace winrt::Develop::implementation
 	void MainPage::AboutItem_Loaded(IInspectable const& sender, RoutedEventArgs const&)
 	{
 		auto target = sender.as<Controls::MenuFlyoutItem>();
-		if (target.Text().empty()) target.Text(AppSettings::GetLocalized(L"AboutDialog/Title"));
+		if (target.Text().empty()) target.Text(JUVStudios::ResourceController::GetTranslation(L"AboutDialog/Title"));
 	}
 
 	void MainPage::AboutItem_Click(IInspectable const&, RoutedEventArgs const&) { AboutDialog::ShowDialogAsync(); }
@@ -47,18 +48,23 @@ namespace winrt::Develop::implementation
 
 	fire_and_forget MainPage::OpenFile()
 	{
-		if (m_OpenPicker == nullptr)
+		if (!AppSettings::DialogShown())
 		{
-			m_OpenPicker = FileOpenPicker();
-			m_OpenPicker.SuggestedStartLocation(PickerLocationId::DocumentsLibrary);
-			m_OpenPicker.ViewMode(PickerViewMode::List);
-			for (auto&& fileType : AppSettings::SupportedFileTypes()) m_OpenPicker.FileTypeFilter().Append(fileType);
-		}
+			AppSettings::DialogShown(true);
+			if (m_OpenPicker == nullptr)
+			{
+				m_OpenPicker = FileOpenPicker();
+				m_OpenPicker.SuggestedStartLocation(PickerLocationId::DocumentsLibrary);
+				m_OpenPicker.ViewMode(PickerViewMode::List);
+				for (auto&& fileType : AppSettings::SupportedFileTypes()) m_OpenPicker.FileTypeFilter().Append(fileType);
+			}
 
-		auto files = co_await m_OpenPicker.PickMultipleFilesAsync();
-		if (files != nullptr && files.Size() > 0)
-		{
-			m_ViewModel.AddStorageItems(collection_view_as<IStorageItem2>(files));
+			auto files = co_await m_OpenPicker.PickMultipleFilesAsync();
+			AppSettings::DialogShown(false);
+			if (files != nullptr && files.Size() > 0)
+			{
+				m_ViewModel.AddStorageItems(collection_view_as<IStorageItem2>(files));
+			}
 		}
 	}
 
@@ -67,14 +73,5 @@ namespace winrt::Develop::implementation
 	void MainPage::OpenProject_Click(IInspectable const&, RoutedEventArgs const&)
 	{
 
-	}
-
-	void MainPage::AppFlyout_Opening(IInspectable const& sender, IInspectable const& e)
-	{
-
-		if (m_ViewModel.SelectedInstance().Content())
-		{
-
-		}
 	}
 }

@@ -5,51 +5,107 @@
 #endif
 
 using namespace winrt;
+using namespace Windows::Foundation;
 using namespace Windows::Storage;
 using namespace Windows::UI::Text;
 using namespace Windows::UI::Xaml;
-using namespace Windows::Foundation;
+using namespace Windows::UI::Xaml::Controls;
 
 namespace winrt::Develop::implementation
 {
-    CodeEditor::CodeEditor(Windows::Storage::StorageFile const& file) : m_WorkingFile(file)
-    {
-        InitializeComponent();
-    }
+	CodeEditor::CodeEditor(StorageFile const& file) : m_WorkingFile(file)
+	{
+		InitializeComponent();
+	}
 
-    fire_and_forget CodeEditor::LoadFileAsync()
-    {
-        apartment_context uiThread;
-        bool isRichText = IsRichText();
-        m_EditorHelper = TextEditor::UI::SyntaxEditor(Editor(), isRichText);
-        if (isRichText)
-        {
-            auto stream = co_await m_WorkingFile.OpenReadAsync();
-            Editor().TextDocument().LoadFromStream(TextSetOptions::FormatRtf, stream);
-        }
-        else
-        {
-            co_await resume_background();
-            auto readBuffer = co_await FileIO::ReadBufferAsync(m_WorkingFile);
-            m_FileReadData = JUVStudios::EncodingDetect::DetectPlusGet(readBuffer);
-            co_await uiThread;
-            m_EditorHelper.Text(m_FileReadData->Text);
-        }
-    }
+	void CodeEditor::AfterUndoRedoInvoked(bool lastElem, hstring const& text, int index)
+	{
+		TextView().Focus(FocusState::Keyboard);
+		if (lastElem)
+		{
+			TextView().Text(m_FileReadData->Text);
+			TextView().TextDocument().Selection().StartPosition(0);
+		}
+		else
+		{
+			TextView().Text(text);
+			TextView().TextDocument().Selection().StartPosition(index);
+			TextView().TextDocument().Selection().EndPosition(index - 1);
+			TextView().TextDocument().Selection().Collapse(false);
+		}
+	}
 
-    StorageFile CodeEditor::WorkingFile() { return m_WorkingFile; }
+	bool CodeEditor::TextChanged(hstring const& text, RoutedEventArgs const&)
+	{
+		if (m_FileReadData)
+		{
+			auto valTrim = DevelopManaged::General::TrimEndings(text);
+			if (valTrim == DevelopManaged::General::TrimEndings(m_FileReadData->Text))
+			{
+				Saved(true);
+				TextView().ClearHistory();
+				return false;
+			}
+			else
+			{
+				if (TextView().CanUndo())
+				{
+					if (valTrim != TextView().PreviousText())
+					{
+						InvalidateState();
+						return true;
+					}
+				}
+				else
+				{
+					InvalidateState();
+					return true;
+				}
+			}
+		}
 
-    IAsyncOperation<bool> CodeEditor::CloseAsync()
-    {
-        return Windows::Foundation::IAsyncOperation<bool>();
-    }
+		return false;
+	}
 
-    void CodeEditor::UserControl_Loaded(IInspectable const& sender, RoutedEventArgs const& e)
-    {
-        if (m_EditorHelper == nullptr) LoadFileAsync();
-    }
+	void CodeEditor::InvalidateState()
+	{
+		Saved(false);
+	}
 
-    event_token CodeEditor::PropertyChanged(Data::PropertyChangedEventHandler const& handler) { return m_PropertyChanged.add(handler); }
+	fire_and_forget CodeEditor::LoadFileAsync()
+	{
+		apartment_context uiThread;
+		bool isRichText = m_WorkingFile.FileType() == L".rtf" || m_WorkingFile.FileType() == L".RTF";
+		TextView().Initialize(isRichText);
+		if (isRichText)
+		{
+			auto stream = co_await m_WorkingFile.OpenReadAsync();
+			TextView().TextDocument().LoadFromStream(TextSetOptions::FormatRtf, stream);
+		}
+		else
+		{
+			co_await resume_background();
+			auto readBuffer = co_await FileIO::ReadBufferAsync(m_WorkingFile);
+			m_FileReadData = JUVStudios::EncodingDetect::DetectPlusGet(readBuffer);
+			co_await uiThread;
+			TextView().HistoryDone({ this, &CodeEditor::AfterUndoRedoInvoked });
+			TextView().Text(m_FileReadData->Text);
+		}
 
-    void CodeEditor::PropertyChanged(winrt::event_token const& token) noexcept { m_PropertyChanged.remove(token); }
+		TextView().TextChangeDelegate({ this, &CodeEditor::TextChanged });
+		Ring().IsActive(false);
+		TextView().Visibility(Visibility::Visible);
+	}
+
+	StorageFile CodeEditor::WorkingFile() { return m_WorkingFile; }
+
+	IAsyncOperation<bool> CodeEditor::CloseAsync()
+	{
+		return Windows::Foundation::IAsyncOperation<bool>();
+	}
+
+	void CodeEditor::UserControl_Loaded(IInspectable const&, RoutedEventArgs const&)
+	{
+		if (Ring().IsActive()) LoadFileAsync();
+	}
 }

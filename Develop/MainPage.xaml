@@ -4,16 +4,17 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Develop"
-    xmlns:managed="using:DevelopManaged"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Loaded="UserControl_Loaded"
     mc:Ignorable="d">
 
     <UserControl.Resources>
-        <MenuFlyout
-            x:Key="AppFlyout"
-            Opening="AppFlyout_Opening"
-            Placement="Bottom">
+        <MenuFlyout x:Key="AppFlyout" Placement="Bottom">
+            <MenuFlyout.MenuFlyoutPresenterStyle>
+                <Style TargetType="MenuFlyoutPresenter">
+                    <Setter Property="CornerRadius" Value="0,0,4,0" />
+                </Style>
+            </MenuFlyout.MenuFlyoutPresenterStyle>
             <MenuFlyoutItem
                 x:Uid="OpenFileItem"
                 Click="OpenFile_Click"
@@ -54,22 +55,62 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 Fill="Transparent" />
-            <Button
-                x:Uid="AppMenu"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Stretch"
-                HorizontalContentAlignment="Center"
-                Background="Transparent"
-                Click="AppMenu_Click"
-                ContextFlyout="{StaticResource AppFlyout}"
-                CornerRadius="0">
-                <Button.Content>
-                    <Image
-                        Width="20"
-                        Height="20"
-                        Source="ms-appx:///Assets/Develop.svg" />
-                </Button.Content>
-            </Button>
+            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Button
+                    x:Uid="AppMenu"
+                    Grid.Column="0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Stretch"
+                    HorizontalContentAlignment="Center"
+                    Background="Transparent"
+                    Click="AppMenu_Click"
+                    ContextFlyout="{StaticResource AppFlyout}"
+                    CornerRadius="0">
+                    <Button.Content>
+                        <Image
+                            Width="20"
+                            Height="20"
+                            Source="ms-appx:///Assets/Develop.svg" />
+                    </Button.Content>
+                </Button>
+                <ListBox
+                    Grid.Column="1"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    ItemsSource="{x:Bind ViewModel.Instances, Mode=OneWay}"
+                    SelectedItem="{x:Bind ViewModel.SelectedInstance, Mode=TwoWay}"
+                    SelectionMode="Single">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsStackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="local:ShellView">
+                            <StackPanel
+                                HorizontalAlignment="Stretch"
+                                Orientation="Horizontal"
+                                Spacing="4">
+                                <IconSourceElement IconSource="{x:Bind Icon}" />
+                                <TextBlock
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Center"
+                                    Style="{ThemeResource BaseTextBlockStyle}"
+                                    Text="{x:Bind ToString()}" />
+                                <TextBlock
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Center"
+                                    Text="{x:Bind Caption}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+            <!--
             <ComboBox
                 x:Name="TabSwitcher"
                 x:Uid="TabSwitcher"
@@ -98,7 +139,7 @@
                         </StackPanel>
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
-            </ComboBox>
+            </ComboBox>-->
         </Grid>
         <ContentPresenter
             Grid.Row="1"

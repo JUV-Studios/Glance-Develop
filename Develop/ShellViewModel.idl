@@ -1,11 +1,10 @@
 import "ShellView.idl";
-import "BindableBase.idl";
 
 namespace Develop
 {
     [bindable]
     [default_interface]
-    runtimeclass ShellViewModel : BindableBase
+    runtimeclass ShellViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged
     {
         ShellViewModel();
         IObservableVector<ShellView> Instances{ get; };

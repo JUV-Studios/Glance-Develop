@@ -5,16 +5,17 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Develop"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d">
 
-    <NavigationView
+    <muxc:NavigationView
         CompactModeThresholdWidth="{StaticResource MinWindowBreakpoint}"
         ExpandedModeThresholdWidth="{StaticResource MediumWindowBreakpoint}"
         IsBackButtonVisible="Collapsed"
         IsPaneToggleButtonVisible="False"
         ItemInvoked="NavigationView_ItemInvoked"
         PaneDisplayMode="Auto">
-        <NavigationView.MenuItems />
-        <Frame Background="{ThemeResource ModernPageBackground}" />
-    </NavigationView>
+        <muxc:NavigationView.MenuItems />
+        <Frame Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" />
+    </muxc:NavigationView>
 </UserControl>

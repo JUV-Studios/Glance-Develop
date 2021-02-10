@@ -152,10 +152,6 @@
       <DependentUpon>AppSettings.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="BindableBase.h">
-      <DependentUpon>BindableBase.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClInclude>
     <ClInclude Include="CodeEditor.h">
       <DependentUpon>CodeEditor.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -215,7 +211,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\LockScreenLogo.scale-200.png" />
-    <Image Include="Assets\PdfFile.png" />
     <Image Include="Assets\SplashScreen.scale-200.png" />
     <Image Include="Assets\Square150x150Logo.scale-200.png" />
     <Image Include="Assets\Square44x44Logo.scale-200.png" />
@@ -230,10 +225,6 @@
     </ClCompile>
     <ClCompile Include="AppSettings.cpp">
       <DependentUpon>AppSettings.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClCompile>
-    <ClCompile Include="BindableBase.cpp">
-      <DependentUpon>BindableBase.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="CodeEditor.cpp">
@@ -280,9 +271,6 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Midl>
     <Midl Include="AppSettings.idl">
-      <SubType>Designer</SubType>
-    </Midl>
-    <Midl Include="BindableBase.idl">
       <SubType>Designer</SubType>
     </Midl>
     <Midl Include="CodeEditor.idl">
@@ -342,9 +330,10 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\Microsoft.Windows.CppWinRT.2.0.210122.3\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.210122.3\build\native\Microsoft.Windows.CppWinRT.targets')" />
-    <Import Project="..\packages\Microsoft.UI.Xaml.2.5.0\build\native\Microsoft.UI.Xaml.targets" Condition="Exists('..\packages\Microsoft.UI.Xaml.2.5.0\build\native\Microsoft.UI.Xaml.targets')" />
     <Import Project="..\packages\Win2D.uwp.1.25.0\build\native\Win2D.uwp.targets" Condition="Exists('..\packages\Win2D.uwp.1.25.0\build\native\Win2D.uwp.targets')" />
     <Import Project="..\packages\Microsoft.Toolkit.Uwp.Notifications.6.1.1\build\native\Microsoft.Toolkit.Uwp.Notifications.targets" Condition="Exists('..\packages\Microsoft.Toolkit.Uwp.Notifications.6.1.1\build\native\Microsoft.Toolkit.Uwp.Notifications.targets')" />
+    <Import Project="..\packages\Microsoft.UI.Xaml.2.6.0-prerelease.210129001\build\native\Microsoft.UI.Xaml.targets" Condition="Exists('..\packages\Microsoft.UI.Xaml.2.6.0-prerelease.210129001\build\native\Microsoft.UI.Xaml.targets')" />
+    <Import Project="..\packages\JUVStudios.0.0.0.10\build\native\JUVStudios.targets" Condition="Exists('..\packages\JUVStudios.0.0.0.10\build\native\JUVStudios.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -352,8 +341,9 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.210122.3\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.CppWinRT.2.0.210122.3\build\native\Microsoft.Windows.CppWinRT.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.210122.3\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.CppWinRT.2.0.210122.3\build\native\Microsoft.Windows.CppWinRT.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.UI.Xaml.2.5.0\build\native\Microsoft.UI.Xaml.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.UI.Xaml.2.5.0\build\native\Microsoft.UI.Xaml.targets'))" />
     <Error Condition="!Exists('..\packages\Win2D.uwp.1.25.0\build\native\Win2D.uwp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Win2D.uwp.1.25.0\build\native\Win2D.uwp.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Toolkit.Uwp.Notifications.6.1.1\build\native\Microsoft.Toolkit.Uwp.Notifications.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Toolkit.Uwp.Notifications.6.1.1\build\native\Microsoft.Toolkit.Uwp.Notifications.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.UI.Xaml.2.6.0-prerelease.210129001\build\native\Microsoft.UI.Xaml.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.UI.Xaml.2.6.0-prerelease.210129001\build\native\Microsoft.UI.Xaml.targets'))" />
+    <Error Condition="!Exists('..\packages\JUVStudios.0.0.0.10\build\native\JUVStudios.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JUVStudios.0.0.0.10\build\native\JUVStudios.targets'))" />
   </Target>
 </Project>

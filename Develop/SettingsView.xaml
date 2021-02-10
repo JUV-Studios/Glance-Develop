@@ -4,17 +4,29 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Develop"
+    xmlns:managed="using:DevelopManaged"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:text="using:Microsoft.Graphics.Canvas.Text"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     NavigationCacheMode="Required"
     mc:Ignorable="d">
 
-    <Grid Margin="48">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <TextBlock x:Uid="SettingsHub" Style="{ThemeResource HeaderTextBlockStyle}" />
-        <ListView Grid.Row="1" />
-    </Grid>
+    <Hub x:Uid="SettingsHub" Margin="48,48,48,0">
+        <HubSection x:Uid="Settings_Editor" DataContext="{x:Bind local:AppSettings.Preferences}">
+            <DataTemplate x:DataType="managed:SettingsViewModel">
+                <StackPanel Orientation="Vertical" Spacing="8">
+                    <ToggleSwitch x:Uid="EditorSettingsAutoSave" IsOn="{x:Bind AutoSave, Mode=TwoWay}" />
+                    <HyperlinkButton x:Uid="EditorSettingsManageFontsList" NavigateUri="ms-settings:fonts" />
+                    <muxc:NumberBox
+                        x:Uid="FontSizeOption"
+                        AcceptsExpression="False"
+                        Maximum="72"
+                        Minimum="12"
+                        SmallChange="1"
+                        SpinButtonPlacementMode="Inline"
+                        ValidationMode="InvalidInputOverwritten"
+                        Value="{x:Bind FontSize, Mode=TwoWay}" />
+                </StackPanel>
+            </DataTemplate>
+        </HubSection>
+    </Hub>
 </Page>

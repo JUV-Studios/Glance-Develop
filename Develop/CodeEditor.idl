@@ -5,5 +5,7 @@ namespace Develop
     {
         CodeEditor(Windows.Storage.StorageFile file);
         Windows.Storage.StorageFile WorkingFile { get; };
+        TextEditor.UI.SyntaxEditor Editor { get; };
+        Boolean Saved { get; set; };
     }
 }

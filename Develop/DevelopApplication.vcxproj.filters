@@ -29,9 +29,6 @@
     <Midl Include="Recents.idl">
       <Filter>ViewModels</Filter>
     </Midl>
-    <Midl Include="BindableBase.idl">
-      <Filter>ViewModels</Filter>
-    </Midl>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -64,9 +61,6 @@
     <Image Include="Assets\LockScreenLogo.scale-200.png">
       <Filter>Assets</Filter>
     </Image>
-    <Image Include="Assets\PdfFile.png">
-      <Filter>Assets</Filter>
-    </Image>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />
@@ -83,9 +77,6 @@
     </Filter>
     <Filter Include="Strings\en-us">
       <UniqueIdentifier>{42168fee-b7e5-4cf5-8361-fc75051b77dd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Controls">
-      <UniqueIdentifier>{ca841ea3-e7ce-450f-aa4a-cc5db4bf6e55}</UniqueIdentifier>
     </Filter>
     <Filter Include="Models">
       <UniqueIdentifier>{f600a1f9-9524-4238-822f-04629fbd72cc}</UniqueIdentifier>

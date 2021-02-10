@@ -11,12 +11,19 @@
     Loaded="ContentDialog_Loaded"
     mc:Ignorable="d">
 
-    <StackPanel>
-        <TextBlock Text="{x:Bind managed:SettingsViewModel.AboutText}" />
-        <TextBlock Loaded="BuiltonBlock_Loaded" />
-        <HyperlinkButton x:Uid="TermsOfUseHyperlink" NavigateUri="https://sway.office.com/s/5JnZ4XUEqVN7bAsB/embed" />
-        <HyperlinkButton x:Uid="TwitterFollowLink" NavigateUri="https://twitter.com/Jaigane88727011" />
-        <HyperlinkButton x:Uid="SubscribeHyperlink" NavigateUri="https://www.youtube.com/channel/UCCgDUPx_XgBfgBx-If1uk1g?sub_confirmation=1" />
-        <HyperlinkButton x:Uid="JoinDiscordServerLink" NavigateUri="https://discord.com/invite/xKVWBWu" />
-    </StackPanel>
+    <ScrollViewer
+        HorizontalScrollBarVisibility="Disabled"
+        HorizontalScrollMode="Disabled"
+        VerticalScrollBarVisibility="Auto"
+        VerticalScrollMode="Auto">
+        <StackPanel>
+            <TextBlock Text="{x:Bind managed:SettingsViewModel.AboutText}" />
+            <TextBlock Loaded="BuiltonBlock_Loaded" />
+            <HyperlinkButton x:Uid="TermsOfUseHyperlink" NavigateUri="https://sway.office.com/s/5JnZ4XUEqVN7bAsB/embed" />
+            <HyperlinkButton x:Uid="TwitterFollowLink" NavigateUri="https://twitter.com/Jaigane88727011" />
+            <HyperlinkButton x:Uid="SubscribeHyperlink" NavigateUri="https://www.youtube.com/channel/UCCgDUPx_XgBfgBx-If1uk1g?sub_confirmation=1" />
+            <HyperlinkButton x:Uid="JoinDiscordServerLink" NavigateUri="https://discord.com/invite/xKVWBWu" />
+            <HyperlinkButton x:Uid="VisitRepoLink" NavigateUri="https://github.com/JUV-Studios/Develop" />
+        </StackPanel>
+    </ScrollViewer>
 </ContentDialog>

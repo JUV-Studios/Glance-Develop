@@ -77,7 +77,7 @@ fire_and_forget App::ActivateApp(IActivatedEventArgs const& args)
     else mainPage = Window::Current().Content().as<Develop::MainPage>();
 
     FileActivatedEventArgs fileArgs{ nullptr };
-    if (args.try_as<FileActivatedEventArgs>(fileArgs)) mainPage.ViewModel().AddStorageItems(collection_view_as<IStorageItem2>(fileArgs.Files()));
+    if (args.try_as(fileArgs)) mainPage.ViewModel().AddStorageItems(collection_view_as<IStorageItem2>(fileArgs.Files()));
     Window::Current().Activate();
     return fire_and_forget();
 }
