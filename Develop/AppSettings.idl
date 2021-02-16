@@ -1,4 +1,4 @@
-namespace Develop
+﻿namespace Develop
 {
     [bindable]
     [default_interface]
@@ -6,7 +6,6 @@ namespace Develop
     {
         static IVectorView<String> SupportedFileTypes { get; };
         static Windows.Foundation.IAsyncAction InitializeAsync();
-        static DevelopManaged.SettingsViewModel Preferences { get; };
-        static Boolean DialogShown();
+        static Boolean DialogShown { get; set; };
     }
 }

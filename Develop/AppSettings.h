@@ -10,7 +10,6 @@ namespace winrt::Develop::implementation
         AppSettings() = delete;
         static Windows::Foundation::Collections::IVectorView<hstring> SupportedFileTypes();
         static Windows::Foundation::IAsyncAction InitializeAsync();
-        static DevelopManaged::SettingsViewModel Preferences();
         static bool DialogShown();
         static void DialogShown(bool value);
     };

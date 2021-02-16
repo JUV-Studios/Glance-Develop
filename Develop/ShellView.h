@@ -12,7 +12,9 @@ namespace winrt::Develop::implementation
         Windows::UI::Xaml::Controls::IconSource Icon();
         Windows::Storage::IStorageItem2 ReferenceSource();
         bool CanClose();
+        void Close();
         hstring ToString();
+        ~ShellView();
     private:
         hstring m_Title;
         Windows::UI::Xaml::UIElement m_Content;

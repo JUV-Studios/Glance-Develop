@@ -3,39 +3,19 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:editor="using:TextEditor.UI"
-    xmlns:local="using:Develop"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Loaded="UserControl_Loaded"
     mc:Ignorable="d">
 
     <UserControl.Resources>
-        <MenuFlyout x:Key="OptionsMenu">
-            <MenuFlyoutSubItem x:Uid="HistorySubItem">
-                <MenuFlyoutSubItem.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE81C;" />
-                </MenuFlyoutSubItem.Icon>
-                <MenuFlyoutItem Click="{x:Bind Editor.Undo}" IsEnabled="{x:Bind Editor.CanUndo, Mode=OneWay}">
-                    <MenuFlyoutItem.Command>
-                        <StandardUICommand Kind="Undo" />
-                    </MenuFlyoutItem.Command>
-                </MenuFlyoutItem>
-                <MenuFlyoutItem Click="{x:Bind Editor.Redo}" IsEnabled="{x:Bind Editor.CanRedo, Mode=OneWay}">
-                    <MenuFlyoutItem.Command>
-                        <StandardUICommand Kind="Redo" />
-                    </MenuFlyoutItem.Command>
-                </MenuFlyoutItem>
-            </MenuFlyoutSubItem>
-            <MenuFlyoutItem Click="{x:Bind Editor.SelectAll}">
-                <MenuFlyoutItem.Command>
-                    <StandardUICommand Kind="SelectAll" />
-                </MenuFlyoutItem.Command>
-            </MenuFlyoutItem>
-        </MenuFlyout>
+        <SolidColorBrush x:Key="TextControlBackground" Color="Transparent" />
+        <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="Transparent" />
+        <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="Transparent" />
+        <SolidColorBrush x:Key="TextControlBorderBrush" Color="Transparent" />
+        <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="Transparent" />
+        <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="Transparent" />
+        <SolidColorBrush x:Key="TextControlBorderBrushDisabled" Color="Transparent" />
         <Style TargetType="RichEditBox">
-            <Setter Property="Background" Value="{ThemeResource ApplicationPageBackgroundThemeBrush}" />
-            <Setter Property="ClipboardCopyFormat" Value="PlainText" />
-            <Setter Property="TextWrapping" Value="NoWrap" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="Background" Value="Transparent" />
@@ -46,18 +26,65 @@
             <Setter Property="VerticalAlignment" Value="Stretch" />
         </Style>
     </UserControl.Resources>
-    <Grid>
+
+    <Grid Background="{ThemeResource MaterialPageBackground}">
         <ProgressRing
             x:Name="Ring"
             Width="100"
             Height="100"
             IsActive="True" />
-        <editor:SyntaxEditor
-            x:Name="TextView"
-            AutomationProperties.Name="{x:Bind WorkingFile.Name}"
-            ContextFlyout="{StaticResource OptionsMenu}"
-            FontFamily="{x:Bind local:AppSettings.Preferences.FontFamily, Mode=OneWay}"
-            FontSize="{x:Bind local:AppSettings.Preferences.FontSize, Mode=OneWay}"
-            Visibility="Collapsed" />
+        <Grid x:Name="Content" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <ContentPresenter Grid.Row="0" Content="{x:Bind TextView}" />
+            <Border
+                Grid.Row="1"
+                VerticalAlignment="Bottom"
+                Background="{ThemeResource SystemControlAcrylicWindowBrush}">
+                <CommandBar
+                    Margin="12,0,12,0"
+                    ClosedDisplayMode="Compact"
+                    DefaultLabelPosition="Right">
+                    <CommandBar.Content>
+                        <CommandBar
+                            Background="Transparent"
+                            DefaultLabelPosition="Right"
+                            IsDynamicOverflowEnabled="False"
+                            OverflowButtonVisibility="Collapsed">
+                            <AppBarButton Click="{x:Bind TextView.Undo}" IsEnabled="{x:Bind TextView.CanUndo, Mode=OneWay}">
+                                <AppBarButton.Command>
+                                    <StandardUICommand Kind="Undo" />
+                                </AppBarButton.Command>
+                            </AppBarButton>
+                            <AppBarButton Click="{x:Bind TextView.Redo}" IsEnabled="{x:Bind TextView.CanRedo, Mode=OneWay}">
+                                <AppBarButton.Command>
+                                    <StandardUICommand Kind="Redo" />
+                                </AppBarButton.Command>
+                            </AppBarButton>
+                            <AppBarSeparator />
+                            <AppBarButton Click="{x:Bind TextView.SelectAll}">
+                                <AppBarButton.Command>
+                                    <StandardUICommand Kind="SelectAll" />
+                                </AppBarButton.Command>
+                            </AppBarButton>
+                            <AppBarButton
+                                x:Uid="ClearSelectionBtn"
+                                Click="{x:Bind TextView.ClearSelection}"
+                                Icon="ClearSelection"
+                                IsEnabled="{x:Bind TextView.IsSelectionValid, Mode=OneWay}" />
+                        </CommandBar>
+                    </CommandBar.Content>
+                    <CommandBar.PrimaryCommands>
+                        <AppBarButton Click="SaveFile_Click" IsEnabled="{x:Bind Saved, Mode=OneWay, Converter={StaticResource BoolReverse}}">
+                            <AppBarButton.Command>
+                                <StandardUICommand Kind="Save" />
+                            </AppBarButton.Command>
+                        </AppBarButton>
+                    </CommandBar.PrimaryCommands>
+                </CommandBar>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>

@@ -26,9 +26,10 @@
     <Midl Include="ShellView.idl">
       <Filter>Models</Filter>
     </Midl>
-    <Midl Include="Recents.idl">
+    <Midl Include="SettingsViewModel.idl">
       <Filter>ViewModels</Filter>
     </Midl>
+    <Midl Include="IAsyncClosable.idl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -80,9 +81,6 @@
     </Filter>
     <Filter Include="Models">
       <UniqueIdentifier>{f600a1f9-9524-4238-822f-04629fbd72cc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Helpers">
-      <UniqueIdentifier>{7c1462df-2b67-4384-96a0-08e5df8539cc}</UniqueIdentifier>
     </Filter>
     <Filter Include="HomeViews">
       <UniqueIdentifier>{f520273c-3fcd-402d-bbb4-0f0bb09f6de6}</UniqueIdentifier>

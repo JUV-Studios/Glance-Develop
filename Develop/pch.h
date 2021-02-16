@@ -1,9 +1,10 @@
 ﻿#pragma once
-#include <mutex>
 #include <windows.h>
 #include <unknwn.h>
+#include <sstream>
 #include <restrictederrorinfo.h>
 #include <hstring.h>
+#include <filesystem>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.ApplicationModel.Core.h>
@@ -19,6 +20,7 @@
 #include <winrt/Windows.UI.Text.h>
 #include <winrt/Windows.UI.Xaml.Automation.h>
 #include <winrt/Windows.UI.Xaml.h>
+#include <winrt/Windows.UI.Core.h>
 #include <winrt/Windows.UI.Xaml.Controls.h>
 #include <winrt/Windows.UI.Xaml.Shapes.h>
 #include <winrt/Windows.UI.Xaml.Controls.Primitives.h>
@@ -27,10 +29,9 @@
 #include <winrt/Windows.UI.Xaml.Markup.h>
 #include <winrt/Windows.UI.Xaml.Media.Animation.h>
 #include <winrt/Windows.UI.Xaml.Navigation.h>
-#include <winrt/Windows.UI.StartScreen.h>
 #include <winrt/Microsoft.UI.Xaml.Automation.Peers.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.Primitives.h>
 #include <winrt/Microsoft.UI.Xaml.Media.h>
 #include <winrt/Microsoft.UI.Xaml.XamlTypeInfo.h>
 #include <winrt/TextEditor.UI.h>
-#include <winrt/TextEditor.TextEditor_XamlTypeInfo.h>
+#include <winrt/JUVStudios.UI.Converters.h>

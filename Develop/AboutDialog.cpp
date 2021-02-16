@@ -3,8 +3,7 @@
 #if __has_include("AboutDialog.g.cpp")
 #include "AboutDialog.g.cpp"
 #endif
-#include "AppSettings.h"
-#include <winrt/JUVStudios.h>
+#include "App.h"
 
 using namespace winrt;
 using namespace Windows::Foundation;

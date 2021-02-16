@@ -4,29 +4,81 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Develop"
-    xmlns:managed="using:DevelopManaged"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     NavigationCacheMode="Required"
     mc:Ignorable="d">
 
-    <Hub x:Uid="SettingsHub" Margin="48,48,48,0">
-        <HubSection x:Uid="Settings_Editor" DataContext="{x:Bind local:AppSettings.Preferences}">
-            <DataTemplate x:DataType="managed:SettingsViewModel">
-                <StackPanel Orientation="Vertical" Spacing="8">
-                    <ToggleSwitch x:Uid="EditorSettingsAutoSave" IsOn="{x:Bind AutoSave, Mode=TwoWay}" />
-                    <HyperlinkButton x:Uid="EditorSettingsManageFontsList" NavigateUri="ms-settings:fonts" />
-                    <muxc:NumberBox
-                        x:Uid="FontSizeOption"
-                        AcceptsExpression="False"
-                        Maximum="72"
-                        Minimum="12"
-                        SmallChange="1"
-                        SpinButtonPlacementMode="Inline"
-                        ValidationMode="InvalidInputOverwritten"
-                        Value="{x:Bind FontSize, Mode=TwoWay}" />
+    <muxc:TwoPaneView
+        MinTallModeHeight="0"
+        ModeChanged="TwoPaneView_ModeChanged"
+        Pane1Length="320"
+        PanePriority="Pane2"
+        TallModeConfiguration="TopBottom"
+        WideModeConfiguration="LeftRight">
+        <muxc:TwoPaneView.Pane1>
+            <Grid Background="{ThemeResource SystemChromeMediumLowColor}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock
+                    x:Uid="SettingsHub"
+                    Grid.Row="0"
+                    Margin="24"
+                    Style="{ThemeResource HeaderTextBlockStyle}" />
+                <ListBox
+                    Grid.Row="1"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    SelectedIndex="{x:Bind SelectedPage, Mode=TwoWay}">
+                    <ListBoxItem Loaded="GeneralItem_Loaded" />
+                    <ListBoxItem Loaded="EditorOption_Loaded" />
+                </ListBox>
+            </Grid>
+        </muxc:TwoPaneView.Pane1>
+        <muxc:TwoPaneView.Pane2>
+            <FlipView CornerRadius="0" SelectedIndex="{x:Bind SelectedPage, Mode=TwoWay}">
+                <FlipView.ItemTemplate>
+                    <DataTemplate x:DataType="StackPanel">
+                        <ScrollViewer Padding="0,0,0,16" Background="{ThemeResource MaterialPageBackground}">
+                            <ContentPresenter Margin="48" Content="{x:Bind}" />
+                        </ScrollViewer>
+                    </DataTemplate>
+                </FlipView.ItemTemplate>
+                <StackPanel Spacing="12">
+                    <TextBlock x:Uid="Settings_General" Style="{ThemeResource SubheaderTextBlockStyle}" />
+                    <ToggleSwitch x:Uid="SettingsDisableSound" IsOn="{x:Bind local:SettingsViewModel.Instance.DisableSound, Mode=TwoWay}" />
                 </StackPanel>
-            </DataTemplate>
-        </HubSection>
-    </Hub>
+                <StackPanel Spacing="12">
+                    <TextBlock x:Uid="Settings_Editor" Style="{ThemeResource SubheaderTextBlockStyle}" />
+                </StackPanel>
+                <FlipView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel Orientation="Vertical" />
+                    </ItemsPanelTemplate>
+                </FlipView.ItemsPanel>
+            </FlipView>
+            <!--
+            <Hub x:Uid="SettingsHub">
+                <HubSection x:Uid="Settings_Editor" DataContext="{x:Bind local:AppSettings.Preferences}">
+                    <DataTemplate x:DataType="managed:SettingsViewModel">
+                        <StackPanel Orientation="Vertical" Spacing="8">
+                            <ToggleSwitch x:Uid="EditorSettingsAutoSave" IsOn="{x:Bind AutoSave, Mode=TwoWay}" />
+                            <HyperlinkButton x:Uid="EditorSettingsManageFontsList" NavigateUri="ms-settings:fonts" />
+                            <muxc:NumberBox
+                                x:Uid="FontSizeOption"
+                                AcceptsExpression="False"
+                                Maximum="72"
+                                Minimum="12"
+                                SmallChange="1"
+                                SpinButtonPlacementMode="Inline"
+                                ValidationMode="InvalidInputOverwritten"
+                                Value="{x:Bind FontSize, Mode=TwoWay}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </HubSection>
+            </Hub>-->
+        </muxc:TwoPaneView.Pane2>
+    </muxc:TwoPaneView>
 </Page>

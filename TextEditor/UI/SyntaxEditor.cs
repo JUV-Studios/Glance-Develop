@@ -16,6 +16,7 @@
 // FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
+
 using ColorCode.Styling;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TextEditor.Lexer;
-using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.System;
@@ -35,6 +35,18 @@ using Windows.UI.Xaml.Input;
 
 namespace TextEditor.UI
 {
+    internal readonly struct FileHistoryData
+    {
+        internal FileHistoryData(string text, int selectionIndex)
+        {
+            Text = text;
+            SelectionIndex = selectionIndex;
+        }
+
+        public readonly string Text;
+        public readonly int SelectionIndex;
+    }
+
     public struct SelectionInfo
     {
         public uint SelectionStart;
@@ -56,8 +68,12 @@ namespace TextEditor.UI
             AttachEvents();
             if (!isRichText)
             {
+                UndoStack = new();
+                RedoStack = new();
                 IsSpellCheckEnabled = false;
-                TextDocument.DefaultTabStop = 8;
+                TextDocument.DefaultTabStop = 12;
+                TextWrapping = TextWrapping.NoWrap;
+                ClipboardCopyFormat = RichEditClipboardFormat.PlainText;
                 DisabledFormattingAccelerators = DisabledFormattingAccelerators.All;
                 TextDocument.UndoLimit = 0;
             }
@@ -73,7 +89,13 @@ namespace TextEditor.UI
 
         public SelectionInfo TextSelection => _TextSelection;
 
-        private bool IsRichText;
+        private bool _IsRichText = true;
+
+        public bool IsRichText
+        {
+            get => _IsRichText;
+            private set => _IsRichText = value;
+        }
 
         private async void TextView_Pasting(object sender, TextControlPasteEventArgs e)
         {
@@ -111,8 +133,8 @@ namespace TextEditor.UI
         {
             get
             {
-                TextDocument.GetText(TextGetOptions.None, out string text);
-                return text.Replace("\r", Environment.NewLine);
+                TextDocument.GetText(TextGetOptions.NoHidden, out string text);
+                return text.Replace("\r", "\r\n");
             }
             set
             {
@@ -120,9 +142,9 @@ namespace TextEditor.UI
             }
         }
 
-        private static readonly string[] SplitValue = new string[] { Environment.NewLine };
+        private static readonly string[] SplitValue = new string[] { "\r\n" };
 
-        public long LinesCount => Text.TrimEnd().TrimEnd('\r', '\n').Split(SplitValue, StringSplitOptions.None).Length;
+        public int LinesCount => Text.TrimEnd().Split(SplitValue, StringSplitOptions.None).Length;
 
         public bool AttachEvents()
         {
@@ -191,19 +213,19 @@ namespace TextEditor.UI
 
         #region Interaction
 
-        public bool CanUndo => UndoStack.Count > 0;
+        public bool CanUndo => IsRichText ? Document.CanUndo() : UndoStack.Count > 0;
 
-        public bool CanRedo => RedoStack.Count > 0;
+        public bool CanRedo => IsRichText ? Document.CanRedo() : RedoStack.Count > 0;
 
         public bool CanClearHistory => CanUndo || CanRedo;
 
-        private readonly Stack<Tuple<string, int>> UndoStack = new();
+        private Stack<FileHistoryData> UndoStack;
 
-        private readonly Stack<Tuple<string, int>> RedoStack = new();
+        private Stack<FileHistoryData> RedoStack;
 
         public HistoryItemDone HistoryDone { get; set; }
 
-        public string PreviousText => UndoStack.Peek().Item1;
+        public string PreviousText => !IsRichText ? UndoStack.Peek().Text : string.Empty;
 
         private void UpdateHistoryProperties()
         {
@@ -215,22 +237,30 @@ namespace TextEditor.UI
         public void Undo()
         {
             if (!CanUndo) return;
-            Tuple<string, int> retVal;
-            // Remove current one first
-            RedoStack.Push(UndoStack.Pop());
-            // Return second one
-            if (UndoStack.Count == 0) retVal = new("", -1);
-            else retVal = UndoStack.Pop();
-            UpdateHistoryProperties();
-            HistoryDone?.Invoke(retVal.Item2 == -1, retVal.Item1, retVal.Item2);
+            if (IsRichText) Document.Undo();
+            else
+            {
+                FileHistoryData retVal;
+                // Remove current one first
+                RedoStack.Push(UndoStack.Pop());
+                // Return second one
+                if (UndoStack.Count == 0) retVal = new(string.Empty, -1);
+                else retVal = UndoStack.Pop();
+                UpdateHistoryProperties();
+                HistoryDone?.Invoke(retVal.SelectionIndex == -1, retVal.Text, retVal.SelectionIndex);
+            }
         }
 
         public void Redo()
         {
             if (!CanRedo) return;
-            Tuple<string, int> retVal = RedoStack.Pop();
-            UpdateHistoryProperties();
-            HistoryDone?.Invoke(false, retVal.Item1, retVal.Item2);
+            if (IsRichText) Document.Redo();
+            else
+            {
+                var retVal = RedoStack.Pop();
+                UpdateHistoryProperties();
+                HistoryDone?.Invoke(false, retVal.Text, retVal.SelectionIndex);
+            }
         }
 
         public void ClearHistory()
@@ -242,6 +272,7 @@ namespace TextEditor.UI
 
         public void SelectAll()
         {
+            Focus(FocusState.Keyboard);
             TextDocument.Selection.StartPosition = 0;
             TextDocument.Selection.EndOf(TextRangeUnit.Story, true);
         }
@@ -270,6 +301,12 @@ namespace TextEditor.UI
             DetachEvents();
             HighlightCancellation.Cancel();
             HighlightCancellation.Dispose();
+            TextChangeDelegate = null;
+            HistoryDone = null;
+            UndoStack?.Clear();
+            RedoStack?.Clear();
+            UndoStack = null;
+            RedoStack = null;
         }
 
         #endregion

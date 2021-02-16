@@ -123,17 +123,20 @@
   <data name="AppMenu.AutomationProperties.Name" xml:space="preserve">
     <value>App menu</value>
   </data>
+  <data name="AppMenu.ToolTipService.ToolTip" xml:space="preserve">
+    <value>App menu (Alt+F)</value>
+  </data>
   <data name="BuiltOnBlock.Text" xml:space="preserve">
     <value>Built on</value>
   </data>
   <data name="CancelText" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="ClearSelectionBtn.Label" xml:space="preserve">
+    <value>Clear selection</value>
+  </data>
   <data name="CloseCurrentTab.Text" xml:space="preserve">
     <value>Close current tab</value>
-  </data>
-  <data name="CodeEditor_OptionsPivot.Header" xml:space="preserve">
-    <value>Edit options</value>
   </data>
   <data name="CopyrightBlock.Text" xml:space="preserve">
     <value>© 2021 JUV Studios. All rights reserved</value>
@@ -144,23 +147,11 @@
   <data name="EditorSettingsAutoSave.Header" xml:space="preserve">
     <value>Automatically save when I make changes</value>
   </data>
-  <data name="EditorSettingsDisableSound.Header" xml:space="preserve">
-    <value>Turn off sound effects</value>
-  </data>
   <data name="EditorSettingsManageFontsList.Content" xml:space="preserve">
     <value>Manage installed fonts</value>
   </data>
   <data name="FileOpenPathItem.Text" xml:space="preserve">
     <value>Open file location</value>
-  </data>
-  <data name="FileSaveNotificationContent" xml:space="preserve">
-    <value>Saving {0}</value>
-  </data>
-  <data name="FileSaveNotificationTitle" xml:space="preserve">
-    <value>File save</value>
-  </data>
-  <data name="FileSubItem.Text" xml:space="preserve">
-    <value>File</value>
   </data>
   <data name="FontOption.Header" xml:space="preserve">
     <value>Font family</value>
@@ -186,17 +177,8 @@
   <data name="GoToOption.Title" xml:space="preserve">
     <value>Go to line</value>
   </data>
-  <data name="HistorySubItem.Text" xml:space="preserve">
-    <value>History</value>
-  </data>
   <data name="HomePage.Header" xml:space="preserve">
     <value>Home</value>
-  </data>
-  <data name="Hub_GettingStarted.Header" xml:space="preserve">
-    <value>Getting started</value>
-  </data>
-  <data name="Hub_RecentFiles.Header" xml:space="preserve">
-    <value>Recent files</value>
   </data>
   <data name="JoinDiscordServerLink.Content" xml:space="preserve">
     <value>Join our Discord server</value>
@@ -213,12 +195,6 @@
   <data name="OpenProjectItem.Text" xml:space="preserve">
     <value>Open a project</value>
   </data>
-  <data name="RecentFileContextMenuRemoveItem.Text" xml:space="preserve">
-    <value>Remove from this list</value>
-  </data>
-  <data name="RecentFilesSearch.PlaceholderText" xml:space="preserve">
-    <value>Search recents</value>
-  </data>
   <data name="SaveAsItem.Label" xml:space="preserve">
     <value>Save a copy</value>
   </data>
@@ -228,20 +204,17 @@
   <data name="SaveAsPickerDefaultName" xml:space="preserve">
     <value>Copy of {0}</value>
   </data>
-  <data name="SaveBtn.Label" xml:space="preserve">
-    <value>Save</value>
+  <data name="SettingsDisableSound.Header" xml:space="preserve">
+    <value>Turn off sound effects</value>
   </data>
-  <data name="SaveBtn.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Save (Ctrl+S)</value>
-  </data>
-  <data name="SettingsHub.Header" xml:space="preserve">
+  <data name="SettingsHub.Text" xml:space="preserve">
     <value>Settings</value>
   </data>
-  <data name="Settings_Editor.Header" xml:space="preserve">
+  <data name="Settings_Editor.Text" xml:space="preserve">
     <value>Editor options</value>
   </data>
-  <data name="Settings_General.Header" xml:space="preserve">
-    <value>General settings</value>
+  <data name="Settings_General.Text" xml:space="preserve">
+    <value>General</value>
   </data>
   <data name="ShareFileCaption" xml:space="preserve">
     <value>{0} will be shared</value>
@@ -255,17 +228,8 @@
   <data name="ShareSelectionTitle" xml:space="preserve">
     <value>Sharing current selection</value>
   </data>
-  <data name="SpecialThanksBlock.Text" xml:space="preserve">
-    <value>Special thanks to</value>
-  </data>
   <data name="SubscribeHyperlink.Content" xml:space="preserve">
     <value>Subscribe to Jaiganesh Useful Videos</value>
-  </data>
-  <data name="TabSizeOption.Header" xml:space="preserve">
-    <value>Tab size</value>
-  </data>
-  <data name="TabSwitcher.AutomationProperties.Name" xml:space="preserve">
-    <value>Tab switcher</value>
   </data>
   <data name="TermsOfUseHyperlink.Content" xml:space="preserve">
     <value>JUV Studios terms of use</value>

@@ -118,7 +118,6 @@
 
   <Capabilities>
     <Capability Name="internetClient" />
-	<uap:Capability Name="documentsLibrary" />
 	<rescap:Capability Name="confirmAppClose" />
   </Capabilities>
 </Package>

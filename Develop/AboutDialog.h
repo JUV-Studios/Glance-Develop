@@ -1,6 +1,4 @@
 ﻿#pragma once
-
-#include "pch.h"
 #include "AboutDialog.g.h"
 
 namespace winrt::Develop::implementation

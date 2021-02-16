@@ -1,7 +1,5 @@
 ﻿#include "pch.h"
 #include "App.h"
-#include "MainPage.h"
-#include <winrt/DevelopManaged.h>
 
 using namespace winrt;
 using namespace Windows::ApplicationModel;
@@ -14,18 +12,6 @@ using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Navigation;
 using namespace Develop;
 using namespace Develop::implementation;
-
-int __stdcall wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
-{
-    init_apartment();
-    Application::Start([](auto&&)
-        {
-            make<Develop::implementation::App>();
-            Develop::AppSettings::InitializeAsync();
-        });
-
-    return 0;
-}
 
 /// <summary>
 /// Initializes the singleton application object.  This is the first line of authored code
@@ -48,11 +34,11 @@ App::App()
 #endif
 }
 
-void App::OnLaunched(LaunchActivatedEventArgs const& e) { ActivateApp(e); }
+void App::OnLaunched(LaunchActivatedEventArgs const& e) { ActivateAppAsync(e); }
 
-void App::OnActivated(IActivatedEventArgs const& e) { ActivateApp(e); }
+void App::OnActivated(IActivatedEventArgs const& e) { ActivateAppAsync(e); }
 
-void App::OnFileActivated(FileActivatedEventArgs const& e) { ActivateApp(e); }
+void App::OnFileActivated(FileActivatedEventArgs const& e) { ActivateAppAsync(e); }
 
 /// <summary>
 /// Invoked when application execution is being suspended.  Application state is saved
@@ -66,18 +52,17 @@ void App::OnSuspending([[maybe_unused]] IInspectable const& sender, [[maybe_unus
     // Save application state and stop any background activity
 }
 
-fire_and_forget App::ActivateApp(IActivatedEventArgs const& args)
+fire_and_forget App::ActivateAppAsync(IActivatedEventArgs args)
 {
     Develop::MainPage mainPage{ nullptr };
     if (Window::Current().Content() == nullptr)
     {
-        mainPage = make<MainPage>();
+        mainPage = MainPage();
         Window::Current().Content(mainPage);
+        co_await Develop::AppSettings::InitializeAsync();
     }
     else mainPage = Window::Current().Content().as<Develop::MainPage>();
-
     FileActivatedEventArgs fileArgs{ nullptr };
-    if (args.try_as(fileArgs)) mainPage.ViewModel().AddStorageItems(collection_view_as<IStorageItem2>(fileArgs.Files()));
+    if (args.try_as(fileArgs)) mainPage.ViewModel().AddStorageItems(::JUVStudios::CollectionAs<IStorageItem2>(fileArgs.Files()).GetView());
     Window::Current().Activate();
-    return fire_and_forget();
 }

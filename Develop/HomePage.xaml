@@ -16,6 +16,6 @@
         ItemInvoked="NavigationView_ItemInvoked"
         PaneDisplayMode="Auto">
         <muxc:NavigationView.MenuItems />
-        <Frame Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" />
+        <Frame Background="{ThemeResource MaterialPageBackground}" />
     </muxc:NavigationView>
 </UserControl>

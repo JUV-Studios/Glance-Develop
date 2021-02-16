@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Develop"
-    xmlns:managed="using:DevelopManaged"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     x:Uid="AboutDialog"
     DefaultButton="Close"
@@ -17,7 +16,7 @@
         VerticalScrollBarVisibility="Auto"
         VerticalScrollMode="Auto">
         <StackPanel>
-            <TextBlock Text="{x:Bind managed:SettingsViewModel.AboutText}" />
+            <TextBlock Text="{x:Bind local:SettingsViewModel.AboutText}" />
             <TextBlock Loaded="BuiltonBlock_Loaded" />
             <HyperlinkButton x:Uid="TermsOfUseHyperlink" NavigateUri="https://sway.office.com/s/5JnZ4XUEqVN7bAsB/embed" />
             <HyperlinkButton x:Uid="TwitterFollowLink" NavigateUri="https://twitter.com/Jaigane88727011" />

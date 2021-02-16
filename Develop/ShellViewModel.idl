@@ -1,4 +1,4 @@
-import "ShellView.idl";
+﻿import "ShellView.idl";
 
 namespace Develop
 {
@@ -12,3 +12,4 @@ namespace Develop
         void AddStorageItems(IVectorView<Windows.Storage.IStorageItem2> sItems);
     }
 }
+

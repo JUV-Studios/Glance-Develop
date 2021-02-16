@@ -3,12 +3,9 @@
 #if __has_include("ShellViewModel.g.cpp")
 #include "ShellViewModel.g.cpp"
 #endif
-#include <winrt/DevelopManaged.h>
-#include <winrt/JUVStudios.h>
-#include "AppSettings.h"
+#include "App.h"
 
 using namespace winrt;
-using namespace DevelopManaged;
 using namespace Windows::System;
 using namespace Windows::Storage;
 using namespace Windows::UI::Xaml::Media;
@@ -17,27 +14,26 @@ using namespace Windows::Foundation::Collections;
 
 namespace winrt::Develop::implementation
 {
+	SymbolIconSource fileIcon = nullptr;
+
 	ShellViewModel::ShellViewModel()
 	{
 		m_Instances = single_threaded_observable_vector<ShellView>();
 		SymbolIconSource iconSource;
 		iconSource.Symbol(Symbol::Home);
 		auto startPageView = ShellView(JUVStudios::ResourceController::GetTranslation(L"HomePage/Header"), HomePage(), iconSource, nullptr);
-		AddInstances(array_view<ShellView>(&startPageView, 1));
+		AddInstances({ startPageView });
 	}
 
 	IObservableVector<ShellView> ShellViewModel::Instances() { return m_Instances; }
 
-	ShellView ShellViewModel::SelectedInstance() { return m_Bindable.GetProperty(L"SelectedInstance").as<ShellView>(); }
-
-	void ShellViewModel::SelectedInstance(ShellView const& value) 
+	void ShellViewModel::AddInstances(std::vector<ShellView> const& instances)
 	{
-		if (!AppSettings::DialogShown()) m_Bindable.SetProperty(L"SelectedInstance", value);
-	}
-
-	void ShellViewModel::AddInstances(array_view<ShellView> instances)
-	{
-		for (auto&& instance : instances) m_Instances.Append(instance);
+		std::vector<ShellView> instanceList;
+		instanceList.reserve(m_Instances.Size() + instances.size());
+		for (auto&& existing : m_Instances) instanceList.push_back(existing);
+		for (auto&& newInstance : instances) instanceList.push_back(newInstance);
+		m_Instances.ReplaceAll(instanceList);
 		SelectedInstance(m_Instances.GetAt(m_Instances.Size() - 1));
 	}
 
@@ -47,16 +43,21 @@ namespace winrt::Develop::implementation
 		for (auto&& item : sItems)
 		{
 			ShellView instance = nullptr;
-			if (StorageItemOpen(item, &instance))
+			if (StorageItemOpen(item, instance) && sItems.Size() == 1)
 			{
-				if (sItems.Size() == 1) SelectedInstance(instance);
+				SelectedInstance(instance);
+				return;
 			}
 			else if (item.IsOfType(StorageItemTypes::File))
 			{
 				StorageFile file = item.as<StorageFile>();
-				SymbolIconSource iconSource;
-				iconSource.Symbol(Symbol::Document);
-				viewsToAdd.emplace_back(file.Name(), CodeEditor(file), iconSource, file);
+				if (fileIcon == nullptr)
+				{
+					fileIcon = SymbolIconSource();
+					fileIcon.Symbol(Symbol::Document);
+				}
+
+				viewsToAdd.emplace_back(file.Name(), CodeEditor(file), fileIcon, file);
 			}
 			else
 			{
@@ -67,7 +68,7 @@ namespace winrt::Develop::implementation
 		if (viewsToAdd.size() > 0) AddInstances(viewsToAdd);
 	}
 
-	bool ShellViewModel::StorageItemOpen(IStorageItem2 const& item, ShellView* foundItem)
+	bool ShellViewModel::StorageItemOpen(IStorageItem2 const& item, ShellView& foundItem)
 	{
 		for (auto&& instance : m_Instances)
 		{
@@ -75,7 +76,7 @@ namespace winrt::Develop::implementation
 			{
 				if (instance.ReferenceSource().IsEqual(item))
 				{
-					*foundItem = instance;
+					foundItem = instance;
 					return true;
 				}
 			}

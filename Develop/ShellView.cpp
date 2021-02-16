@@ -3,7 +3,8 @@
 #if __has_include("ShellView.g.cpp")
 #include "ShellView.g.cpp"
 #endif
-#include <winrt/DevelopManaged.h>
+#include "App.h"
+#include <winstring.h>
 
 using namespace winrt;
 using namespace Windows::Storage;
@@ -18,7 +19,7 @@ namespace winrt::Develop::implementation
     hstring ShellView::Caption()
     {
         if (m_ReferenceSource == nullptr) return L"";
-        else return DevelopManaged::General::FolderPath(m_ReferenceSource.Path());
+        else return std::filesystem::path(m_ReferenceSource.Path().data()).parent_path().c_str();
     }
 
     UIElement ShellView::Content() { return m_Content; }
@@ -27,7 +28,17 @@ namespace winrt::Develop::implementation
 
     IStorageItem2 ShellView::ReferenceSource() { return m_ReferenceSource; }
 
-    bool ShellView::CanClose() { return m_Content.try_as<DevelopManaged::IAsyncClosable>() != nullptr; }
+    bool ShellView::CanClose() { return m_Content.try_as<IAsyncClosable>() != nullptr; }
+
+    void ShellView::Close()
+    {
+        m_Title = L"";
+        m_Content = nullptr;
+        m_IconSource = nullptr;
+        m_ReferenceSource = nullptr;
+    }
 
     hstring ShellView::ToString() { return m_Title; }
+
+    ShellView::~ShellView() { Close(); }
 }
