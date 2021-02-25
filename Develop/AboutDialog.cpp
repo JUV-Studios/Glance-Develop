@@ -1,5 +1,4 @@
-﻿#include "pch.h"
-#include "AboutDialog.h"
+﻿#include "AboutDialog.h"
 #if __has_include("AboutDialog.g.cpp")
 #include "AboutDialog.g.cpp"
 #endif
@@ -18,11 +17,8 @@ namespace winrt::Develop::implementation
 	{
 		InitializeComponent();
 	}
-
-	void AboutDialog::ContentDialog_Loaded(IInspectable const&, RoutedEventArgs const&)
-	{
-		if (CloseButtonText().empty()) CloseButtonText(JUVStudios::ResourceController::GetTranslation(L"OkayText"));
-	}
+	
+	hstring AboutDialog::OkayTextId() { return L"OkayText"; }
 
 	IAsyncAction AboutDialog::ShowDialogAsync()
 	{

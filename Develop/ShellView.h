@@ -6,19 +6,18 @@ namespace winrt::Develop::implementation
     struct ShellView : ShellViewT<ShellView>
     {
         ShellView() = default;
-        ShellView(hstring const& title, Windows::UI::Xaml::UIElement const& content, Windows::UI::Xaml::Controls::IconSource const& icon, Windows::Storage::IStorageItem2 const& refSource);
+        ShellView(hstring const& title, Windows::UI::Xaml::UIElement const& content, Windows::UI::Xaml::Controls::FontIconSource const& icon, Windows::Storage::IStorageItem2 const& refSource);
         hstring Caption();
         Windows::UI::Xaml::UIElement Content();
-        Windows::UI::Xaml::Controls::IconSource Icon();
+        Windows::UI::Xaml::Controls::FontIconSource Icon();
         Windows::Storage::IStorageItem2 ReferenceSource();
         bool CanClose();
-        void Close();
         hstring ToString();
-        ~ShellView();
     private:
         hstring m_Title;
+        hstring m_Path;
         Windows::UI::Xaml::UIElement m_Content;
-        Windows::UI::Xaml::Controls::IconSource m_IconSource;
+        Windows::UI::Xaml::Controls::FontIconSource m_IconSource;
         Windows::Storage::IStorageItem2 m_ReferenceSource;
     };
 }

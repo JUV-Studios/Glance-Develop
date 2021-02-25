@@ -16,21 +16,7 @@ namespace winrt::Develop::implementation
         SelectedPage(0);
     }
 
-    void SettingsView::TwoPaneView_ModeChanged(Microsoft::UI::Xaml::Controls::TwoPaneView const& sender, IInspectable const&)
-    {
-        if (sender.Mode() == Microsoft::UI::Xaml::Controls::TwoPaneViewMode::Tall) sender.Pane1Length(GridLengthHelper::Auto());
-        else sender.Pane1Length(GridLengthHelper::FromPixels(320));
-    }
+    hstring SettingsView::GeneralHeaderId() { return L"Settings_General/Text"; }
 
-    void SettingsView::GeneralItem_Loaded(IInspectable const& sender, RoutedEventArgs const&)
-    {
-        auto target = sender.as<Controls::ListBoxItem>();
-        target.Content(box_value(JUVStudios::ResourceController::GetTranslation(L"Settings_General/Text")));
-    }
-
-    void SettingsView::EditorOption_Loaded(IInspectable const& sender, RoutedEventArgs const&)
-    {
-        auto target = sender.as<Controls::ListBoxItem>();
-        target.Content(box_value(JUVStudios::ResourceController::GetTranslation(L"Settings_Editor/Text")));
-    }
+    hstring SettingsView::EditorOptionsHeaderId() { return L"Settings_Editor/Text"; }
 }

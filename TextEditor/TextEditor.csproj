@@ -144,7 +144,7 @@
       <Version>2.0.6</Version>
     </PackageReference>
     <PackageReference Include="JUVStudios">
-      <Version>0.0.2.6</Version>
+      <Version>0.0.3</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.12</Version>
@@ -161,7 +161,12 @@
   <ItemGroup>
     <Content Include="Yellow.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Themes\Styles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Content>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

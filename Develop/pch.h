@@ -1,10 +1,13 @@
 ﻿#pragma once
+#include <deque>
 #include <windows.h>
 #include <unknwn.h>
 #include <sstream>
 #include <restrictederrorinfo.h>
 #include <hstring.h>
 #include <filesystem>
+#include <cwctype>
+#include <mutex>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.ApplicationModel.Core.h>
@@ -14,8 +17,11 @@
 #include <winrt/Windows.UI.Xaml.Input.h>
 #include <winrt/Windows.System.h>
 #include <winrt/Windows.Storage.h>
+#include <winrt/Windows.Storage.BulkAccess.h>
 #include <winrt/Windows.Storage.Streams.h>
 #include <winrt/Windows.Storage.AccessCache.h>
+#include <winrt/Windows.Storage.FileProperties.h>
+#include <winrt/Windows.Storage.Search.h>
 #include <winrt/Windows.Storage.Pickers.h>
 #include <winrt/Windows.UI.Text.h>
 #include <winrt/Windows.UI.Xaml.Automation.h>
@@ -28,6 +34,7 @@
 #include <winrt/Windows.UI.Xaml.Interop.h>
 #include <winrt/Windows.UI.Xaml.Markup.h>
 #include <winrt/Windows.UI.Xaml.Media.Animation.h>
+#include <winrt/Windows.UI.Xaml.Media.Imaging.h>
 #include <winrt/Windows.UI.Xaml.Navigation.h>
 #include <winrt/Microsoft.UI.Xaml.Automation.Peers.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.Primitives.h>

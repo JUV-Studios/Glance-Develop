@@ -4,7 +4,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     Loaded="UserControl_Loaded"
+    Unloaded="UserControl_Unloaded"
     mc:Ignorable="d">
 
     <UserControl.Resources>
@@ -15,20 +17,10 @@
         <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="Transparent" />
         <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="Transparent" />
         <SolidColorBrush x:Key="TextControlBorderBrushDisabled" Color="Transparent" />
-        <Style TargetType="RichEditBox">
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="BorderBrush" Value="Transparent" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="CornerRadius" Value="0" />
-            <Setter Property="Margin" Value="0" />
-            <Setter Property="Padding" Value="12,12,12,8" />
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
-            <Setter Property="VerticalAlignment" Value="Stretch" />
-        </Style>
     </UserControl.Resources>
 
     <Grid Background="{ThemeResource MaterialPageBackground}">
-        <ProgressRing
+        <muxc:ProgressRing
             x:Name="Ring"
             Width="100"
             Height="100"
@@ -39,52 +31,55 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <ContentPresenter Grid.Row="0" Content="{x:Bind TextView}" />
-            <Border
+            <CommandBar
                 Grid.Row="1"
                 VerticalAlignment="Bottom"
-                Background="{ThemeResource SystemControlAcrylicWindowBrush}">
-                <CommandBar
-                    Margin="12,0,12,0"
-                    ClosedDisplayMode="Compact"
-                    DefaultLabelPosition="Right">
-                    <CommandBar.Content>
-                        <CommandBar
-                            Background="Transparent"
-                            DefaultLabelPosition="Right"
-                            IsDynamicOverflowEnabled="False"
-                            OverflowButtonVisibility="Collapsed">
-                            <AppBarButton Click="{x:Bind TextView.Undo}" IsEnabled="{x:Bind TextView.CanUndo, Mode=OneWay}">
-                                <AppBarButton.Command>
-                                    <StandardUICommand Kind="Undo" />
-                                </AppBarButton.Command>
-                            </AppBarButton>
-                            <AppBarButton Click="{x:Bind TextView.Redo}" IsEnabled="{x:Bind TextView.CanRedo, Mode=OneWay}">
-                                <AppBarButton.Command>
-                                    <StandardUICommand Kind="Redo" />
-                                </AppBarButton.Command>
-                            </AppBarButton>
-                            <AppBarSeparator />
-                            <AppBarButton Click="{x:Bind TextView.SelectAll}">
-                                <AppBarButton.Command>
-                                    <StandardUICommand Kind="SelectAll" />
-                                </AppBarButton.Command>
-                            </AppBarButton>
-                            <AppBarButton
-                                x:Uid="ClearSelectionBtn"
-                                Click="{x:Bind TextView.ClearSelection}"
-                                Icon="ClearSelection"
-                                IsEnabled="{x:Bind TextView.IsSelectionValid, Mode=OneWay}" />
-                        </CommandBar>
-                    </CommandBar.Content>
-                    <CommandBar.PrimaryCommands>
-                        <AppBarButton Click="SaveFile_Click" IsEnabled="{x:Bind Saved, Mode=OneWay, Converter={StaticResource BoolReverse}}">
+                Background="{ThemeResource SystemControlAcrylicWindowBrush}"
+                DefaultLabelPosition="Right">
+                <CommandBar.Content>
+                    <CommandBar
+                        Background="Transparent"
+                        DefaultLabelPosition="Right"
+                        IsDynamicOverflowEnabled="False"
+                        OverflowButtonVisibility="Collapsed">
+                        <AppBarButton Click="{x:Bind TextView.Undo}" IsEnabled="{x:Bind TextView.CanUndo, Mode=OneWay}">
                             <AppBarButton.Command>
-                                <StandardUICommand Kind="Save" />
+                                <StandardUICommand Kind="Undo" />
                             </AppBarButton.Command>
                         </AppBarButton>
-                    </CommandBar.PrimaryCommands>
-                </CommandBar>
-            </Border>
+                        <AppBarButton Click="{x:Bind TextView.Redo}" IsEnabled="{x:Bind TextView.CanRedo, Mode=OneWay}">
+                            <AppBarButton.Command>
+                                <StandardUICommand Kind="Redo" />
+                            </AppBarButton.Command>
+                        </AppBarButton>
+                        <AppBarSeparator />
+                        <AppBarButton Click="{x:Bind TextView.SelectAll}">
+                            <AppBarButton.Command>
+                                <StandardUICommand Kind="SelectAll" />
+                            </AppBarButton.Command>
+                        </AppBarButton>
+                        <AppBarButton
+                            x:Uid="ClearSelectionBtn"
+                            Click="{x:Bind TextView.ClearSelection}"
+                            Icon="ClearSelection"
+                            IsEnabled="{x:Bind TextView.IsSelectionValid, Mode=OneWay}" />
+                    </CommandBar>
+                </CommandBar.Content>
+                <CommandBar.PrimaryCommands>
+                    <AppBarButton
+                        x:Uid="SaveBtn"
+                        Click="SaveFile_Click"
+                        Icon="Save"
+                        IsEnabled="{x:Bind Saved, Mode=OneWay, Converter={StaticResource BoolReverse}}" />
+                    <AppBarElementContainer Padding="0,8,0,0">
+                        <ComboBox x:Name="EncodingBox" x:Uid="EncodingBox">
+                            <x:String>UTF8</x:String>
+                            <x:String>UTF16LE</x:String>
+                            <x:String>UTF16BE</x:String>
+                        </ComboBox>
+                    </AppBarElementContainer>
+                </CommandBar.PrimaryCommands>
+            </CommandBar>
         </Grid>
     </Grid>
 </UserControl>

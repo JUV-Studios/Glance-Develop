@@ -9,7 +9,9 @@ namespace Develop
         ShellViewModel();
         IObservableVector<ShellView> Instances{ get; };
         ShellView SelectedInstance{ get; set; };
+        UInt32 SelectedIndex { get; set; };
         void AddStorageItems(IVectorView<Windows.Storage.IStorageItem2> sItems);
+        Windows.Foundation.IAsyncAction RemoveInstance(ShellView view);
     }
 }
 

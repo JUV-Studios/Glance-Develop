@@ -5,6 +5,7 @@
     {
         SettingsView();
         Int32 SelectedPage { get; set; };
+        String GeneralHeaderId { get; };
+        String EditorOptionsHeaderId { get; };
     }
 }
-

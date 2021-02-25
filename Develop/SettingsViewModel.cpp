@@ -1,11 +1,11 @@
-﻿#include "pch.h"
-#include "SettingsViewModel.h"
+﻿#include "SettingsViewModel.h"
 #if __has_include("SettingsViewModel.g.cpp")
 #include "SettingsViewModel.g.cpp"
 #endif
 
 using namespace winrt;
 using namespace Windows::Storage;
+using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Data;
 using namespace Windows::ApplicationModel;
 
@@ -27,7 +27,7 @@ namespace winrt::Develop::implementation
 	{
 		auto packageVersion = Package::Current().Id().Version();
 		std::wstringstream versionString;
-		versionString << JUVStudios::ResourceController::GetTranslation(L"VersionText").data();
+		versionString << JUVStudios::ResourceController::GetTranslation(L"VersionText").data() << L" ";
 		versionString << packageVersion.Major << L".";
 		versionString << packageVersion.Minor << L".";
 		versionString << packageVersion.Build << L".";
@@ -73,5 +73,6 @@ namespace winrt::Develop::implementation
 	void SettingsViewModel::DisableSound(bool value)
 	{
 		ApplicationData::Current().LocalSettings().Values().Insert(wnameof(DisableSound), box_value(value));
+		ElementSoundPlayer::State(value ? ElementSoundPlayerState::Off : ElementSoundPlayerState::On);
 	}
 }

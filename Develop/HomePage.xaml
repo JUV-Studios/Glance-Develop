@@ -9,13 +9,21 @@
     mc:Ignorable="d">
 
     <muxc:NavigationView
+        x:Name="NavigationView"
         CompactModeThresholdWidth="{StaticResource MinWindowBreakpoint}"
         ExpandedModeThresholdWidth="{StaticResource MediumWindowBreakpoint}"
         IsBackButtonVisible="Collapsed"
-        IsPaneToggleButtonVisible="False"
+        IsBackEnabled="False"
+        IsPaneToggleButtonVisible="True"
         ItemInvoked="NavigationView_ItemInvoked"
-        PaneDisplayMode="Auto">
-        <muxc:NavigationView.MenuItems />
+        PaneDisplayMode="Auto"
+        PaneTitle="Develop">
+        <muxc:NavigationView.MenuItems>
+            <muxc:NavigationViewItem
+                Content="{x:Bind OpenTitleId, Converter={StaticResource ResourceLocator}, Mode=OneTime}"
+                Icon="OpenFile"
+                Tag="Develop.OpenPage" />
+        </muxc:NavigationView.MenuItems>
         <Frame Background="{ThemeResource MaterialPageBackground}" />
     </muxc:NavigationView>
 </UserControl>

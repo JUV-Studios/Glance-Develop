@@ -2,12 +2,12 @@ namespace Develop
 {
     [bindable]
     [default_interface]
-    runtimeclass ShellView : Windows.Foundation.IStringable, Windows.Foundation.IClosable
+    runtimeclass ShellView : Windows.Foundation.IStringable
     {
-        ShellView(String title, Windows.UI.Xaml.UIElement content, Windows.UI.Xaml.Controls.IconSource icon, Windows.Storage.IStorageItem2 refSource);
+        ShellView(String title, Windows.UI.Xaml.UIElement content, Windows.UI.Xaml.Controls.FontIconSource icon, Windows.Storage.IStorageItem2 refSource);
         String Caption { get; };
         Windows.UI.Xaml.UIElement Content { get; };
-        Windows.UI.Xaml.Controls.IconSource Icon { get; };
+        Windows.UI.Xaml.Controls.FontIconSource Icon { get; };
         Windows.Storage.IStorageItem2 ReferenceSource { get; };
         Boolean CanClose { get; };
     }

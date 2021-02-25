@@ -132,6 +132,9 @@
   <data name="CancelText" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="ClearListBtn.Label" xml:space="preserve">
+    <value>Clear this list</value>
+  </data>
   <data name="ClearSelectionBtn.Label" xml:space="preserve">
     <value>Clear selection</value>
   </data>
@@ -144,14 +147,23 @@
   <data name="DevelopedBlock.Text" xml:space="preserve">
     <value>Developed by Jaiganesh Kumaran</value>
   </data>
+  <data name="DirectoryFoldersFilesCountText" xml:space="preserve">
+    <value>{0} folders, {1} files</value>
+  </data>
   <data name="EditorSettingsAutoSave.Header" xml:space="preserve">
     <value>Automatically save when I make changes</value>
   </data>
   <data name="EditorSettingsManageFontsList.Content" xml:space="preserve">
     <value>Manage installed fonts</value>
   </data>
-  <data name="FileOpenPathItem.Text" xml:space="preserve">
-    <value>Open file location</value>
+  <data name="EncodingBox.AutomationProperties.Name" xml:space="preserve">
+    <value>Text encoding</value>
+  </data>
+  <data name="FileSaveFail" xml:space="preserve">
+    <value>File save failed</value>
+  </data>
+  <data name="FileSaveFailMessage" xml:space="preserve">
+    <value>Sorry, we couldn't save {0}. Please try again later</value>
   </data>
   <data name="FontOption.Header" xml:space="preserve">
     <value>Font family</value>
@@ -171,9 +183,6 @@
   <data name="GoToLineBox.Placeholder" xml:space="preserve">
     <value>Line number</value>
   </data>
-  <data name="GoToOption.Description" xml:space="preserve">
-    <value>Scroll to a specific line</value>
-  </data>
   <data name="GoToOption.Title" xml:space="preserve">
     <value>Go to line</value>
   </data>
@@ -183,17 +192,29 @@
   <data name="JoinDiscordServerLink.Content" xml:space="preserve">
     <value>Join our Discord server</value>
   </data>
-  <data name="MultipleFileSaveNotificationContent" xml:space="preserve">
-    <value>Don't worry, we've saved all the files you had open</value>
+  <data name="NotAvailableMessage" xml:space="preserve">
+    <value>Not available</value>
   </data>
   <data name="OkayText" xml:space="preserve">
     <value>Okay</value>
   </data>
-  <data name="OpenFileItem.Text" xml:space="preserve">
-    <value>Open files</value>
+  <data name="OpenFileItem.Label" xml:space="preserve">
+    <value>Open file using picker</value>
+  </data>
+  <data name="OpenPageFolderEmptyMessage.Text" xml:space="preserve">
+    <value>There's nothing in this directory that can be opened by Develop</value>
+  </data>
+  <data name="OpenPageTitle.Text" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="OpenPageToggleSelectionBtn.Label" xml:space="preserve">
+    <value>Select</value>
   </data>
   <data name="OpenProjectItem.Text" xml:space="preserve">
     <value>Open a project</value>
+  </data>
+  <data name="PickFolderButton.Content" xml:space="preserve">
+    <value>Pick a folder</value>
   </data>
   <data name="SaveAsItem.Label" xml:space="preserve">
     <value>Save a copy</value>
@@ -204,10 +225,19 @@
   <data name="SaveAsPickerDefaultName" xml:space="preserve">
     <value>Copy of {0}</value>
   </data>
+  <data name="SaveBtn.Label" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="SaveBtn.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Save (Ctrl+S)</value>
+  </data>
+  <data name="SelectFolderMessage.Text" xml:space="preserve">
+    <value>Select a folder to browse for files</value>
+  </data>
   <data name="SettingsDisableSound.Header" xml:space="preserve">
     <value>Turn off sound effects</value>
   </data>
-  <data name="SettingsHub.Text" xml:space="preserve">
+  <data name="SettingsHub.AutomationProperties.Name" xml:space="preserve">
     <value>Settings</value>
   </data>
   <data name="Settings_Editor.Text" xml:space="preserve">
@@ -231,6 +261,9 @@
   <data name="SubscribeHyperlink.Content" xml:space="preserve">
     <value>Subscribe to Jaiganesh Useful Videos</value>
   </data>
+  <data name="TabsList.AutomationProperties.Name" xml:space="preserve">
+    <value>Tabs</value>
+  </data>
   <data name="TermsOfUseHyperlink.Content" xml:space="preserve">
     <value>JUV Studios terms of use</value>
   </data>
@@ -245,5 +278,8 @@
   </data>
   <data name="VisitRepoLink.Content" xml:space="preserve">
     <value>Visit GitHub repository</value>
+  </data>
+  <data name="WelcomeText" xml:space="preserve">
+    <value>Welcome!</value>
   </data>
 </root>

@@ -6,8 +6,8 @@
     xmlns:local="using:Develop"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     x:Uid="AboutDialog"
+    CloseButtonText="{x:Bind OkayTextId, Mode=OneTime, Converter={StaticResource ResourceLocator}}"
     DefaultButton="Close"
-    Loaded="ContentDialog_Loaded"
     mc:Ignorable="d">
 
     <ScrollViewer

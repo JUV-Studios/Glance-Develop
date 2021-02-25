@@ -21,11 +21,9 @@ using ColorCode.Styling;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TextEditor.Lexer;
-using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.System;
 using Windows.UI.Text;
@@ -59,7 +57,11 @@ namespace TextEditor.UI
 
     public sealed class SyntaxEditor : RichEditBox, INotifyPropertyChanged, IDisposable
     {
-        public SyntaxEditor() { }
+        public SyntaxEditor()
+        {
+            // DefaultStyleKey = typeof(SyntaxEditor);
+            TextDocument.DefaultTabStop = 8;
+        }
 
         public void Initialize(bool isRichText)
         {
@@ -71,7 +73,6 @@ namespace TextEditor.UI
                 UndoStack = new();
                 RedoStack = new();
                 IsSpellCheckEnabled = false;
-                TextDocument.DefaultTabStop = 12;
                 TextWrapping = TextWrapping.NoWrap;
                 ClipboardCopyFormat = RichEditClipboardFormat.PlainText;
                 DisabledFormattingAccelerators = DisabledFormattingAccelerators.All;
@@ -97,13 +98,6 @@ namespace TextEditor.UI
             private set => _IsRichText = value;
         }
 
-        private async void TextView_Pasting(object sender, TextControlPasteEventArgs e)
-        {
-            e.Handled = true;
-            var clipboardContent = Clipboard.GetContent();
-            if (clipboardContent.AvailableFormats.Contains("Text")) TextDocument.Selection.TypeText(await clipboardContent.GetTextAsync());
-        }
-
         private async void HandleTextViewKeyDown(object sender, KeyRoutedEventArgs e)
         {
             if (e.Key == VirtualKey.Tab)
@@ -114,7 +108,7 @@ namespace TextEditor.UI
             else if (e.Key == VirtualKey.Escape)
             {
                 e.Handled = true;
-                await FocusManager.TryFocusAsync(FocusManager.FindFirstFocusableElement(null), FocusState.Keyboard);
+                await FocusManager.TryFocusAsync(FocusManager.FindNextFocusableElement(FocusNavigationDirection.Down), FocusState.Keyboard);
             }
         }
 
@@ -129,12 +123,17 @@ namespace TextEditor.UI
 
         private bool IsSelectionValidImpl(uint start, uint end) => start != end && !string.IsNullOrWhiteSpace(TextDocument.GetRange(Convert.ToInt32(start), Convert.ToInt32(end)).Text);
 
+        public static string NormalizeLineEndings(string text)
+        {
+            return text.Replace("\r\n", "\r").Replace("\n\r", "\r").Replace("\n", "\r").Replace("\r", "\r\n");
+        }
+
         public string Text
         {
             get
             {
-                TextDocument.GetText(TextGetOptions.NoHidden, out string text);
-                return text.Replace("\r", "\r\n");
+                TextDocument.GetText(TextGetOptions.UseCrlf, out string text);
+                return text;
             }
             set
             {
@@ -151,7 +150,6 @@ namespace TextEditor.UI
             TextChanged += Editor_TextChanged;
             KeyDown += HandleTextViewKeyDown;
             SelectionChanged += Editor_SelectionChanged;
-            Paste += TextView_Pasting;
             return true;
         }
 
@@ -171,7 +169,6 @@ namespace TextEditor.UI
         {
             SelectionChanged -= Editor_SelectionChanged;
             TextChanged -= Editor_TextChanged;
-            Paste -= TextView_Pasting;
             KeyDown -= HandleTextViewKeyDown;
             return true;
         }
@@ -307,6 +304,8 @@ namespace TextEditor.UI
             RedoStack?.Clear();
             UndoStack = null;
             RedoStack = null;
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         #endregion

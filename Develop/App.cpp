@@ -1,5 +1,4 @@
-﻿#include "pch.h"
-#include "App.h"
+﻿#include "App.h"
 
 using namespace winrt;
 using namespace Windows::ApplicationModel;
@@ -54,15 +53,15 @@ void App::OnSuspending([[maybe_unused]] IInspectable const& sender, [[maybe_unus
 
 fire_and_forget App::ActivateAppAsync(IActivatedEventArgs args)
 {
-    Develop::MainPage mainPage{ nullptr };
+    MainPage mainPage{ nullptr };
     if (Window::Current().Content() == nullptr)
     {
         mainPage = MainPage();
         Window::Current().Content(mainPage);
-        co_await Develop::AppSettings::InitializeAsync();
+        co_await AppSettings::InitializeAsync();
     }
-    else mainPage = Window::Current().Content().as<Develop::MainPage>();
+    else mainPage = Window::Current().Content().as<MainPage>();
     FileActivatedEventArgs fileArgs{ nullptr };
-    if (args.try_as(fileArgs)) mainPage.ViewModel().AddStorageItems(::JUVStudios::CollectionAs<IStorageItem2>(fileArgs.Files()).GetView());
+    if (args.try_as(fileArgs)) mainPage.ViewModel().AddStorageItems(JUVStudios::CollectionAs<IStorageItem2>(fileArgs.Files()).GetView());
     Window::Current().Activate();
 }

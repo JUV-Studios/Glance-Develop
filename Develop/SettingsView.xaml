@@ -11,10 +11,9 @@
 
     <muxc:TwoPaneView
         MinTallModeHeight="0"
-        ModeChanged="TwoPaneView_ModeChanged"
-        Pane1Length="320"
+        Pane1Length="360"
         PanePriority="Pane2"
-        TallModeConfiguration="TopBottom"
+        TallModeConfiguration="SinglePane"
         WideModeConfiguration="LeftRight">
         <muxc:TwoPaneView.Pane1>
             <Grid Background="{ThemeResource SystemChromeMediumLowColor}">
@@ -22,23 +21,21 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <TextBlock
-                    x:Uid="SettingsHub"
-                    Grid.Row="0"
-                    Margin="24"
-                    Style="{ThemeResource HeaderTextBlockStyle}" />
-                <ListBox
+                <ListView
                     Grid.Row="1"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     SelectedIndex="{x:Bind SelectedPage, Mode=TwoWay}">
-                    <ListBoxItem Loaded="GeneralItem_Loaded" />
-                    <ListBoxItem Loaded="EditorOption_Loaded" />
-                </ListBox>
+                    <ListViewItem Content="{x:Bind GeneralHeaderId, Mode=OneTime, Converter={StaticResource ResourceLocator}}" />
+                    <ListViewItem Content="{x:Bind EditorOptionsHeaderId, Mode=OneTime, Converter={StaticResource ResourceLocator}}" />
+                </ListView>
             </Grid>
         </muxc:TwoPaneView.Pane1>
         <muxc:TwoPaneView.Pane2>
-            <FlipView CornerRadius="0" SelectedIndex="{x:Bind SelectedPage, Mode=TwoWay}">
+            <FlipView
+                x:Uid="SettingsHub"
+                CornerRadius="0"
+                SelectedIndex="{x:Bind SelectedPage, Mode=TwoWay}">
                 <FlipView.ItemTemplate>
                     <DataTemplate x:DataType="StackPanel">
                         <ScrollViewer Padding="0,0,0,16" Background="{ThemeResource MaterialPageBackground}">
@@ -46,12 +43,19 @@
                         </ScrollViewer>
                     </DataTemplate>
                 </FlipView.ItemTemplate>
-                <StackPanel Spacing="12">
+                <FlipView.Resources>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Spacing" Value="8" />
+                    </Style>
+                </FlipView.Resources>
+                <StackPanel AutomationProperties.Name="{x:Bind GeneralHeaderId, Mode=OneWay, Converter={StaticResource ResourceLocator}}">
                     <TextBlock x:Uid="Settings_General" Style="{ThemeResource SubheaderTextBlockStyle}" />
                     <ToggleSwitch x:Uid="SettingsDisableSound" IsOn="{x:Bind local:SettingsViewModel.Instance.DisableSound, Mode=TwoWay}" />
                 </StackPanel>
-                <StackPanel Spacing="12">
+                <StackPanel AutomationProperties.Name="{x:Bind EditorOptionsHeaderId, Mode=OneWay, Converter={StaticResource ResourceLocator}}">
                     <TextBlock x:Uid="Settings_Editor" Style="{ThemeResource SubheaderTextBlockStyle}" />
+                    <ToggleSwitch x:Uid="EditorSettingsAutoSave" IsOn="{x:Bind local:SettingsViewModel.Instance.AutoSave, Mode=TwoWay}" />
+                    <HyperlinkButton x:Uid="EditorSettingsManageFontsList" NavigateUri="ms-settings:fonts" />
                 </StackPanel>
                 <FlipView.ItemsPanel>
                     <ItemsPanelTemplate>

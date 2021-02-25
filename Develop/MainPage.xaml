@@ -15,14 +15,6 @@
                     <Setter Property="CornerRadius" Value="0,0,8,0" />
                 </Style>
             </MenuFlyout.MenuFlyoutPresenterStyle>
-            <MenuFlyoutItem
-                x:Uid="OpenFileItem"
-                Click="OpenFile_Click"
-                Icon="OpenFile">
-                <MenuFlyoutItem.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="O" Modifiers="Control" />
-                </MenuFlyoutItem.KeyboardAccelerators>
-            </MenuFlyoutItem>
             <MenuFlyoutItem x:Uid="OpenProjectItem" Click="OpenProject_Click">
                 <MenuFlyoutItem.Icon>
                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xED25;" />
@@ -32,7 +24,7 @@
                 </MenuFlyoutItem.KeyboardAccelerators>
             </MenuFlyoutItem>
             <MenuFlyoutSeparator />
-            <MenuFlyoutItem Click="JoinDiscordServer_Click" Loaded="JoinDiscordServer_Loaded">
+            <MenuFlyoutItem Click="JoinDiscordServer_Click" Text="{x:Bind JoinDiscordServerId, Mode=OneTime, Converter={StaticResource ResourceLocator}}">
                 <MenuFlyoutItem.Icon>
                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE8F2;" />
                 </MenuFlyoutItem.Icon>
@@ -76,15 +68,16 @@
                 CornerRadius="0">
                 <Button.Content>
                     <Image
-                        Width="24"
-                        Height="24"
+                        Width="32"
+                        Height="32"
                         Source="ms-appx:///Assets/Develop.svg" />
                 </Button.Content>
             </Button>
-            <ListBox
+            <GridView
+                x:Uid="TabsList"
                 Grid.Column="1"
                 HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch"
+                VerticalAlignment="Center"
                 AutomationProperties.LandmarkType="Navigation"
                 Background="Transparent"
                 ItemsSource="{x:Bind ViewModel.Instances, Mode=OneWay}"
@@ -94,36 +87,48 @@
                 ScrollViewer.VerticalScrollMode="Disabled"
                 SelectedItem="{x:Bind ViewModel.SelectedInstance, Mode=TwoWay}"
                 SelectionMode="Single">
-                <ListBox.ItemContainerTransitions>
-                    <TransitionCollection>
-                        <AddDeleteThemeTransition />
-                    </TransitionCollection>
-                </ListBox.ItemContainerTransitions>
-                <ListBox.ItemsPanel>
+                <GridView.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <ItemsStackPanel Orientation="Horizontal" />
+                        <StackPanel Orientation="Horizontal" Spacing="8" />
                     </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-                <ListBox.ItemTemplate>
+                </GridView.ItemsPanel>
+                <GridView.ItemTemplate>
                     <DataTemplate x:DataType="local:ShellView">
-                        <StackPanel
-                            HorizontalAlignment="Stretch"
-                            Orientation="Horizontal"
-                            Spacing="4">
-                            <IconSourceElement IconSource="{x:Bind Icon}" />
+                        <Grid Margin="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
                             <TextBlock
+                                Grid.Column="0"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontFamily="{x:Bind Icon.FontFamily}"
+                                FontSize="32"
+                                Text="{x:Bind Icon.Glyph}" />
+                            <StackPanel
+                                Grid.Column="2"
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Center"
-                                Style="{ThemeResource BaseTextBlockStyle}"
-                                Text="{x:Bind ToString()}" />
-                            <TextBlock
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Center"
-                                Text="{x:Bind Caption}" />
-                        </StackPanel>
+                                Orientation="Vertical"
+                                Spacing="4">
+                                <TextBlock
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Center"
+                                    Style="{ThemeResource BaseTextBlockStyle}"
+                                    Text="{x:Bind ToString()}" />
+                                <TextBlock
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Center"
+                                    Style="{ThemeResource CaptionTextBlockStyle}"
+                                    Text="{x:Bind Caption}" />
+                            </StackPanel>
+                        </Grid>
+
                     </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                </GridView.ItemTemplate>
+            </GridView>
         </Grid>
         <ContentPresenter
             Grid.Row="1"

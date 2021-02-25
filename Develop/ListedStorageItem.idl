@@ -1,0 +1,13 @@
+namespace Develop
+{
+    [bindable]
+    [default_interface]
+    runtimeclass ListedStorageItem : Windows.Foundation.IStringable
+    {
+        ListedStorageItem(Windows.Storage.IStorageItem2 item, Windows.UI.Xaml.Media.Imaging.BitmapImage thumbnail, String sizeDescription);
+        Windows.Storage.IStorageItem2 ItemRef { get; };
+        String ItemType { get; };
+        String SizeDescription { get; };
+        Windows.UI.Xaml.Media.Imaging.BitmapImage Thumbnail { get; };
+    }
+}

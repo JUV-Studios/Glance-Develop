@@ -3,6 +3,7 @@ namespace Develop
     [default_interface]
     runtimeclass AboutDialog : Windows.UI.Xaml.Controls.ContentDialog
     {
-        AboutDialog();
+    	AboutDialog();
+	    String OkayTextId { get; };
     }
 }

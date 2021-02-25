@@ -1,7 +1,6 @@
 ﻿#pragma once
+#include "App.h"
 #include "ShellViewModel.g.h"
-#include <winrt/JUVStudios.h>
-#include <JUVStudios/cppwinrtHelpers.h>
 
 namespace winrt::Develop::implementation
 {
@@ -9,14 +8,17 @@ namespace winrt::Develop::implementation
     {
         ShellViewModel();
         Windows::Foundation::Collections::IObservableVector<Develop::ShellView> Instances();
-        void AddInstances(std::vector<ShellView> const& instances);
         void AddStorageItems(Windows::Foundation::Collections::IVectorView<Windows::Storage::IStorageItem2> const& sItems);
+        Windows::Foundation::IAsyncAction RemoveInstance(Develop::ShellView const view);
+        uint32_t SelectedIndex();
+        void SelectedIndex(uint32_t index);
         ObservableReferenceProperty(Develop::ShellView, SelectedInstance, m_Bindable);
         PropertyChangedHandler(m_Bindable);
     private:
-        bool StorageItemOpen(Windows::Storage::IStorageItem2 const& item, ShellView& foundItem);
+        bool StorageItemOpen(Windows::Storage::IStorageItem2 const& item, ShellView* const foundItem);
+        void AddInstances(std::vector<ShellView> const& instances);
         Windows::Foundation::Collections::IObservableVector<Develop::ShellView> m_Instances;
-        JUVStudios::BindableObject m_Bindable{ *this };
+        const JUVStudios::BindableObject m_Bindable{ *this };
     };
 }
 

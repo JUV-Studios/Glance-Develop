@@ -1,4 +1,6 @@
-﻿namespace Develop
+import "IAsyncClosable.idl";
+
+namespace Develop
 {
     [bindable]
     [default_interface]
@@ -7,5 +9,8 @@
         static IVectorView<String> SupportedFileTypes { get; };
         static Windows.Foundation.IAsyncAction InitializeAsync();
         static Boolean DialogShown { get; set; };
+        static void AddToCloseList(IAsyncClosable view);
+        static void RemoveFromCloseList(IAsyncClosable view);
+        static Boolean IsFileTypeSupported(String fileType);
     }
 }

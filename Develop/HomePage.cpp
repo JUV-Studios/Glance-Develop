@@ -20,5 +20,23 @@ namespace winrt::Develop::implementation
     {
         auto frame = sender.Content().as<Frame>();
         if (args.IsSettingsInvoked()) frame.Navigate(xaml_typename<SettingsView>(), nullptr, DrillInNavigationTransitionInfo());
+        else if (args.InvokedItemContainer()) NavigateToPage(args.InvokedItemContainer());
     }
+
+    void HomePage::NavigateToPage(Microsoft::UI::Xaml::Controls::NavigationViewItemBase const& item)
+    {
+        Windows::UI::Xaml::Interop::TypeName pageTypeName;
+        pageTypeName.Name = unbox_value<hstring>(item.Tag());
+        pageTypeName.Kind = Windows::UI::Xaml::Interop::TypeKind::Primitive;
+        NavigationView().Content().as<Frame>().Navigate(pageTypeName, nullptr, DrillInNavigationTransitionInfo());
+    }
+
+    void HomePage::SetPageIndex(uint32_t index)
+    {
+        auto item = NavigationView().MenuItems().GetAt(index).as<Microsoft::UI::Xaml::Controls::NavigationViewItemBase>();
+        NavigationView().SelectedItem(item);
+        NavigateToPage(item);
+    }
+
+    hstring HomePage::OpenTitleId() { return L"OpenPageTitle/Text"; }
 }
