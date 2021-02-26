@@ -1,4 +1,5 @@
-import "ShellView.idl";
+﻿import "ShellView.idl";
+
 namespace Develop
 {
     [bindable]
@@ -6,8 +7,11 @@ namespace Develop
     runtimeclass ShellViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged
     {
         ShellViewModel();
-        Windows.Foundation.Collections.IObservableVector<ShellView> Instances{ get; };
+        IObservableVector<ShellView> Instances{ get; };
         ShellView SelectedInstance{ get; set; };
-        void AddInstances(Windows.Foundation.Collections.IVectorView<ShellView> views);
+        UInt32 SelectedIndex { get; set; };
+        void AddStorageItems(IVectorView<Windows.Storage.IStorageItem2> sItems);
+        Windows.Foundation.IAsyncAction RemoveInstance(ShellView view);
     }
 }
+

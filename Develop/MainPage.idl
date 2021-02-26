@@ -1,10 +1,13 @@
 import "ShellViewModel.idl";
+
 namespace Develop
 {
     [default_interface]
     runtimeclass MainPage : Windows.UI.Xaml.Controls.UserControl
     {
         MainPage();
+        Windows.ApplicationModel.Core.CoreApplicationView AppView { get; };
         ShellViewModel ViewModel { get; };
+        String JoinDiscordServerId { get; };
     }
 }

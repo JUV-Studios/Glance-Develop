@@ -5,15 +5,25 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Develop"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d">
 
-    <NavigationView
+    <muxc:NavigationView
+        x:Name="NavigationView"
         CompactModeThresholdWidth="{StaticResource MinWindowBreakpoint}"
         ExpandedModeThresholdWidth="{StaticResource MediumWindowBreakpoint}"
         IsBackButtonVisible="Collapsed"
-        IsPaneToggleButtonVisible="False"
+        IsBackEnabled="False"
+        IsPaneToggleButtonVisible="True"
         ItemInvoked="NavigationView_ItemInvoked"
-        PaneDisplayMode="Auto">
-        <Frame IsNavigationStackEnabled="False" />
-    </NavigationView>
+        PaneDisplayMode="Auto"
+        PaneTitle="Develop">
+        <muxc:NavigationView.MenuItems>
+            <muxc:NavigationViewItem
+                Content="{x:Bind OpenTitleId, Converter={StaticResource ResourceLocator}, Mode=OneTime}"
+                Icon="OpenFile"
+                Tag="Develop.OpenPage" />
+        </muxc:NavigationView.MenuItems>
+        <Frame Background="{ThemeResource MaterialPageBackground}" />
+    </muxc:NavigationView>
 </UserControl>

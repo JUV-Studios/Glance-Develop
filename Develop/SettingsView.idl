@@ -1,0 +1,11 @@
+﻿namespace Develop
+{
+    [default_interface]
+    runtimeclass SettingsView : Windows.UI.Xaml.Controls.Page, Windows.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        SettingsView();
+        Int32 SelectedPage { get; set; };
+        String GeneralHeaderId { get; };
+        String EditorOptionsHeaderId { get; };
+    }
+}

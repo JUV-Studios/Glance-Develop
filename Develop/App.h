@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include "App.xaml.g.h"
+#include <winrt/JUVStudios.h>
+#include <JUVStudios/cppwinrtHelpers.h>
 
 namespace winrt::Develop::implementation
 {
@@ -11,6 +13,6 @@ namespace winrt::Develop::implementation
         void OnFileActivated(Windows::ApplicationModel::Activation::FileActivatedEventArgs const&);
         void OnSuspending(IInspectable const&, Windows::ApplicationModel::SuspendingEventArgs const&);
     private:
-        fire_and_forget ActivateApp(Windows::ApplicationModel::Activation::IActivatedEventArgs const&);
+        fire_and_forget ActivateAppAsync(Windows::ApplicationModel::Activation::IActivatedEventArgs);
     };
 }

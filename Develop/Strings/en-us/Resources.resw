@@ -117,59 +117,53 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AboutDialog.Title" xml:space="preserve">
+    <value>About this application</value>
+  </data>
+  <data name="AppMenu.AutomationProperties.Name" xml:space="preserve">
+    <value>App menu</value>
+  </data>
+  <data name="AppMenu.ToolTipService.ToolTip" xml:space="preserve">
+    <value>App menu (Alt+F)</value>
+  </data>
   <data name="BuiltOnBlock.Text" xml:space="preserve">
     <value>Built on</value>
   </data>
   <data name="CancelText" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="ClearHistoryItem.Text" xml:space="preserve">
-    <value>Clear undo/redo history</value>
+  <data name="ClearListBtn.Label" xml:space="preserve">
+    <value>Clear this list</value>
   </data>
-  <data name="ClearRecentFilesItem.Text" xml:space="preserve">
-    <value>Clear recent files</value>
-  </data>
-  <data name="ClearSelectionItem.Description" xml:space="preserve">
-    <value>Clears text selection</value>
-  </data>
-  <data name="ClearSelectionItem.Title" xml:space="preserve">
+  <data name="ClearSelectionBtn.Label" xml:space="preserve">
     <value>Clear selection</value>
   </data>
-  <data name="CodeEditor_OptionsPivot.Header" xml:space="preserve">
-    <value>Edit options</value>
+  <data name="CloseCurrentTab.Text" xml:space="preserve">
+    <value>Close current tab</value>
   </data>
   <data name="CopyrightBlock.Text" xml:space="preserve">
     <value>© 2021 JUV Studios. All rights reserved</value>
   </data>
-  <data name="DependenciesListBlock.Text" xml:space="preserve">
-    <value>Dependencies &amp; references</value>
-  </data>
   <data name="DevelopedBlock.Text" xml:space="preserve">
     <value>Developed by Jaiganesh Kumaran</value>
   </data>
-  <data name="EditorAutomationEscHelp" xml:space="preserve">
-    <value>Press the escape key to focus outside the editor</value>
+  <data name="DirectoryFoldersFilesCountText" xml:space="preserve">
+    <value>{0} folders, {1} files</value>
   </data>
   <data name="EditorSettingsAutoSave.Header" xml:space="preserve">
     <value>Automatically save when I make changes</value>
   </data>
-  <data name="EditorSettingsDisableSound.Header" xml:space="preserve">
-    <value>Turn off sound effects</value>
-  </data>
   <data name="EditorSettingsManageFontsList.Content" xml:space="preserve">
     <value>Manage installed fonts</value>
   </data>
-  <data name="FileOpenPathItem.Text" xml:space="preserve">
-    <value>Open file location</value>
+  <data name="EncodingBox.AutomationProperties.Name" xml:space="preserve">
+    <value>Text encoding</value>
   </data>
-  <data name="FileSaveNotificationContent" xml:space="preserve">
-    <value>Saving {0}</value>
+  <data name="FileSaveFail" xml:space="preserve">
+    <value>File save failed</value>
   </data>
-  <data name="FileSaveNotificationTitle" xml:space="preserve">
-    <value>File save</value>
-  </data>
-  <data name="FileSubItem.Text" xml:space="preserve">
-    <value>File</value>
+  <data name="FileSaveFailMessage" xml:space="preserve">
+    <value>Sorry, we couldn't save {0}. Please try again later</value>
   </data>
   <data name="FontOption.Header" xml:space="preserve">
     <value>Font family</value>
@@ -189,53 +183,38 @@
   <data name="GoToLineBox.Placeholder" xml:space="preserve">
     <value>Line number</value>
   </data>
-  <data name="GoToOption.Description" xml:space="preserve">
-    <value>Scroll to a specific line</value>
-  </data>
   <data name="GoToOption.Title" xml:space="preserve">
     <value>Go to line</value>
-  </data>
-  <data name="HistoryFlyoutBtn.Label" xml:space="preserve">
-    <value>History</value>
   </data>
   <data name="HomePage.Header" xml:space="preserve">
     <value>Home</value>
   </data>
-  <data name="Hub_GettingStarted.Header" xml:space="preserve">
-    <value>Getting started</value>
+  <data name="JoinDiscordServerLink.Content" xml:space="preserve">
+    <value>Join our Discord server</value>
   </data>
-  <data name="Hub_RecentFiles.Header" xml:space="preserve">
-    <value>Recent files</value>
-  </data>
-  <data name="MultipleFileSaveNotificationContent" xml:space="preserve">
-    <value>Don't worry, we've saved all the files you had open</value>
-  </data>
-  <data name="NewFileOption.Description" xml:space="preserve">
-    <value>Create a new source file</value>
-  </data>
-  <data name="NewFileOption.Title" xml:space="preserve">
-    <value>Create a new file</value>
+  <data name="NotAvailableMessage" xml:space="preserve">
+    <value>Not available</value>
   </data>
   <data name="OkayText" xml:space="preserve">
     <value>Okay</value>
   </data>
-  <data name="OpenFilesOption.Description" xml:space="preserve">
-    <value>Open source files from this PC</value>
+  <data name="OpenFileItem.Label" xml:space="preserve">
+    <value>Open file using picker</value>
   </data>
-  <data name="OpenFilesOption.Title" xml:space="preserve">
-    <value>Open a few files</value>
+  <data name="OpenPageFolderEmptyMessage.Text" xml:space="preserve">
+    <value>There's nothing in this directory that can be opened by Develop</value>
   </data>
-  <data name="OpenProjectOption.Description" xml:space="preserve">
-    <value>Open and access resources in a project</value>
+  <data name="OpenPageTitle.Text" xml:space="preserve">
+    <value>Open</value>
   </data>
-  <data name="OpenProjectOption.Title" xml:space="preserve">
+  <data name="OpenPageToggleSelectionBtn.Label" xml:space="preserve">
+    <value>Select</value>
+  </data>
+  <data name="OpenProjectItem.Text" xml:space="preserve">
     <value>Open a project</value>
   </data>
-  <data name="RecentFileContextMenuRemoveItem.Text" xml:space="preserve">
-    <value>Remove from this list</value>
-  </data>
-  <data name="RecentFilesSearch.PlaceholderText" xml:space="preserve">
-    <value>Search recents</value>
+  <data name="PickFolderButton.Content" xml:space="preserve">
+    <value>Pick a folder</value>
   </data>
   <data name="SaveAsItem.Label" xml:space="preserve">
     <value>Save a copy</value>
@@ -252,17 +231,20 @@
   <data name="SaveBtn.ToolTipService.ToolTip" xml:space="preserve">
     <value>Save (Ctrl+S)</value>
   </data>
-  <data name="SettingsHub.Header" xml:space="preserve">
+  <data name="SelectFolderMessage.Text" xml:space="preserve">
+    <value>Select a folder to browse for files</value>
+  </data>
+  <data name="SettingsDisableSound.Header" xml:space="preserve">
+    <value>Turn off sound effects</value>
+  </data>
+  <data name="SettingsHub.AutomationProperties.Name" xml:space="preserve">
     <value>Settings</value>
   </data>
-  <data name="Settings_About.Header" xml:space="preserve">
-    <value>About this application</value>
-  </data>
   <data name="Settings_Editor.Text" xml:space="preserve">
-    <value>Editor settings</value>
+    <value>Editor options</value>
   </data>
-  <data name="Settings_General.Header" xml:space="preserve">
-    <value>General settings</value>
+  <data name="Settings_General.Text" xml:space="preserve">
+    <value>General</value>
   </data>
   <data name="ShareFileCaption" xml:space="preserve">
     <value>{0} will be shared</value>
@@ -276,14 +258,11 @@
   <data name="ShareSelectionTitle" xml:space="preserve">
     <value>Sharing current selection</value>
   </data>
-  <data name="SpecialThanksBlock.Text" xml:space="preserve">
-    <value>Special thanks to</value>
-  </data>
   <data name="SubscribeHyperlink.Content" xml:space="preserve">
     <value>Subscribe to Jaiganesh Useful Videos</value>
   </data>
-  <data name="TabSizeOption.Header" xml:space="preserve">
-    <value>Tab size</value>
+  <data name="TabsList.AutomationProperties.Name" xml:space="preserve">
+    <value>Tabs</value>
   </data>
   <data name="TermsOfUseHyperlink.Content" xml:space="preserve">
     <value>JUV Studios terms of use</value>
@@ -291,22 +270,16 @@
   <data name="TwitterFollowLink.Content" xml:space="preserve">
     <value>Follow us on Twitter</value>
   </data>
-  <data name="UnsavedChangesDialog.Content" xml:space="preserve">
-    <value>There are unsaved changes in this file. Would you like to save it before closing?</value>
-  </data>
-  <data name="UnsavedChangesDialog.PrimaryButtonText" xml:space="preserve">
-    <value>Save</value>
-  </data>
-  <data name="UnsavedChangesDialog.SecondaryButtonText" xml:space="preserve">
-    <value>Don't save</value>
-  </data>
-  <data name="UnsavedChangesDialog.Title" xml:space="preserve">
-    <value>Unsaved changes</value>
-  </data>
   <data name="UntitledFileText" xml:space="preserve">
     <value>Untitled</value>
   </data>
   <data name="VersionText" xml:space="preserve">
     <value>Version</value>
+  </data>
+  <data name="VisitRepoLink.Content" xml:space="preserve">
+    <value>Visit GitHub repository</value>
+  </data>
+  <data name="WelcomeText" xml:space="preserve">
+    <value>Welcome!</value>
   </data>
 </root>

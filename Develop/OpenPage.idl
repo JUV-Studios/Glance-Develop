@@ -1,0 +1,12 @@
+import "ListedStorageItem.idl";
+
+namespace Develop
+{
+    [default_interface]
+    runtimeclass OpenPage : Windows.UI.Xaml.Controls.Page, Windows.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        OpenPage();
+        Boolean CanInteract { get; };
+        IObservableVector<ListedStorageItem> StorageItemsList { get; };
+    }
+}

@@ -1,6 +1,7 @@
-﻿#pragma once
+#pragma once
 
 #include "AppSettings.g.h"
+#include <winrt/JUVStudios.h>
 
 namespace winrt::Develop::implementation
 {
@@ -9,8 +10,11 @@ namespace winrt::Develop::implementation
         AppSettings() = delete;
         static Windows::Foundation::Collections::IVectorView<hstring> SupportedFileTypes();
         static Windows::Foundation::IAsyncAction InitializeAsync();
-        static DevelopManaged::SettingsViewModel Preferences();
-        static hstring GetLocalized(hstring const& key);
+        static bool DialogShown();
+        static void DialogShown(bool value);
+        static void AddToCloseList(Develop::IAsyncClosable const& view);
+        static void RemoveFromCloseList(Develop::IAsyncClosable const& view);
+        static bool IsFileTypeSupported(hstring const& fileType);
     };
 }
 
