@@ -12,7 +12,7 @@ namespace winrt::Develop::implementation
         HomePage();
         void NavigationView_ItemInvoked(Microsoft::UI::Xaml::Controls::NavigationView const& sender, Microsoft::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs const& args);
         void SetPageIndex(uint32_t index);
-        hstring OpenTitleId();
+        void UserControl_Loaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Windows::UI::Xaml::RoutedEventArgs const& e);
     };
 }
 

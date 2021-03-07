@@ -1,7 +1,5 @@
 ﻿#pragma once
 #include "App.xaml.g.h"
-#include <winrt/JUVStudios.h>
-#include <JUVStudios/cppwinrtHelpers.h>
 
 namespace winrt::Develop::implementation
 {

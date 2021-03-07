@@ -120,35 +120,17 @@
   <data name="AboutDialog.Title" xml:space="preserve">
     <value>About this application</value>
   </data>
-  <data name="AppMenu.AutomationProperties.Name" xml:space="preserve">
-    <value>App menu</value>
-  </data>
-  <data name="AppMenu.ToolTipService.ToolTip" xml:space="preserve">
-    <value>App menu (Alt+F)</value>
-  </data>
   <data name="BuiltOnBlock.Text" xml:space="preserve">
     <value>Built on</value>
   </data>
   <data name="CancelText" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="ClearListBtn.Label" xml:space="preserve">
-    <value>Clear this list</value>
-  </data>
-  <data name="ClearSelectionBtn.Label" xml:space="preserve">
-    <value>Clear selection</value>
-  </data>
-  <data name="CloseCurrentTab.Text" xml:space="preserve">
-    <value>Close current tab</value>
-  </data>
   <data name="CopyrightBlock.Text" xml:space="preserve">
     <value>© 2021 JUV Studios. All rights reserved</value>
   </data>
   <data name="DevelopedBlock.Text" xml:space="preserve">
     <value>Developed by Jaiganesh Kumaran</value>
-  </data>
-  <data name="DirectoryFoldersFilesCountText" xml:space="preserve">
-    <value>{0} folders, {1} files</value>
   </data>
   <data name="EditorSettingsAutoSave.Header" xml:space="preserve">
     <value>Automatically save when I make changes</value>
@@ -158,12 +140,6 @@
   </data>
   <data name="EncodingBox.AutomationProperties.Name" xml:space="preserve">
     <value>Text encoding</value>
-  </data>
-  <data name="FileSaveFail" xml:space="preserve">
-    <value>File save failed</value>
-  </data>
-  <data name="FileSaveFailMessage" xml:space="preserve">
-    <value>Sorry, we couldn't save {0}. Please try again later</value>
   </data>
   <data name="FontOption.Header" xml:space="preserve">
     <value>Font family</value>
@@ -192,47 +168,11 @@
   <data name="JoinDiscordServerLink.Content" xml:space="preserve">
     <value>Join our Discord server</value>
   </data>
-  <data name="NotAvailableMessage" xml:space="preserve">
-    <value>Not available</value>
-  </data>
   <data name="OkayText" xml:space="preserve">
     <value>Okay</value>
   </data>
-  <data name="OpenFileItem.Label" xml:space="preserve">
-    <value>Open file using picker</value>
-  </data>
-  <data name="OpenPageFolderEmptyMessage.Text" xml:space="preserve">
-    <value>There's nothing in this directory that can be opened by Develop</value>
-  </data>
-  <data name="OpenPageTitle.Text" xml:space="preserve">
-    <value>Open</value>
-  </data>
-  <data name="OpenPageToggleSelectionBtn.Label" xml:space="preserve">
-    <value>Select</value>
-  </data>
-  <data name="OpenProjectItem.Text" xml:space="preserve">
-    <value>Open a project</value>
-  </data>
-  <data name="PickFolderButton.Content" xml:space="preserve">
-    <value>Pick a folder</value>
-  </data>
-  <data name="SaveAsItem.Label" xml:space="preserve">
-    <value>Save a copy</value>
-  </data>
-  <data name="SaveAsItem.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Save a copy (Ctrl+Shift+S)</value>
-  </data>
-  <data name="SaveAsPickerDefaultName" xml:space="preserve">
-    <value>Copy of {0}</value>
-  </data>
-  <data name="SaveBtn.Label" xml:space="preserve">
-    <value>Save</value>
-  </data>
-  <data name="SaveBtn.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Save (Ctrl+S)</value>
-  </data>
-  <data name="SelectFolderMessage.Text" xml:space="preserve">
-    <value>Select a folder to browse for files</value>
+  <data name="OpenViewNavigationItem.Content" xml:space="preserve">
+    <value>Open (Ctrl+O)</value>
   </data>
   <data name="SettingsDisableSound.Header" xml:space="preserve">
     <value>Turn off sound effects</value>
@@ -245,18 +185,6 @@
   </data>
   <data name="Settings_General.Text" xml:space="preserve">
     <value>General</value>
-  </data>
-  <data name="ShareFileCaption" xml:space="preserve">
-    <value>{0} will be shared</value>
-  </data>
-  <data name="ShareFileTitle" xml:space="preserve">
-    <value>Sharing {0}</value>
-  </data>
-  <data name="ShareSelectionCaption" xml:space="preserve">
-    <value>Sharing current selection for {0}</value>
-  </data>
-  <data name="ShareSelectionTitle" xml:space="preserve">
-    <value>Sharing current selection</value>
   </data>
   <data name="SubscribeHyperlink.Content" xml:space="preserve">
     <value>Subscribe to Jaiganesh Useful Videos</value>
@@ -281,5 +209,11 @@
   </data>
   <data name="WelcomeText" xml:space="preserve">
     <value>Welcome!</value>
+  </data>
+  <data name="StartViewNavigationItem.Content" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="ClearSelectionBtn.Label" xml:space="preserve">
+    <value>Clear selection</value>
   </data>
 </root>

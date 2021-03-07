@@ -1,24 +1,25 @@
 ﻿#pragma once
-#include "App.h"
 #include "ShellViewModel.g.h"
 
 namespace winrt::Develop::implementation
 {
-    struct ShellViewModel : ShellViewModelT<ShellViewModel>
+    struct ShellViewModel : ShellViewModelT<ShellViewModel>, JUVStudios::MVVM::ViewModelBase
     {
         ShellViewModel();
+        static Develop::ShellViewModel Instance();
         Windows::Foundation::Collections::IObservableVector<Develop::ShellView> Instances();
-        void AddStorageItems(Windows::Foundation::Collections::IVectorView<Windows::Storage::IStorageItem2> const& sItems);
-        Windows::Foundation::IAsyncAction RemoveInstance(Develop::ShellView const view);
+        Windows::Foundation::IAsyncAction AddStorageItems(Windows::Foundation::Collections::IVectorView<Windows::Storage::IStorageItem2> const& sItems);
+        Windows::Foundation::IAsyncAction RemoveInstance(Develop::ShellView const& view);
+        bool TryCloseInstance(Develop::ShellView const& view);
+        void FastSwitch(bool reverse);
         uint32_t SelectedIndex();
         void SelectedIndex(uint32_t index);
-        ObservableReferenceProperty(Develop::ShellView, SelectedInstance, m_Bindable);
-        PropertyChangedHandler(m_Bindable);
+        JUVStudios::MVVM::ObservableProperty<Develop::ShellView> SelectedInstance { this, L"SelectedInstance", nullptr };
+    protected:
+        Windows::Foundation::IInspectable GetHolder() const noexcept override;
     private:
-        bool StorageItemOpen(Windows::Storage::IStorageItem2 const& item, ShellView* const foundItem);
-        void AddInstances(std::vector<ShellView> const& instances);
+        void AddInstances(array_view<ShellView> const& instances);
         Windows::Foundation::Collections::IObservableVector<Develop::ShellView> m_Instances;
-        const JUVStudios::BindableObject m_Bindable{ *this };
     };
 }
 

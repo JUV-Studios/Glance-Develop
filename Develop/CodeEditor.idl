@@ -1,13 +1,11 @@
-import "IAsyncClosable.idl";
-
 namespace Develop
 {
     [default_interface]
-    runtimeclass CodeEditor : Windows.UI.Xaml.Controls.UserControl, Windows.UI.Xaml.Data.INotifyPropertyChanged, IAsyncClosable
+    runtimeclass CodeEditor : Windows.UI.Xaml.Controls.UserControl, Windows.UI.Xaml.Data.INotifyPropertyChanged, JUVStudios.IAsyncClosable
     {
         CodeEditor(Windows.Storage.StorageFile file);
-        Windows.Storage.StorageFile WorkingFile { get; };
-        TextEditor.UI.SyntaxEditor TextView { get; };
         Boolean Saved { get; set; };
+        Boolean FileLoaded { get; set; };
+        TextEditor.UI.SyntaxEditor TextView { get; };
     }
 }

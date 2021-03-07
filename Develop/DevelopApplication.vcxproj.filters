@@ -4,17 +4,17 @@
     <ApplicationDefinition Include="App.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="MainPage.xaml" />
-    <Page Include="HomePage.xaml" />
-    <Page Include="SettingsView.xaml">
-      <Filter>HomeViews</Filter>
-    </Page>
     <Page Include="AboutDialog.xaml">
       <Filter>Dialogs</Filter>
     </Page>
-    <Page Include="CodeEditor.xaml" />
-    <Page Include="OpenPage.xaml">
-      <Filter>HomeViews</Filter>
+    <Page Include="CodeEditor.xaml">
+      <Filter>Views</Filter>
+    </Page>
+    <Page Include="HomePage.xaml">
+      <Filter>Views</Filter>
+    </Page>
+    <Page Include="MainPage.xaml">
+      <Filter>Views</Filter>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -32,20 +32,22 @@
     <Midl Include="SettingsViewModel.idl">
       <Filter>ViewModels</Filter>
     </Midl>
-    <Midl Include="IAsyncClosable.idl" />
-    <Midl Include="ListedStorageItem.idl">
-      <Filter>Models</Filter>
-    </Midl>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="App.cpp" />
     <ClCompile Include="MainPage.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="text_encoding_detect.cpp">
+      <Filter>TextEncodingDetect</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="Stopwatch.hpp" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="text_encoding_detect.h">
+      <Filter>TextEncodingDetect</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Wide310x150Logo.scale-200.png">
@@ -213,9 +215,6 @@
     <Image Include="Assets\WideTile.scale-400.png">
       <Filter>Assets</Filter>
     </Image>
-    <Image Include="Assets\icons8-file-48.png">
-      <Filter>Assets</Filter>
-    </Image>
     <Image Include="Assets\icons8-code-file-48.png">
       <Filter>Assets</Filter>
     </Image>
@@ -242,22 +241,23 @@
     <Filter Include="Models">
       <UniqueIdentifier>{f600a1f9-9524-4238-822f-04629fbd72cc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="HomeViews">
-      <UniqueIdentifier>{f520273c-3fcd-402d-bbb4-0f0bb09f6de6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Dialogs">
       <UniqueIdentifier>{a9d6bff1-a2ed-49e9-a825-60d5fff73e67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Views">
+      <UniqueIdentifier>{d1ebc562-f14d-4db0-86ec-e5b7ba017333}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TextEncodingDetect">
+      <UniqueIdentifier>{ea3ccfb9-e3d0-4ef9-8b78-aca459071668}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
     <None Include="packages.config" />
-    <None Include="Assets\FileTypes">
-      <Filter>Assets</Filter>
-    </None>
     <None Include="Assets\Develop.svg">
       <Filter>Assets</Filter>
     </None>
+    <None Include="Resource.aps" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="readme.txt" />
@@ -266,5 +266,8 @@
     <PRIResource Include="Strings\en-us\Resources.resw">
       <Filter>Strings\en-us</Filter>
     </PRIResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
 </Project>

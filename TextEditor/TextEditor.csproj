@@ -121,7 +121,6 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="UI\GoToDialog.cs" />
     <Compile Include="IndentationProvider.cs" />
     <Compile Include="Languages\CurlyBracesIndentationProvider.cs" />
     <Compile Include="Languages\LanguageProvider.cs" />

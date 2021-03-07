@@ -35,6 +35,6 @@ namespace winrt::Develop::implementation
 	void AboutDialog::BuiltonBlock_Loaded(IInspectable const& sender, RoutedEventArgs const&)
 	{
 		auto target = sender.as<TextBlock>();
-		if (target.Text().empty()) target.Text(JUVStudios::ResourceController::GetTranslation(L"BuiltOnBlock/Text") + L" " + TEXT(__TIMESTAMP__));
+		if (target.Text().empty()) target.Text(JUVStudios::Helpers::GetResourceTranslation(L"BuiltOnBlock/Text") + L" " + TEXT(__TIMESTAMP__));
 	}
 }

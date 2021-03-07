@@ -5,6 +5,7 @@
 #include "App.h"
 
 using namespace winrt;
+using namespace JUVStudios;
 using namespace Windows::Foundation;
 using namespace Windows::Storage;
 using namespace Windows::UI::Xaml;
@@ -17,7 +18,7 @@ namespace winrt::Develop::implementation
 
     hstring ShellView::Caption()
     {
-        if (m_ReferenceSource == nullptr) return JUVStudios::ResourceController::GetTranslation(L"WelcomeText");
+        if (m_ReferenceSource == nullptr) return Helpers::GetResourceTranslation(L"WelcomeText");
         else
         {
             if (m_Path.empty()) m_Path = std::filesystem::path(m_ReferenceSource.Path().data()).parent_path().c_str();

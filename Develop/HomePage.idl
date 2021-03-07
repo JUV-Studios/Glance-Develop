@@ -4,7 +4,6 @@ namespace Develop
     runtimeclass HomePage : Windows.UI.Xaml.Controls.UserControl
     {
         HomePage();
-        String OpenTitleId { get; };
         void SetPageIndex(UInt32 index);
     }
 }

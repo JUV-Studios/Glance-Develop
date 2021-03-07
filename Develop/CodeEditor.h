@@ -1,35 +1,42 @@
 ﻿#pragma once
-#include "pch.h"
 #include "CodeEditor.g.h"
-#include "App.h"
 
 namespace winrt::Develop::implementation
 {
-    struct CodeEditor : CodeEditorT<CodeEditor>
+    enum class LineEnding : uint8_t { CR, LF, CRLF, Unknown };
+
+    struct FileReadData
+    {
+        Windows::Security::Cryptography::BinaryStringEncoding StringEncoding;
+        LineEnding StringLineEnding;
+        hstring Text;
+    };
+
+    struct CodeEditor : CodeEditorT<CodeEditor>, JUVStudios::MVVM::ViewModelBase
     {
     private:
-        std::optional<JUVStudios::DetectedData> m_FileReadData;
-        const JUVStudios::BindableObject m_Bindable{ *this };
+        FileReadData m_FileReadData;
+        Windows::Storage::StorageFile m_WorkingFile { nullptr };
         bool m_Unloaded = true;
-        bool m_LoadSaveLock = false;
+        std::optional<event_token> m_KeyPressHandlerToken;
         void AfterUndoRedoInvoked(bool lastElem, hstring const& text, int index);
         bool TextChanged(hstring const& text, Windows::UI::Xaml::RoutedEventArgs const& args);
-        event_token m_KeyPressHandlerToken;
+        void KeyPressHandler(Windows::UI::Core::CoreDispatcher const& dispatcher, Windows::UI::Core::AcceleratorKeyEventArgs const& e);
         fire_and_forget LoadFileAsync();
-        Windows::Foundation::IAsyncAction SaveFileAsync();
+    protected:
+        Windows::Foundation::IInspectable GetHolder() const noexcept override;
     public:
         CodeEditor(Windows::Storage::StorageFile const& file);
-        bool PrepareClose();
+        bool StartClosing();
         Windows::Foundation::IAsyncAction CloseAsync();
-        void Close();
-        ObservablePrimitiveProperty(bool, Saved, m_Bindable);
-        ObservableReferenceProperty(Windows::Storage::StorageFile, WorkingFile, m_Bindable);
-        ObservableReferenceProperty(TextEditor::UI::SyntaxEditor, TextView, m_Bindable);
-        PropertyChangedHandler(m_Bindable);
-        void KeyPressHandler(Windows::UI::Core::CoreDispatcher const& sender, Windows::UI::Core::AcceleratorKeyEventArgs const& e);
-        void UserControl_Loaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Windows::UI::Xaml::RoutedEventArgs const& e);
-        void SaveFile_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Windows::UI::Xaml::RoutedEventArgs const& e);
-        void UserControl_Unloaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Windows::UI::Xaml::RoutedEventArgs const& e);
+        Windows::Foundation::IAsyncAction SaveFile_Click(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& e);
+        JUVStudios::MVVM::ObservableProperty<bool> Saved { this, L"Saved", true };
+        bool FileLoaded();
+        void FileLoaded(bool value);
+        void UserControl_Loaded(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& e);
+        void UserControl_Unloaded(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& e);
+        void StandardCommand_Loaded(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& e);
+        ~CodeEditor();
     };
 }
 

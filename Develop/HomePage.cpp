@@ -18,17 +18,10 @@ namespace winrt::Develop::implementation
 
     void HomePage::NavigationView_ItemInvoked(Microsoft::UI::Xaml::Controls::NavigationView const& sender, Microsoft::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs const& args)
     {
-        auto frame = sender.Content().as<Frame>();
-        if (args.IsSettingsInvoked()) frame.Navigate(xaml_typename<SettingsView>(), nullptr, DrillInNavigationTransitionInfo());
-        else if (args.InvokedItemContainer()) NavigateToPage(args.InvokedItemContainer());
     }
 
     void HomePage::NavigateToPage(Microsoft::UI::Xaml::Controls::NavigationViewItemBase const& item)
     {
-        Windows::UI::Xaml::Interop::TypeName pageTypeName;
-        pageTypeName.Name = unbox_value<hstring>(item.Tag());
-        pageTypeName.Kind = Windows::UI::Xaml::Interop::TypeKind::Primitive;
-        NavigationView().Content().as<Frame>().Navigate(pageTypeName, nullptr, DrillInNavigationTransitionInfo());
     }
 
     void HomePage::SetPageIndex(uint32_t index)
@@ -38,5 +31,8 @@ namespace winrt::Develop::implementation
         NavigateToPage(item);
     }
 
-    hstring HomePage::OpenTitleId() { return L"OpenPageTitle/Text"; }
+    void HomePage::UserControl_Loaded(IInspectable const&, RoutedEventArgs const&)
+    {
+        if (NavigationView().SelectedItem() == nullptr) SetPageIndex(0);
+    }
 }

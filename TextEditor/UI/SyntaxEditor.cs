@@ -25,11 +25,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using TextEditor.Lexer;
 using Windows.Foundation;
+using Windows.Security.Cryptography;
+using Windows.Storage;
+using Windows.Storage.Provider;
+using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Markup;
 
 namespace TextEditor.UI
 {
@@ -57,17 +62,23 @@ namespace TextEditor.UI
 
     public sealed class SyntaxEditor : RichEditBox, INotifyPropertyChanged, IDisposable
     {
+        private static string EditorStylesString;
+
         public SyntaxEditor()
         {
             // DefaultStyleKey = typeof(SyntaxEditor);
-            TextDocument.DefaultTabStop = 8;
+            TextDocument.DefaultTabStop = 4;
         }
 
-        public void Initialize(bool isRichText)
+        public IAsyncAction InitializeAsync(bool isRichText) => InitializeAsyncImpl(isRichText).AsAsyncAction();
+
+        private async Task InitializeAsyncImpl(bool isRichText)
         {
             // Set default settings
-            IsRichText = isRichText;
-            AttachEvents();
+            _IsRichText = isRichText;
+            TextChanged += Editor_TextChanged;
+            KeyDown += HandleTextViewKeyDown;
+            SelectionChanged += Editor_SelectionChanged;
             if (!isRichText)
             {
                 UndoStack = new();
@@ -78,6 +89,9 @@ namespace TextEditor.UI
                 DisabledFormattingAccelerators = DisabledFormattingAccelerators.All;
                 TextDocument.UndoLimit = 0;
             }
+
+            if (string.IsNullOrEmpty(EditorStylesString)) EditorStylesString = await PathIO.ReadTextAsync("ms-appx:///TextEditor/Themes/Styles.xaml");
+            Resources.MergedDictionaries.Add(XamlReader.Load(EditorStylesString) as ResourceDictionary);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -92,11 +106,7 @@ namespace TextEditor.UI
 
         private bool _IsRichText = true;
 
-        public bool IsRichText
-        {
-            get => _IsRichText;
-            private set => _IsRichText = value;
-        }
+        public bool IsRichText => _IsRichText;
 
         private async void HandleTextViewKeyDown(object sender, KeyRoutedEventArgs e)
         {
@@ -123,11 +133,6 @@ namespace TextEditor.UI
 
         private bool IsSelectionValidImpl(uint start, uint end) => start != end && !string.IsNullOrWhiteSpace(TextDocument.GetRange(Convert.ToInt32(start), Convert.ToInt32(end)).Text);
 
-        public static string NormalizeLineEndings(string text)
-        {
-            return text.Replace("\r\n", "\r").Replace("\n\r", "\r").Replace("\n", "\r").Replace("\r", "\r\n");
-        }
-
         public string Text
         {
             get
@@ -141,69 +146,84 @@ namespace TextEditor.UI
             }
         }
 
+        private readonly SemaphoreSlim WriteFileSemaphore = new(1, 1);
+
+        public IAsyncOperation<bool> WriteFileAsync(StorageFile file, BinaryStringEncoding encoding) => WriteFile(file, encoding).AsAsyncOperation();
+
+        private async Task<bool> WriteFile(StorageFile file, BinaryStringEncoding encoding)
+        {
+            await WriteFileSemaphore.WaitAsync();
+            bool result;
+            IRandomAccessStream stream = null;
+            try
+            {
+                CachedFileManager.DeferUpdates(file);
+                stream = await file.OpenAsync(FileAccessMode.ReadWrite);
+                if (_IsRichText) TextDocument.SaveToStream(TextGetOptions.UseCrlf, stream);
+                else
+                {
+                    await stream.WriteAsync(CryptographicBuffer.ConvertStringToBinary(Text, encoding));
+                    await stream.FlushAsync();
+                }
+
+                var writeResult = await CachedFileManager.CompleteUpdatesAsync(file);
+                if (writeResult != FileUpdateStatus.Complete) result = false;
+                else result = true;
+            }
+            catch
+            {
+                result = false;
+            }
+            finally
+            {
+                stream?.Dispose();
+            }
+
+            WriteFileSemaphore.Release();
+            return result;
+        }
+
         private static readonly string[] SplitValue = new string[] { "\r\n" };
 
         public int LinesCount => Text.TrimEnd().Split(SplitValue, StringSplitOptions.None).Length;
-
-        public bool AttachEvents()
-        {
-            TextChanged += Editor_TextChanged;
-            KeyDown += HandleTextViewKeyDown;
-            SelectionChanged += Editor_SelectionChanged;
-            return true;
-        }
 
         public AcceptTextChange TextChangeDelegate { get; set; }
 
         private void Editor_TextChanged(object sender, RoutedEventArgs e)
         {
             var text = Text;
-            if ((TextChangeDelegate?.Invoke(text, e)).GetValueOrDefault(false) && !IsRichText)
+            if ((TextChangeDelegate?.Invoke(text, e)).GetValueOrDefault(false) && !_IsRichText)
             {
                 UndoStack.Push(new(text, TextDocument.Selection.EndPosition));
                 UpdateHistoryProperties();
             }
         }
 
-        public bool DetachEvents()
+        public void DetachEvents()
         {
             SelectionChanged -= Editor_SelectionChanged;
             TextChanged -= Editor_TextChanged;
             KeyDown -= HandleTextViewKeyDown;
-            return true;
         }
 
         #endregion
 
         #region Highlighting
 
-        readonly CancellationTokenSource HighlightCancellation = new();
-
         bool HighlightLock = false;
 
-        public IAsyncOperation<bool> SyntaxHighlighting(IReadOnlyList<HighlightToken> tokens) => SyntaxHighlightingImpl(tokens, HighlightCancellation.Token).AsAsyncOperation();
-
-        private Task<bool> SyntaxHighlightingImpl(IReadOnlyList<HighlightToken> tokens, CancellationToken cancelToken)
+        public bool SyntaxHighlighting(IReadOnlyList<HighlightToken> tokens)
         {
-            if (tokens.Count <= 0 || HighlightLock) return Task.FromResult(false);
+            if (tokens.Count <= 0 || HighlightLock) return false;
             HighlightLock = true;
-            while (true)
+            foreach (var token in tokens)
             {
-                if (cancelToken.IsCancellationRequested) break;
-                else
-                {
-                    HighlightToken token;
-                    for (int i = 0; i < tokens.Count; i++)
-                    {
-                        token = tokens[i];
-                        var range = TextDocument.GetRange(token.StartIndex, Convert.ToInt32(token.StartIndex + token.Length));
-                        if (range.CharacterFormat.ForegroundColor != token.Colour) range.CharacterFormat.ForegroundColor = token.Colour;
-                    }
-                }
+                var range = TextDocument.GetRange(token.StartIndex, Convert.ToInt32(token.StartIndex + token.Length));
+                if (range.CharacterFormat.ForegroundColor != token.Colour) range.CharacterFormat.ForegroundColor = token.Colour;
             }
 
             HighlightLock = false;
-            return Task.FromResult(true);
+            return true;
         }
 
         #endregion
@@ -296,10 +316,7 @@ namespace TextEditor.UI
         public void Dispose()
         {
             DetachEvents();
-            HighlightCancellation.Cancel();
-            HighlightCancellation.Dispose();
-            TextChangeDelegate = null;
-            HistoryDone = null;
+            WriteFileSemaphore.Dispose();
             UndoStack?.Clear();
             RedoStack?.Clear();
             UndoStack = null;

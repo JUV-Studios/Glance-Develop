@@ -4,13 +4,17 @@
 #endif
 
 using namespace winrt;
+using namespace JUVStudios;
 using namespace Windows::Storage;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Data;
+using namespace Windows::Foundation;
 using namespace Windows::ApplicationModel;
 
 namespace winrt::Develop::implementation
 {
+	hstring m_AboutText;
+
 	Develop::SettingsViewModel instanceRef = nullptr;
 
 	Develop::SettingsViewModel SettingsViewModel::Instance()
@@ -19,60 +23,73 @@ namespace winrt::Develop::implementation
 		return instanceRef;
 	}
 
-	event_token SettingsViewModel::PropertyChanged(PropertyChangedEventHandler const& handler) { return m_PropertyChanged.add(handler); }
-
-	void SettingsViewModel::PropertyChanged(event_token const& token) noexcept { m_PropertyChanged.remove(token); }
-
 	hstring SettingsViewModel::AboutText()
 	{
-		auto packageVersion = Package::Current().Id().Version();
-		std::wstringstream versionString;
-		versionString << JUVStudios::ResourceController::GetTranslation(L"VersionText").data() << L" ";
-		versionString << packageVersion.Major << L".";
-		versionString << packageVersion.Minor << L".";
-		versionString << packageVersion.Build << L".";
-		versionString << packageVersion.Revision << "\r";
-		return (L"Develop\r" + versionString.str() + JUVStudios::ResourceController::GetTranslation(L"DevelopedBlock/Text").data() + L"\r" + JUVStudios::ResourceController::GetTranslation(L"CopyrightBlock/Text").data()).c_str();
+		if (m_AboutText.empty())
+		{
+			auto packageVersion = Package::Current().Id().Version();
+			auto versionString = Helpers::IndexStringFormat(L"{0}.{1}.{2}.{3}",
+				{
+					box_value(packageVersion.Major),
+					box_value(packageVersion.Minor),
+					box_value(packageVersion.Build),
+					box_value(packageVersion.Revision)
+				});
+
+			m_AboutText = Helpers::IndexStringFormat(L"Develop\r{0}\r{1}\r{2}",
+				{
+					box_value(versionString),
+					box_value(Helpers::GetResourceTranslation(L"DevelopedBlock/Text")),
+					box_value(Helpers::GetResourceTranslation(L"CopyrightBlock/Text"))
+				});
+		}
+
+		return m_AboutText;
 	}
 
 	hstring SettingsViewModel::FontFamily()
 	{
-		return unbox_value<hstring>(JUVStudios::Helpers::GetAppSetting(wnameof(FontFamily), box_value(L"Consolas")));
+		return unbox_value<hstring>(Helpers::GetAppSetting(L"FontFamily", box_value(L"Consolas")));
 	}
 
 	void SettingsViewModel::FontFamily(hstring const& value)
 	{
-		ApplicationData::Current().LocalSettings().Values().Insert(wnameof(FontFamily), box_value(value));
+		ApplicationData::Current().LocalSettings().Values().Insert(L"FontFamily", box_value(value));
 	}
 
 	uint32_t SettingsViewModel::FontSize()
 	{
-		return unbox_value<uint32_t>(JUVStudios::Helpers::GetAppSetting(wnameof(FontSize), box_value(18u)));
+		return unbox_value<uint32_t>(Helpers::GetAppSetting(L"FontSize", box_value(18u)));
 	}
 
 	void SettingsViewModel::FontSize(uint32_t value)
 	{
-		ApplicationData::Current().LocalSettings().Values().Insert(wnameof(FontSize), box_value(value));
+		ApplicationData::Current().LocalSettings().Values().Insert(L"FontSize", box_value(value));
 	}
 
 	bool SettingsViewModel::AutoSave()
 	{
-		return unbox_value<bool>(JUVStudios::Helpers::GetAppSetting(wnameof(AutoSave), box_value(false)));
+		return unbox_value<bool>(Helpers::GetAppSetting(L"AutoSave", box_value(false)));
 	}
 
 	void SettingsViewModel::AutoSave(bool value)
 	{
-		ApplicationData::Current().LocalSettings().Values().Insert(wnameof(AutoSave), box_value(value));
+		ApplicationData::Current().LocalSettings().Values().Insert(L"AutoSave", box_value(value));
 	}
 
 	bool SettingsViewModel::DisableSound()
 	{
-		return unbox_value<bool>(JUVStudios::Helpers::GetAppSetting(wnameof(DisableSound), box_value(false)));
+		return unbox_value<bool>(Helpers::GetAppSetting(L"DisableSound", box_value(false)));
 	}
 
 	void SettingsViewModel::DisableSound(bool value)
 	{
-		ApplicationData::Current().LocalSettings().Values().Insert(wnameof(DisableSound), box_value(value));
+		ApplicationData::Current().LocalSettings().Values().Insert(L"DisableSound", box_value(value));
 		ElementSoundPlayer::State(value ? ElementSoundPlayerState::Off : ElementSoundPlayerState::On);
+	}
+
+	IInspectable SettingsViewModel::GetHolder() const noexcept
+	{
+		return *this;
 	}
 }

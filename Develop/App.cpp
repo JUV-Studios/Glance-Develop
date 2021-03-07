@@ -1,6 +1,7 @@
 ﻿#include "App.h"
 
 using namespace winrt;
+using namespace JUVStudios;
 using namespace Windows::ApplicationModel;
 using namespace Windows::ApplicationModel::Activation;
 using namespace Windows::Foundation;
@@ -53,15 +54,22 @@ void App::OnSuspending([[maybe_unused]] IInspectable const& sender, [[maybe_unus
 
 fire_and_forget App::ActivateAppAsync(IActivatedEventArgs args)
 {
-    MainPage mainPage{ nullptr };
     if (Window::Current().Content() == nullptr)
     {
-        mainPage = MainPage();
-        Window::Current().Content(mainPage);
+        Window::Current().Content(MainPage());
         co_await AppSettings::InitializeAsync();
     }
-    else mainPage = Window::Current().Content().as<MainPage>();
-    FileActivatedEventArgs fileArgs{ nullptr };
-    if (args.try_as(fileArgs)) mainPage.ViewModel().AddStorageItems(JUVStudios::CollectionAs<IStorageItem2>(fileArgs.Files()).GetView());
+
+    FileActivatedEventArgs fileArgs = nullptr;
+    if (args.try_as(fileArgs))
+    {
+        auto files = Select<IStorageItem, IStorageItem2>(fileArgs.Files(), [](auto&& item)
+            {
+                return item.as<IStorageItem2>();
+            });
+
+        co_await ShellViewModel::Instance().AddStorageItems(files.GetView());
+    }
+
     Window::Current().Activate();
 }

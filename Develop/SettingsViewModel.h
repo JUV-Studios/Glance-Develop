@@ -1,10 +1,9 @@
 ﻿#pragma once
-#include "App.h"
 #include "SettingsViewModel.g.h"
 
 namespace winrt::Develop::implementation
 {
-    struct SettingsViewModel : SettingsViewModelT<SettingsViewModel>
+    struct SettingsViewModel : SettingsViewModelT<SettingsViewModel>, JUVStudios::MVVM::ViewModelBase
     {
         SettingsViewModel() = default;
         static Develop::SettingsViewModel Instance();
@@ -17,10 +16,8 @@ namespace winrt::Develop::implementation
         void AutoSave(bool value);
         bool DisableSound();
         void DisableSound(bool value);
-        event_token PropertyChanged(Windows::UI::Xaml::Data::PropertyChangedEventHandler const& handler);
-        void PropertyChanged(event_token const& token) noexcept;
-    private:
-        event<Windows::UI::Xaml::Data::PropertyChangedEventHandler> m_PropertyChanged;
+    protected:
+        Windows::Foundation::IInspectable GetHolder() const noexcept override;
     };
 }
 

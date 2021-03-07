@@ -6,6 +6,7 @@
     xmlns:local="using:Develop"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    Loaded="UserControl_Loaded"
     mc:Ignorable="d">
 
     <muxc:NavigationView
@@ -19,11 +20,16 @@
         PaneDisplayMode="Auto"
         PaneTitle="Develop">
         <muxc:NavigationView.MenuItems>
+            <muxc:NavigationViewItem x:Uid="StartViewNavigationItem" Tag="Develop.StartView">
+                <muxc:NavigationViewItem.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xECA5;" />
+                </muxc:NavigationViewItem.Icon>
+            </muxc:NavigationViewItem>
             <muxc:NavigationViewItem
-                Content="{x:Bind OpenTitleId, Converter={StaticResource ResourceLocator}, Mode=OneTime}"
+                x:Uid="OpenViewNavigationItem"
                 Icon="OpenFile"
-                Tag="Develop.OpenPage" />
+                Tag="Develop.OpenView" />
         </muxc:NavigationView.MenuItems>
-        <Frame Background="{ThemeResource MaterialPageBackground}" />
+        <FlipView Background="{ThemeResource MaterialPageBackground}" />
     </muxc:NavigationView>
 </UserControl>

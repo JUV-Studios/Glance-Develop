@@ -6,8 +6,7 @@ namespace Develop
     runtimeclass MainPage : Windows.UI.Xaml.Controls.UserControl
     {
         MainPage();
-        Windows.ApplicationModel.Core.CoreApplicationView AppView { get; };
-        ShellViewModel ViewModel { get; };
-        String JoinDiscordServerId { get; };
+        void GoOpen();
+        void GoStart();
     }
 }

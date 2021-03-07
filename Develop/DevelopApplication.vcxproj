@@ -108,18 +108,19 @@
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">stdcpplatest</LanguageStandard>
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stdcpplatest</LanguageStandard>
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdcpplatest</LanguageStandard>
-      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
-      </ForcedIncludeFiles>
-      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-      </ForcedIncludeFiles>
-      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">pch.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">pch.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pch.h</ForcedIncludeFiles>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</ForcedIncludeFiles>
       <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</PreprocessToFile>
       <EnableFiberSafeOptimizations Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</EnableFiberSafeOptimizations>
       <EnableFiberSafeOptimizations Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</EnableFiberSafeOptimizations>
       <EnableFiberSafeOptimizations Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</EnableFiberSafeOptimizations>
       <EnableFiberSafeOptimizations Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</EnableFiberSafeOptimizations>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
@@ -133,18 +134,18 @@
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">stdcpplatest</LanguageStandard>
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdcpplatest</LanguageStandard>
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdcpplatest</LanguageStandard>
-      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-      </ForcedIncludeFiles>
-      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-      </ForcedIncludeFiles>
-      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </ForcedIncludeFiles>
-      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">pch.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">pch.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">pch.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</ForcedIncludeFiles>
       <EnableFiberSafeOptimizations Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</EnableFiberSafeOptimizations>
       <EnableFiberSafeOptimizations Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</EnableFiberSafeOptimizations>
       <EnableFiberSafeOptimizations Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</EnableFiberSafeOptimizations>
       <EnableFiberSafeOptimizations Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</EnableFiberSafeOptimizations>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -168,14 +169,6 @@
       <DependentUpon>HomePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="ListedStorageItem.h">
-      <DependentUpon>ListedStorageItem.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClInclude>
-    <ClInclude Include="OpenPage.h">
-      <DependentUpon>OpenPage.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </ClInclude>
     <ClInclude Include="pch.h" />
     <ClInclude Include="App.h">
       <DependentUpon>App.xaml</DependentUpon>
@@ -183,10 +176,7 @@
     <ClInclude Include="MainPage.h">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </ClInclude>
-    <ClInclude Include="SettingsView.h">
-      <DependentUpon>SettingsView.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </ClInclude>
+    <ClInclude Include="resource.h" />
     <ClInclude Include="SettingsViewModel.h">
       <DependentUpon>SettingsViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -199,7 +189,7 @@
       <DependentUpon>ShellViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="Stopwatch.hpp" />
+    <ClInclude Include="text_encoding_detect.h" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -217,12 +207,6 @@
     <Page Include="MainPage.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="OpenPage.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="SettingsView.xaml">
-      <SubType>Designer</SubType>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -232,7 +216,6 @@
   <ItemGroup>
     <Image Include="Assets\Develop.png" />
     <Image Include="Assets\icons8-code-file-48.png" />
-    <Image Include="Assets\icons8-file-48.png" />
     <Image Include="Assets\LargeTile.scale-100.png" />
     <Image Include="Assets\LargeTile.scale-125.png" />
     <Image Include="Assets\LargeTile.scale-150.png" />
@@ -322,14 +305,6 @@
       <DependentUpon>HomePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="ListedStorageItem.cpp">
-      <DependentUpon>ListedStorageItem.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClCompile>
-    <ClCompile Include="OpenPage.cpp">
-      <DependentUpon>OpenPage.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </ClCompile>
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
@@ -340,10 +315,6 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
-    <ClCompile Include="SettingsView.cpp">
-      <DependentUpon>SettingsView.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </ClCompile>
     <ClCompile Include="SettingsViewModel.cpp">
       <DependentUpon>SettingsViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -356,6 +327,7 @@
       <DependentUpon>ShellViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="text_encoding_detect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="AboutDialog.idl">
@@ -376,20 +348,8 @@
       <DependentUpon>HomePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Midl>
-    <Midl Include="IAsyncClosable.idl" />
-    <Midl Include="ListedStorageItem.idl">
-      <SubType>Designer</SubType>
-    </Midl>
     <Midl Include="MainPage.idl">
       <DependentUpon>MainPage.xaml</DependentUpon>
-    </Midl>
-    <Midl Include="OpenPage.idl">
-      <DependentUpon>OpenPage.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Midl>
-    <Midl Include="SettingsView.idl">
-      <DependentUpon>SettingsView.xaml</DependentUpon>
-      <SubType>Code</SubType>
     </Midl>
     <Midl Include="SettingsViewModel.idl">
       <SubType>Designer</SubType>
@@ -405,11 +365,9 @@
     <None Include="Assets\Develop.svg">
       <DeploymentContent>true</DeploymentContent>
     </None>
-    <None Include="Assets\FileTypes">
-      <DeploymentContent>true</DeploymentContent>
-    </None>
     <None Include="packages.config" />
     <None Include="PropertySheet.props" />
+    <None Include="Resource.aps" />
     <Text Include="readme.txt">
       <DeploymentContent>false</DeploymentContent>
     </Text>
@@ -422,6 +380,9 @@
       <Project>{2c931298-eef0-4dce-8b23-09735edff721}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
   <ItemDefinitionGroup>
     <Reference>
       <Private Condition="'$(ConfigurationType)' != 'Application'">false</Private>
@@ -429,19 +390,17 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\Microsoft.Windows.CppWinRT.2.0.210211.2\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.210211.2\build\native\Microsoft.Windows.CppWinRT.targets')" />
     <Import Project="..\packages\Microsoft.UI.Xaml.2.6.0-prerelease.210217002\build\native\Microsoft.UI.Xaml.targets" Condition="Exists('..\packages\Microsoft.UI.Xaml.2.6.0-prerelease.210217002\build\native\Microsoft.UI.Xaml.targets')" />
-    <Import Project="..\packages\Microsoft.Toolkit.Uwp.Notifications.6.1.1\build\native\Microsoft.Toolkit.Uwp.Notifications.targets" Condition="Exists('..\packages\Microsoft.Toolkit.Uwp.Notifications.6.1.1\build\native\Microsoft.Toolkit.Uwp.Notifications.targets')" />
-    <Import Project="..\packages\JUVStudios.0.0.3.1\build\native\JUVStudios.targets" Condition="Exists('..\packages\JUVStudios.0.0.3.1\build\native\JUVStudios.targets')" />
+    <Import Project="..\packages\Microsoft.Windows.CppWinRT.2.0.210211.2\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.210211.2\build\native\Microsoft.Windows.CppWinRT.targets')" />
+    <Import Project="..\packages\JUVStudios.Native.0.0.0.4\build\native\JUVStudios.Native.targets" Condition="Exists('..\packages\JUVStudios.Native.0.0.0.4\build\native\JUVStudios.Native.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.UI.Xaml.2.6.0-prerelease.210217002\build\native\Microsoft.UI.Xaml.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.UI.Xaml.2.6.0-prerelease.210217002\build\native\Microsoft.UI.Xaml.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.210211.2\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.CppWinRT.2.0.210211.2\build\native\Microsoft.Windows.CppWinRT.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.210211.2\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.CppWinRT.2.0.210211.2\build\native\Microsoft.Windows.CppWinRT.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.UI.Xaml.2.6.0-prerelease.210217002\build\native\Microsoft.UI.Xaml.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.UI.Xaml.2.6.0-prerelease.210217002\build\native\Microsoft.UI.Xaml.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.Toolkit.Uwp.Notifications.6.1.1\build\native\Microsoft.Toolkit.Uwp.Notifications.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Toolkit.Uwp.Notifications.6.1.1\build\native\Microsoft.Toolkit.Uwp.Notifications.targets'))" />
-    <Error Condition="!Exists('..\packages\JUVStudios.0.0.3.1\build\native\JUVStudios.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JUVStudios.0.0.3.1\build\native\JUVStudios.targets'))" />
+    <Error Condition="!Exists('..\packages\JUVStudios.Native.0.0.0.4\build\native\JUVStudios.Native.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JUVStudios.Native.0.0.0.4\build\native\JUVStudios.Native.targets'))" />
   </Target>
 </Project>
