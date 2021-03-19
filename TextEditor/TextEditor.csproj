@@ -106,6 +106,8 @@
     <DebugType>full</DebugType>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
+    <Optimize>false</Optimize>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <PlatformTarget>x64</PlatformTarget>
@@ -133,23 +135,12 @@
     <Compile Include="SyntaxLanguage.cs" />
     <Compile Include="UI\SyntaxEditor.cs" />
     <Compile Include="UI\SyntaxViewer.cs" />
+    <Compile Include="Utils\TextEncodingDetect.cs" />
     <EmbeddedResource Include="Properties\TextEditorUWP.rd.xml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ColorCode.Core">
-      <Version>2.0.6</Version>
-    </PackageReference>
-    <PackageReference Include="ColorCode.UWP">
-      <Version>2.0.6</Version>
-    </PackageReference>
-    <PackageReference Include="JUVStudios">
-      <Version>0.0.3</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.12</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Toolkit.HighPerformance">
-      <Version>6.1.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemDefinitionGroup>
@@ -166,11 +157,25 @@
       <Generator>MSBuild:Compile</Generator>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Shared.vbproj">
+      <Project>{7f0b5d6a-8982-4eda-b4df-89d95e9ca9f1}</Project>
+      <Name>Shared</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

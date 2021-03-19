@@ -122,6 +122,18 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Link>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Link>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Link>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
@@ -150,23 +162,32 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup>
+    <Reference>
+      <Private Condition="'$(ConfigurationType)' != 'Application'">false</Private>
+    </Reference>
+  </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AboutDialog.h">
-      <DependentUpon>AboutDialog.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </ClInclude>
-    <ClInclude Include="AppSettings.h">
-      <DependentUpon>AppSettings.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClInclude>
     <ClInclude Include="CodeEditor.h">
       <DependentUpon>CodeEditor.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="HomePage.h">
       <DependentUpon>HomePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="SettingsPage.h">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="StartPage.h">
+      <DependentUpon>StartPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="pch.h" />
@@ -176,11 +197,6 @@
     <ClInclude Include="MainPage.h">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </ClInclude>
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="SettingsViewModel.h">
-      <DependentUpon>SettingsViewModel.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClInclude>
     <ClInclude Include="ShellView.h">
       <DependentUpon>ShellView.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -189,19 +205,22 @@
       <DependentUpon>ShellViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="text_encoding_detect.h" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="AboutDialog.xaml">
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="CodeEditor.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="HomePage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="HubStyles.xaml" />
+    <Page Include="SettingsPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="StartPage.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="MainPage.xaml">
@@ -289,20 +308,20 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AboutDialog.cpp">
-      <DependentUpon>AboutDialog.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </ClCompile>
-    <ClCompile Include="AppSettings.cpp">
-      <DependentUpon>AppSettings.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClCompile>
     <ClCompile Include="CodeEditor.cpp">
       <DependentUpon>CodeEditor.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="HomePage.cpp">
       <DependentUpon>HomePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="SettingsPage.cpp">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="StartPage.cpp">
+      <DependentUpon>StartPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="pch.cpp">
@@ -315,10 +334,6 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
-    <ClCompile Include="SettingsViewModel.cpp">
-      <DependentUpon>SettingsViewModel.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClCompile>
     <ClCompile Include="ShellView.cpp">
       <DependentUpon>ShellView.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -327,18 +342,10 @@
       <DependentUpon>ShellViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="text_encoding_detect.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="AboutDialog.idl">
-      <DependentUpon>AboutDialog.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Midl>
     <Midl Include="App.idl">
       <DependentUpon>App.xaml</DependentUpon>
-    </Midl>
-    <Midl Include="AppSettings.idl">
-      <SubType>Designer</SubType>
     </Midl>
     <Midl Include="CodeEditor.idl">
       <DependentUpon>CodeEditor.xaml</DependentUpon>
@@ -348,11 +355,16 @@
       <DependentUpon>HomePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Midl>
+    <Midl Include="SettingsPage.idl">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
+    <Midl Include="StartPage.idl">
+      <DependentUpon>StartPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
     <Midl Include="MainPage.idl">
       <DependentUpon>MainPage.xaml</DependentUpon>
-    </Midl>
-    <Midl Include="SettingsViewModel.idl">
-      <SubType>Designer</SubType>
     </Midl>
     <Midl Include="ShellView.idl">
       <SubType>Designer</SubType>
@@ -367,7 +379,6 @@
     </None>
     <None Include="packages.config" />
     <None Include="PropertySheet.props" />
-    <None Include="Resource.aps" />
     <Text Include="readme.txt">
       <DeploymentContent>false</DeploymentContent>
     </Text>
@@ -376,12 +387,12 @@
     <PRIResource Include="Strings\en-us\Resources.resw" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Shared\Shared.vbproj">
+      <Project>{7f0b5d6a-8982-4eda-b4df-89d95e9ca9f1}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\TextEditor\TextEditor.csproj">
       <Project>{2c931298-eef0-4dce-8b23-09735edff721}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <ItemDefinitionGroup>
     <Reference>
@@ -392,7 +403,6 @@
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\Microsoft.UI.Xaml.2.6.0-prerelease.210217002\build\native\Microsoft.UI.Xaml.targets" Condition="Exists('..\packages\Microsoft.UI.Xaml.2.6.0-prerelease.210217002\build\native\Microsoft.UI.Xaml.targets')" />
     <Import Project="..\packages\Microsoft.Windows.CppWinRT.2.0.210211.2\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.210211.2\build\native\Microsoft.Windows.CppWinRT.targets')" />
-    <Import Project="..\packages\JUVStudios.Native.0.0.0.4\build\native\JUVStudios.Native.targets" Condition="Exists('..\packages\JUVStudios.Native.0.0.0.4\build\native\JUVStudios.Native.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -401,6 +411,5 @@
     <Error Condition="!Exists('..\packages\Microsoft.UI.Xaml.2.6.0-prerelease.210217002\build\native\Microsoft.UI.Xaml.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.UI.Xaml.2.6.0-prerelease.210217002\build\native\Microsoft.UI.Xaml.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.210211.2\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.CppWinRT.2.0.210211.2\build\native\Microsoft.Windows.CppWinRT.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.210211.2\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.CppWinRT.2.0.210211.2\build\native\Microsoft.Windows.CppWinRT.targets'))" />
-    <Error Condition="!Exists('..\packages\JUVStudios.Native.0.0.0.4\build\native\JUVStudios.Native.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JUVStudios.Native.0.0.0.4\build\native\JUVStudios.Native.targets'))" />
   </Target>
 </Project>

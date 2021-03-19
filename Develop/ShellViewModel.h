@@ -3,7 +3,7 @@
 
 namespace winrt::Develop::implementation
 {
-    struct ShellViewModel : ShellViewModelT<ShellViewModel>, JUVStudios::MVVM::ViewModelBase
+    struct ShellViewModel : ShellViewModelT<ShellViewModel>
     {
         ShellViewModel();
         static Develop::ShellViewModel Instance();
@@ -12,14 +12,19 @@ namespace winrt::Develop::implementation
         Windows::Foundation::IAsyncAction RemoveInstance(Develop::ShellView const& view);
         bool TryCloseInstance(Develop::ShellView const& view);
         void FastSwitch(bool reverse);
+        Develop::ShellView SelectedInstance();
+        void SelectedInstance(Develop::ShellView const& value);
         uint32_t SelectedIndex();
         void SelectedIndex(uint32_t index);
-        JUVStudios::MVVM::ObservableProperty<Develop::ShellView> SelectedInstance { this, L"SelectedInstance", nullptr };
-    protected:
-        Windows::Foundation::IInspectable GetHolder() const noexcept override;
+        event_token PropertyChanged(Windows::UI::Xaml::Data::PropertyChangedEventHandler const& handler) noexcept;
+        void PropertyChanged(event_token token) noexcept;
     private:
         void AddInstances(array_view<ShellView> const& instances);
-        Windows::Foundation::Collections::IObservableVector<Develop::ShellView> m_Instances;
+        ShellView FindInstance(Windows::Storage::IStorageItem2 const& refSource);
+        Develop::ShellView m_StartTab = nullptr;
+        Develop::ShellView m_SelectedInstance = nullptr;
+        Windows::Foundation::Collections::IObservableVector<Develop::ShellView> m_Instances = single_threaded_observable_vector<Develop::ShellView>();
+        event<Windows::UI::Xaml::Data::PropertyChangedEventHandler> m_PropertyChanged;
     };
 }
 

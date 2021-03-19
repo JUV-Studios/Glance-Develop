@@ -117,8 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AboutDialog.Title" xml:space="preserve">
-    <value>About this application</value>
+  <data name="Settings_About.Header" xml:space="preserve">
+    <value>About this app</value>
   </data>
   <data name="BuiltOnBlock.Text" xml:space="preserve">
     <value>Built on</value>
@@ -132,64 +132,16 @@
   <data name="DevelopedBlock.Text" xml:space="preserve">
     <value>Developed by Jaiganesh Kumaran</value>
   </data>
-  <data name="EditorSettingsAutoSave.Header" xml:space="preserve">
-    <value>Automatically save when I make changes</value>
-  </data>
-  <data name="EditorSettingsManageFontsList.Content" xml:space="preserve">
-    <value>Manage installed fonts</value>
-  </data>
-  <data name="EncodingBox.AutomationProperties.Name" xml:space="preserve">
-    <value>Text encoding</value>
-  </data>
-  <data name="FontOption.Header" xml:space="preserve">
-    <value>Font family</value>
-  </data>
-  <data name="FontSizeOption.Header" xml:space="preserve">
-    <value>Font size</value>
-  </data>
-  <data name="GoToDialog.PrimaryButtonText" xml:space="preserve">
-    <value>Go!</value>
-  </data>
-  <data name="GoToExtendCheckBox.Content" xml:space="preserve">
-    <value>Select the entire line instead of moving text cursor</value>
-  </data>
-  <data name="GoToLineBox.Header" xml:space="preserve">
-    <value>Where to go?</value>
-  </data>
-  <data name="GoToLineBox.Placeholder" xml:space="preserve">
-    <value>Line number</value>
-  </data>
-  <data name="GoToOption.Title" xml:space="preserve">
-    <value>Go to line</value>
-  </data>
-  <data name="HomePage.Header" xml:space="preserve">
-    <value>Home</value>
-  </data>
   <data name="JoinDiscordServerLink.Content" xml:space="preserve">
     <value>Join our Discord server</value>
   </data>
   <data name="OkayText" xml:space="preserve">
     <value>Okay</value>
   </data>
-  <data name="OpenViewNavigationItem.Content" xml:space="preserve">
-    <value>Open (Ctrl+O)</value>
-  </data>
-  <data name="SettingsDisableSound.Header" xml:space="preserve">
-    <value>Turn off sound effects</value>
-  </data>
-  <data name="SettingsHub.AutomationProperties.Name" xml:space="preserve">
-    <value>Settings</value>
-  </data>
-  <data name="Settings_Editor.Text" xml:space="preserve">
-    <value>Editor options</value>
-  </data>
-  <data name="Settings_General.Text" xml:space="preserve">
-    <value>General</value>
-  </data>
   <data name="SubscribeHyperlink.Content" xml:space="preserve">
     <value>Subscribe to Jaiganesh Useful Videos</value>
   </data>
-  <data name="TabsList.AutomationProperties.Name" xml:space="preserve">
+  <data name="TabsView.AutomationProperties.Name" xml:space="preserve">
     <value>Tabs</value>
   </data>
   <data name="TermsOfUseHyperlink.Content" xml:space="preserve">
@@ -210,10 +162,40 @@
   <data name="WelcomeText" xml:space="preserve">
     <value>Welcome!</value>
   </data>
-  <data name="StartViewNavigationItem.Content" xml:space="preserve">
-    <value>Start</value>
-  </data>
   <data name="ClearSelectionBtn.Label" xml:space="preserve">
     <value>Clear selection</value>
+  </data>
+  <data name="EncodingBox.AutomationProperties.Name" xml:space="preserve">
+    <value>Text encoding</value>
+  </data>
+  <data name="StartPageTitle" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="DisableSoundEffects_Switch.Header" xml:space="preserve">
+    <value>Disable sound effects</value>
+  </data>
+  <data name="HomeNavigationItem.Content" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Home_GettingStarted.Header" xml:space="preserve">
+    <value>Getting started</value>
+  </data>
+  <data name="SettingsHub.Header" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Settings_General.Header" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="AppTheme_Radio.Header" xml:space="preserve">
+    <value>App theme</value>
+  </data>
+  <data name="ThemeDark.Content" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="ThemeDefault.Content" xml:space="preserve">
+    <value>Windows default</value>
+  </data>
+  <data name="ThemeLight.Content" xml:space="preserve">
+    <value>Light</value>
   </data>
 </root>

@@ -1,0 +1,8 @@
+namespace Develop
+{
+    [default_interface]
+    runtimeclass StartPage : Windows.UI.Xaml.Controls.UserControl
+    {
+        StartPage();
+    }
+}

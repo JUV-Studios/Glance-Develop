@@ -1,11 +1,10 @@
 namespace Develop
 {
     [default_interface]
-    runtimeclass CodeEditor : Windows.UI.Xaml.Controls.UserControl, Windows.UI.Xaml.Data.INotifyPropertyChanged, JUVStudios.IAsyncClosable
+    runtimeclass CodeEditor : Windows.UI.Xaml.Controls.UserControl, Windows.UI.Xaml.Data.INotifyPropertyChanged, Shared.IAsyncClosable
     {
         CodeEditor(Windows.Storage.StorageFile file);
-        Boolean Saved { get; set; };
-        Boolean FileLoaded { get; set; };
-        TextEditor.UI.SyntaxEditor TextView { get; };
+        Windows.Storage.StorageFile WorkingFile { get; };
+        Boolean Saved;
     }
 }

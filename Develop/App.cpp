@@ -1,7 +1,8 @@
 ﻿#include "App.h"
+#include <winrt/Shared.h>
 
 using namespace winrt;
-using namespace JUVStudios;
+using namespace Shared;
 using namespace Windows::ApplicationModel;
 using namespace Windows::ApplicationModel::Activation;
 using namespace Windows::Foundation;
@@ -19,7 +20,10 @@ using namespace Develop::implementation;
 /// </summary>
 App::App()
 {
+
     InitializeComponent();
+    auto themeValue = AppSettings::Preferences().AppThemeIndex();
+    if (themeValue < 2) RequestedTheme(static_cast<ApplicationTheme>(themeValue));
     Suspending({ this, &App::OnSuspending });
 
 #if defined _DEBUG && !defined DISABLE_XAML_GENERATED_BREAK_ON_UNHANDLED_EXCEPTION
@@ -54,21 +58,14 @@ void App::OnSuspending([[maybe_unused]] IInspectable const& sender, [[maybe_unus
 
 fire_and_forget App::ActivateAppAsync(IActivatedEventArgs args)
 {
-    if (Window::Current().Content() == nullptr)
-    {
-        Window::Current().Content(MainPage());
-        co_await AppSettings::InitializeAsync();
-    }
-
+    if (Window::Current().Content() == nullptr) Window::Current().Content(MainPage());
     FileActivatedEventArgs fileArgs = nullptr;
     if (args.try_as(fileArgs))
     {
-        auto files = Select<IStorageItem, IStorageItem2>(fileArgs.Files(), [](auto&& item)
-            {
-                return item.as<IStorageItem2>();
-            });
-
-        co_await ShellViewModel::Instance().AddStorageItems(files.GetView());
+        std::vector<IStorageItem2> files;
+        files.reserve(fileArgs.Files().Size());
+        for (auto&& file : fileArgs.Files()) files.push_back(file.as<IStorageItem2>());
+        co_await ShellViewModel::Instance().AddStorageItems(std::move(files));
     }
 
     Window::Current().Activate();

@@ -4,33 +4,33 @@
     <ApplicationDefinition Include="App.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="AboutDialog.xaml">
-      <Filter>Dialogs</Filter>
-    </Page>
     <Page Include="CodeEditor.xaml">
       <Filter>Views</Filter>
     </Page>
-    <Page Include="HomePage.xaml">
+    <Page Include="StartPage.xaml">
       <Filter>Views</Filter>
     </Page>
     <Page Include="MainPage.xaml">
       <Filter>Views</Filter>
     </Page>
+    <Page Include="HubStyles.xaml">
+      <Filter>Views\StartExperience</Filter>
+    </Page>
+    <Page Include="HomePage.xaml">
+      <Filter>Views\StartExperience</Filter>
+    </Page>
+    <Page Include="SettingsPage.xaml">
+      <Filter>Views\StartExperience</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="App.idl" />
     <Midl Include="MainPage.idl" />
-    <Midl Include="AppSettings.idl">
-      <Filter>ViewModels</Filter>
-    </Midl>
     <Midl Include="ShellViewModel.idl">
       <Filter>ViewModels</Filter>
     </Midl>
     <Midl Include="ShellView.idl">
       <Filter>Models</Filter>
-    </Midl>
-    <Midl Include="SettingsViewModel.idl">
-      <Filter>ViewModels</Filter>
     </Midl>
   </ItemGroup>
   <ItemGroup>
@@ -38,16 +38,9 @@
     <ClCompile Include="App.cpp" />
     <ClCompile Include="MainPage.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
-    <ClCompile Include="text_encoding_detect.cpp">
-      <Filter>TextEncodingDetect</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="text_encoding_detect.h">
-      <Filter>TextEncodingDetect</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Wide310x150Logo.scale-200.png">
@@ -241,14 +234,14 @@
     <Filter Include="Models">
       <UniqueIdentifier>{f600a1f9-9524-4238-822f-04629fbd72cc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Dialogs">
-      <UniqueIdentifier>{a9d6bff1-a2ed-49e9-a825-60d5fff73e67}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Views">
       <UniqueIdentifier>{d1ebc562-f14d-4db0-86ec-e5b7ba017333}</UniqueIdentifier>
     </Filter>
-    <Filter Include="TextEncodingDetect">
-      <UniqueIdentifier>{ea3ccfb9-e3d0-4ef9-8b78-aca459071668}</UniqueIdentifier>
+    <Filter Include="Views\StartExperience">
+      <UniqueIdentifier>{240b1253-8a1f-49ce-804f-cc3853ead76d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Controls">
+      <UniqueIdentifier>{d518135e-41d8-4e2e-b2cd-4b1439537872}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -257,7 +250,6 @@
     <None Include="Assets\Develop.svg">
       <Filter>Assets</Filter>
     </None>
-    <None Include="Resource.aps" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="readme.txt" />
@@ -266,8 +258,5 @@
     <PRIResource Include="Strings\en-us\Resources.resw">
       <Filter>Strings\en-us</Filter>
     </PRIResource>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
 </Project>

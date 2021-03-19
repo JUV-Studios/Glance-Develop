@@ -2,9 +2,10 @@
 #if __has_include("ShellViewModel.g.cpp")
 #include "ShellViewModel.g.cpp"
 #endif
+#include <winrt/Shared.h>
 
 using namespace winrt;
-using namespace JUVStudios;
+using namespace Shared;
 using namespace Windows::System;
 using namespace Windows::Storage;
 using namespace Windows::UI::Xaml::Media;
@@ -13,19 +14,30 @@ using namespace Windows::UI::Xaml::Data;
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
 using namespace Windows::ApplicationModel::Core;
+using namespace Windows::ApplicationModel::Resources;
 
 namespace winrt::Develop::implementation
 {
-	FontIconSource fileIcon = nullptr;
+	inline FontIconSource FileIcon()
+	{
+		static FontIconSource fileIcon = nullptr;
+		if (fileIcon == nullptr)
+		{
+			fileIcon = {};
+			fileIcon.Glyph(L"\uE130");
+			fileIcon.FontFamily(FontFamily(L"Segoe MDL2 Assets"));
+		}
+
+		return fileIcon;
+	}
 
 	ShellViewModel::ShellViewModel()
 	{
-		m_Instances = single_threaded_observable_vector<ShellView>();
-		FontIconSource f;
-		f.Glyph(L"\uE10F");
-		f.FontFamily(FontFamily(L"Segoe MDL2 Assets"));
-		auto startPageView = ShellView(Helpers::GetResourceTranslation(L"HomePage/Header"), HomePage(), f, nullptr);
-		AddInstances({ &startPageView, 1 });
+		FontIconSource homeIcon;
+		homeIcon.Glyph(L"\uE10F");
+		homeIcon.FontFamily(FontFamily(L"Segoe MDL2 Assets"));
+		m_StartTab = ShellView(ResourceLoader::GetForViewIndependentUse().GetString(L"StartPageTitle"), StartPage(), homeIcon, nullptr);
+		AddInstances({ &m_StartTab, 1 });
 	}
 
 	Develop::ShellViewModel ShellViewModel::Instance()
@@ -42,17 +54,25 @@ namespace winrt::Develop::implementation
 		SelectedIndex(m_Instances.Size() - 1);
 	}
 
+	ShellView ShellViewModel::FindInstance(IStorageItem2 const& refSource)
+	{
+		for (auto&& tabInstance : m_Instances)
+		{
+			if (tabInstance.ReferenceSource() != nullptr)
+			{
+				if (tabInstance.ReferenceSource().IsEqual(refSource)) return tabInstance;
+			}
+		}
+
+		return nullptr;
+	}
+
 	IAsyncAction ShellViewModel::AddStorageItems(IVectorView<IStorageItem2> const& sItems)
 	{
 		std::vector<ShellView> viewsToAdd;
 		for (auto&& item : sItems)
 		{
-			auto existingInstance = m_Instances.GetAt(FindSingle<ShellView>(m_Instances.GetView(), 0, [&](ShellView tabInstance)
-				{
-					if (tabInstance.ReferenceSource() != nullptr) return tabInstance.ReferenceSource().IsEqual(item);
-					else return false;
-				}));
-
+			auto existingInstance = FindInstance(item);
 			if (existingInstance != nullptr)
 			{
 				if (sItems.Size() == 1 && !AppSettings::DialogShown())
@@ -64,14 +84,7 @@ namespace winrt::Develop::implementation
 			else if (item.IsOfType(StorageItemTypes::File))
 			{
 				StorageFile file = item.as<StorageFile>();
-				if (fileIcon == nullptr)
-				{
-					fileIcon = FontIconSource();
-					fileIcon.Glyph(L"\uE130");
-					fileIcon.FontFamily(FontFamily(L"Segoe MDL2 Assets"));
-				}
-				
-				viewsToAdd.emplace_back(file.Name(), CodeEditor(file), fileIcon, file);
+				viewsToAdd.emplace_back(file.Name(), CodeEditor(file), FileIcon(), file);
 			}
 			else co_await Launcher::LaunchFolderAsync(item.as<StorageFolder>());
 		}
@@ -86,9 +99,10 @@ namespace winrt::Develop::implementation
 		auto selectedIndex = SelectedIndex();
 		m_Instances.IndexOf(view, index);
 		m_Instances.RemoveAt(index);
-		if (selectedIndex == index) Windows::UI::Xaml::Window::Current().Content().as<MainPage>().GoStart();
+		if (selectedIndex == index) SelectedInstance(m_StartTab);
 		IAsyncClosable closable;
 		if (view.Content().try_as(closable)) co_await closable.CloseAsync();
+		view.Close();
 	}
 
 	bool ShellViewModel::TryCloseInstance(ShellView const& view)
@@ -124,6 +138,20 @@ namespace winrt::Develop::implementation
 		}
 	}
 
+	ShellView ShellViewModel::SelectedInstance()
+	{
+		return m_SelectedInstance;
+	}
+
+	void ShellViewModel::SelectedInstance(ShellView const& value)
+	{
+		if (m_SelectedInstance != value)
+		{
+			m_SelectedInstance = value;
+			m_PropertyChanged(*this, PropertyChangedEventArgs(L"SelectedInstance"));
+		}
+	}
+
 	uint32_t ShellViewModel::SelectedIndex()
 	{
 		uint32_t index = 0;
@@ -136,5 +164,13 @@ namespace winrt::Develop::implementation
 		if (!AppSettings::DialogShown()) SelectedInstance(m_Instances.GetAt(index));
 	}
 
-	IInspectable ShellViewModel::GetHolder() const noexcept { return *this; }
+	event_token ShellViewModel::PropertyChanged(PropertyChangedEventHandler const& handler) noexcept
+	{
+		return m_PropertyChanged.add(handler);
+	}
+
+	void ShellViewModel::PropertyChanged(event_token token) noexcept
+	{
+		m_PropertyChanged.remove(token);
+	}
 }

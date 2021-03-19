@@ -1,9 +1,8 @@
 namespace Develop
 {
     [default_interface]
-    runtimeclass HomePage : Windows.UI.Xaml.Controls.UserControl
+    runtimeclass HomePage : Windows.UI.Xaml.Controls.Page
     {
         HomePage();
-        void SetPageIndex(UInt32 index);
     }
 }

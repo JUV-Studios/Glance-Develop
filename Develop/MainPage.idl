@@ -1,12 +1,8 @@
-import "ShellViewModel.idl";
-
 namespace Develop
 {
     [default_interface]
     runtimeclass MainPage : Windows.UI.Xaml.Controls.UserControl
     {
         MainPage();
-        void GoOpen();
-        void GoStart();
     }
 }
