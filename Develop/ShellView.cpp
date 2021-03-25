@@ -19,6 +19,8 @@ namespace winrt::Develop::implementation
 
     void ShellView::Close()
     {
+        m_Title = L"";
+        m_Caption = L"";
         m_Content = nullptr;
         m_IconSource = nullptr;
         m_ReferenceSource = nullptr;
@@ -44,7 +46,7 @@ namespace winrt::Develop::implementation
 
     IStorageItem2 ShellView::ReferenceSource() { return m_ReferenceSource; }
 
-    bool ShellView::CanClose() 
+    bool ShellView::CanClose()
     {
         if (m_Content == nullptr) return true;
         else return m_Content.try_as<IClosable>() != nullptr; 

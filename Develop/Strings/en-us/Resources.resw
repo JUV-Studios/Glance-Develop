@@ -186,16 +186,4 @@
   <data name="Settings_General.Header" xml:space="preserve">
     <value>General</value>
   </data>
-  <data name="AppTheme_Radio.Header" xml:space="preserve">
-    <value>App theme</value>
-  </data>
-  <data name="ThemeDark.Content" xml:space="preserve">
-    <value>Dark</value>
-  </data>
-  <data name="ThemeDefault.Content" xml:space="preserve">
-    <value>Windows default</value>
-  </data>
-  <data name="ThemeLight.Content" xml:space="preserve">
-    <value>Light</value>
-  </data>
 </root>

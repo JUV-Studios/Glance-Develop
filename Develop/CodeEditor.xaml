@@ -3,6 +3,7 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:dataTransfer="using:Windows.ApplicationModel.DataTransfer"
 	xmlns:editor="using:TextEditor.UI"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
@@ -26,6 +27,8 @@
 				x:Name="TextView"
 				Grid.Row="0"
 				AutomationProperties.Name="{x:Bind WorkingFile.Path}"
+				ContentChanged="TextView_ContentChanged"
+				FontFamily="{x:Bind shared:AppSettings.Preferences.FontFamily, Mode=OneWay}"
 				FontSize="{x:Bind shared:AppSettings.Preferences.FontSize, Mode=OneWay}">
 				<editor:SyntaxEditor.Resources>
 					<SolidColorBrush x:Key="TextControlBackground" Color="Transparent" />
@@ -50,12 +53,12 @@
 							OverflowButtonVisibility="Collapsed">
 							<AppBarButton
 								Click="EditorCommand_Requested"
-								IsEnabled="{Binding ElementName=TextView, Path=CanUndo, Mode=OneWay}"
+								IsEnabled="{Binding ElementName=TextView, Path=HistoryStack.CanUndo, Mode=OneWay}"
 								Loaded="StandardCommand_Loaded"
 								Tag="Undo" />
 							<AppBarButton
 								Click="EditorCommand_Requested"
-								IsEnabled="{Binding ElementName=TextView, Path=CanRedo, Mode=OneWay}"
+								IsEnabled="{Binding ElementName=TextView, Path=HistoryStack.CanRedo, Mode=OneWay}"
 								Loaded="StandardCommand_Loaded"
 								Tag="Redo" />
 							<AppBarSeparator />
@@ -78,6 +81,11 @@
 							IsEnabled="{x:Bind Saved, Mode=OneWay, Converter={StaticResource BooleanReverse}}"
 							Loaded="StandardCommand_Loaded"
 							Tag="Save" />
+						<AppBarButton Click="Share_Click" IsEnabled="{x:Bind dataTransfer:DataTransferManager.IsSupported()}">
+							<AppBarButton.Command>
+								<StandardUICommand Kind="Share" />
+							</AppBarButton.Command>
+						</AppBarButton>
 						<AppBarElementContainer Padding="0,8,0,0">
 							<StackPanel Orientation="Horizontal" Spacing="8">
 								<ComboBox

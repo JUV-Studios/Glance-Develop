@@ -135,12 +135,16 @@
     <Compile Include="SyntaxLanguage.cs" />
     <Compile Include="UI\SyntaxEditor.cs" />
     <Compile Include="UI\SyntaxViewer.cs" />
+    <Compile Include="Utils\FileHistoryStack.cs" />
     <Compile Include="Utils\TextEncodingDetect.cs" />
     <EmbeddedResource Include="Properties\TextEditorUWP.rd.xml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.12</Version>
+    </PackageReference>
+    <PackageReference Include="System.ValueTuple">
+      <Version>4.5.0</Version>
     </PackageReference>
   </ItemGroup>
   <ItemDefinitionGroup>

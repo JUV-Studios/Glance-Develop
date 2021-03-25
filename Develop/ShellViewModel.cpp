@@ -37,103 +37,108 @@ namespace winrt::Develop::implementation
 		homeIcon.Glyph(L"\uE10F");
 		homeIcon.FontFamily(FontFamily(L"Segoe MDL2 Assets"));
 		m_StartTab = ShellView(ResourceLoader::GetForViewIndependentUse().GetString(L"StartPageTitle"), StartPage(), homeIcon, nullptr);
-		AddInstances({ &m_StartTab, 1 });
+		AddInstances({ m_StartTab });
 	}
 
 	Develop::ShellViewModel ShellViewModel::Instance()
 	{
-		if (!CoreApplication::Properties().HasKey(L"Develop_ShellViewModel")) CoreApplication::Properties().Insert(L"Develop_ShellViewModel", make<ShellViewModel>());
-		return CoreApplication::Properties().Lookup(L"Develop_ShellViewModel").as<Develop::ShellViewModel>();
+		static Develop::ShellViewModel instance = nullptr;
+		if (instance == nullptr) instance = make<ShellViewModel>();
+		return instance;
 	}
 
 	IObservableVector<ShellView> ShellViewModel::Instances() { return m_Instances; }
 
-	void ShellViewModel::AddInstances(array_view<ShellView> const& instances)
+	void ShellViewModel::AddInstances(array_view<ShellView const> instances)
 	{
 		for (auto&& tabInstance : instances) m_Instances.Append(tabInstance);
-		SelectedIndex(m_Instances.Size() - 1);
+		SelectedInstance(m_Instances.GetAt(m_Instances.Size() - 1));
+	}
+
+	std::map<IStorageItem2, Develop::ShellView> ShellViewModel::MapOpenDocuments(IVectorView<IStorageItem2> const& documents)
+	{
+		std::map<IStorageItem2, Develop::ShellView> results;
+		for (auto&& document : documents)
+		{
+			results.emplace(document, FindInstance(document));
+		}
+
+		return results;
 	}
 
 	ShellView ShellViewModel::FindInstance(IStorageItem2 const& refSource)
 	{
 		for (auto&& tabInstance : m_Instances)
 		{
-			if (tabInstance.ReferenceSource() != nullptr)
-			{
-				if (tabInstance.ReferenceSource().IsEqual(refSource)) return tabInstance;
-			}
+			if (tabInstance == m_StartTab) continue;
+			else if (tabInstance.ReferenceSource().IsEqual(refSource)) return tabInstance;
 		}
 
 		return nullptr;
 	}
 
-	IAsyncAction ShellViewModel::AddStorageItems(IVectorView<IStorageItem2> const& sItems)
+	IAsyncAction ShellViewModel::AddStorageItems(IVectorView<IStorageItem2> sItems)
 	{
 		std::vector<ShellView> viewsToAdd;
-		for (auto&& item : sItems)
+		auto existing = MapOpenDocuments(sItems);
+		for (auto&& document : existing)
 		{
-			auto existingInstance = FindInstance(item);
-			if (existingInstance != nullptr)
+			if (document.second == nullptr)
 			{
-				if (sItems.Size() == 1 && !AppSettings::DialogShown())
+				if (document.first.IsOfType(StorageItemTypes::File))
 				{
-					SelectedInstance(existingInstance);
-					return;
+					auto file = document.first.as<StorageFile>();
+					viewsToAdd.emplace_back(file.Name(), CodeEditor(file), FileIcon(), file);
 				}
+				else co_await Launcher::LaunchFolderAsync(document.first.as<StorageFolder>());
 			}
-			else if (item.IsOfType(StorageItemTypes::File))
+			else if (sItems.Size() == 1)
 			{
-				StorageFile file = item.as<StorageFile>();
-				viewsToAdd.emplace_back(file.Name(), CodeEditor(file), FileIcon(), file);
+				SelectedInstance(document.second);
+				co_return;
 			}
-			else co_await Launcher::LaunchFolderAsync(item.as<StorageFolder>());
 		}
 
 		if (viewsToAdd.size() > 0) AddInstances(viewsToAdd);
-		else SelectedIndex(m_Instances.Size() - 1);
+		else SelectedInstance(m_Instances.GetAt(m_Instances.Size() - 1));
 	}
 
 	IAsyncAction ShellViewModel::RemoveInstance(ShellView const& view)
 	{
+		bool isSelected = view == m_SelectedInstance;
 		uint32_t index = 0;
-		auto selectedIndex = SelectedIndex();
 		m_Instances.IndexOf(view, index);
-		m_Instances.RemoveAt(index);
-		if (selectedIndex == index) SelectedInstance(m_StartTab);
-		IAsyncClosable closable;
-		if (view.Content().try_as(closable)) co_await closable.CloseAsync();
+		m_Instances.RemoveAt(index);		
+		if (isSelected) SelectedInstance(m_StartTab);
+		if (auto closable = view.Content().try_as<IAsyncClosable>()) co_await closable.CloseAsync();
 		view.Close();
 	}
 
 	bool ShellViewModel::TryCloseInstance(ShellView const& view)
 	{
+		bool removeInstance = false;
 		IAsyncClosable closable;
-		if (view.Content().try_as<IAsyncClosable>(closable))
-		{
-			if (closable.StartClosing())
-			{
-				RemoveInstance(view);
-				return true;
-			}
-		}
-
-		return false;
+		if (view.Content() == nullptr) removeInstance = true;
+		else if (view.Content().try_as(closable)) removeInstance = closable.StartClosing();
+		if (removeInstance) RemoveInstance(view);
+		return removeInstance;
 	}
 
 	void ShellViewModel::FastSwitch(bool reverse)
 	{
-		uint32_t index = SelectedIndex();
+		uint32_t index;
+		m_Instances.IndexOf(m_SelectedInstance, index);
 		if (m_Instances.Size() != 1)
 		{
 			if (reverse)
 			{
-				if (index == 0) SelectedIndex(m_Instances.Size() - 1);
-				else SelectedIndex(index - 1);
+				if (index == 0) SelectedInstance(m_Instances.GetAt(m_Instances.Size() - 1));
+				else SelectedInstance(m_Instances.GetAt(index - 1));
 			}
 			else
 			{
-				if (index == m_Instances.Size() - 1) SelectedIndex(0);
-				else SelectedIndex(index + 1);
+				if (index == m_Instances.Size() - 1) SelectedInstance(m_Instances.GetAt(0));
+				else SelectedInstance(m_Instances.GetAt(index + 1));
 			}
 		}
 	}
@@ -145,23 +150,11 @@ namespace winrt::Develop::implementation
 
 	void ShellViewModel::SelectedInstance(ShellView const& value)
 	{
-		if (m_SelectedInstance != value)
+		if (m_SelectedInstance != value && !AppSettings::DialogShown())
 		{
 			m_SelectedInstance = value;
 			m_PropertyChanged(*this, PropertyChangedEventArgs(L"SelectedInstance"));
 		}
-	}
-
-	uint32_t ShellViewModel::SelectedIndex()
-	{
-		uint32_t index = 0;
-		m_Instances.IndexOf(SelectedInstance(), index);
-		return index;
-	}
-
-	void ShellViewModel::SelectedIndex(uint32_t index)
-	{
-		if (!AppSettings::DialogShown()) SelectedInstance(m_Instances.GetAt(index));
 	}
 
 	event_token ShellViewModel::PropertyChanged(PropertyChangedEventHandler const& handler) noexcept

@@ -32,6 +32,10 @@
     <Midl Include="ShellView.idl">
       <Filter>Models</Filter>
     </Midl>
+    <Midl Include="Interactions.idl">
+      <Filter>ViewModels</Filter>
+    </Midl>
+    <Midl Include="IAsyncClosable.idl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -240,9 +244,6 @@
     <Filter Include="Views\StartExperience">
       <UniqueIdentifier>{240b1253-8a1f-49ce-804f-cc3853ead76d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Controls">
-      <UniqueIdentifier>{d518135e-41d8-4e2e-b2cd-4b1439537872}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
@@ -250,6 +251,7 @@
     <None Include="Assets\Develop.svg">
       <Filter>Assets</Filter>
     </None>
+    <None Include="System.ValueTuple.dll" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="readme.txt" />
@@ -258,5 +260,8 @@
     <PRIResource Include="Strings\en-us\Resources.resw">
       <Filter>Strings\en-us</Filter>
     </PRIResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="System.ValueTuple.xml" />
   </ItemGroup>
 </Project>

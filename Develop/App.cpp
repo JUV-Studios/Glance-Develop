@@ -3,6 +3,7 @@
 
 using namespace winrt;
 using namespace Shared;
+using namespace std::string_literals;
 using namespace Windows::ApplicationModel;
 using namespace Windows::ApplicationModel::Activation;
 using namespace Windows::Foundation;
@@ -20,10 +21,7 @@ using namespace Develop::implementation;
 /// </summary>
 App::App()
 {
-
     InitializeComponent();
-    auto themeValue = AppSettings::Preferences().AppThemeIndex();
-    if (themeValue < 2) RequestedTheme(static_cast<ApplicationTheme>(themeValue));
     Suspending({ this, &App::OnSuspending });
 
 #if defined _DEBUG && !defined DISABLE_XAML_GENERATED_BREAK_ON_UNHANDLED_EXCEPTION

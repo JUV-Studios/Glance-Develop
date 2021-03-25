@@ -3,12 +3,13 @@
 #include <unknwn.h>
 #include <restrictederrorinfo.h>
 #include <filesystem>
-#include <mutex>
+#include <winstring.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.ApplicationModel.Core.h>
 #include <winrt/Windows.ApplicationModel.Resources.h>
 #include <winrt/Windows.ApplicationModel.Activation.h>
+#include <winrt/Windows.ApplicationModel.DataTransfer.h>
 #include <winrt/Windows.UI.ViewManagement.h>
 #include <winrt/Windows.UI.Xaml.Input.h>
 #include <winrt/Windows.System.h>

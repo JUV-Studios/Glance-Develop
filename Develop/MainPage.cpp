@@ -9,6 +9,7 @@ using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Controls::Primitives;
 using namespace Windows::UI::Xaml::Input;
+using namespace Windows::UI::ViewManagement;
 using namespace Windows::System;
 using namespace Windows::ApplicationModel::Core;
 using namespace Windows::Foundation;

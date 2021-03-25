@@ -11,7 +11,7 @@
   IgnorableNamespaces="uap uap3 mp rescap genTemplate desktop">
 
 	<Identity
-	  Name="JUVStudios.DevelopApp"
+	  Name="JuvStudios.Develop"
 	  Publisher="CN=JUV Studios"
 	  Version="0.0.3.3" />
 

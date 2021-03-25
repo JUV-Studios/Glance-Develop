@@ -1,6 +1,4 @@
 ﻿Imports Windows.Storage
-Imports Windows.UI.Notifications
-Imports Windows.Data.Xml.Dom
 
 <Metadata.WebHostHidden>
 Public NotInheritable Class AppPreferences
@@ -60,14 +58,14 @@ Public NotInheritable Class AppPreferences
 		End Set
 	End Property
 
-	Property AppThemeIndex As Integer
+	Property FontFamily As String
 		Get
-			Return GetSetting(NameOf(AppThemeIndex), 2)
+			Return GetSetting(NameOf(FontFamily), "Consolas")
 		End Get
-		Set(value As Integer)
-			If AppThemeIndex <> value Then
-				_LocalSettings.Values(NameOf(AppThemeIndex)) = value
-				RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs(NameOf(AppThemeIndex)))
+		Set(value As String)
+			If FontFamily <> value Then
+				_LocalSettings.Values(NameOf(FontFamily)) = value
+				RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs(NameOf(FontFamily)))
 			End If
 		End Set
 	End Property

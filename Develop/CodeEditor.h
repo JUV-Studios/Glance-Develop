@@ -4,19 +4,18 @@
 
 namespace winrt::Develop::implementation
 {
-    using EditorEventRegistrations = std::pair<event_token, event_token>;
-
     struct CodeEditor : CodeEditorT<CodeEditor>
     {
     private:
         const Windows::Storage::StorageFile m_WorkingFile { nullptr };
-        std::optional<EditorEventRegistrations> m_EventRegistrations;
-        std::mutex m_FileSaveLock;
+        event_token m_HotKeyToken;
+        event_token m_ShareRequestToken;
         event<Windows::UI::Xaml::Data::PropertyChangedEventHandler> m_PropertyChanged;
+        bool m_FileSaveLock = false;
         bool m_Saved = true;
         bool m_Unloaded = true;
         void KeyPressHandler(Windows::UI::Core::CoreDispatcher const& dispatcher, Windows::UI::Core::AcceleratorKeyEventArgs const& e);
-        void EditorPropertyChanged(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::Data::PropertyChangedEventArgs const& args);
+        void Editor_ShareRequested(Windows::ApplicationModel::DataTransfer::DataTransferManager const& sender, Windows::ApplicationModel::DataTransfer::DataRequestedEventArgs const& e);
         fire_and_forget LoadFileAsync();
     public:
         CodeEditor(Windows::Storage::StorageFile const& file);
@@ -31,7 +30,9 @@ namespace winrt::Develop::implementation
         void PropertyChanged(event_token token) noexcept;
         void UserControl_Loaded(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& e);
         void UserControl_Unloaded(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& e);
+        void Share_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Windows::UI::Xaml::RoutedEventArgs const& e);
         void StandardCommand_Loaded(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& e);
+        void TextView_ContentChanged(bool isReset);
         void EditorCommand_Requested(winrt::Windows::Foundation::IInspectable const& sender, winrt::Windows::UI::Xaml::RoutedEventArgs const& e);
         ~CodeEditor();
     };

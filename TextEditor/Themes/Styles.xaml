@@ -1,5 +1,5 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:local="using:TextEditor.UI">
-	<Style TargetType="local:SyntaxEditor">
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<Style TargetType="RichEditBox">
 		<Setter Property="BorderThickness" Value="0" />
 		<Setter Property="BorderBrush" Value="Transparent" />
 		<Setter Property="Background" Value="Transparent" />
@@ -8,5 +8,12 @@
 		<Setter Property="Padding" Value="12,12,12,4" />
 		<Setter Property="HorizontalAlignment" Value="Stretch" />
 		<Setter Property="VerticalAlignment" Value="Stretch" />
+	</Style>
+
+	<Style x:Key="PlainTextEditorStyle" TargetType="RichEditBox">
+		<Setter Property="IsSpellCheckEnabled" Value="True" />
+		<Setter Property="TextWrapping" Value="NoWrap" />
+		<Setter Property="ClipboardCopyFormat" Value="PlainText" />
+		<Setter Property="DisabledFormattingAccelerators" Value="All" />
 	</Style>
 </ResourceDictionary>

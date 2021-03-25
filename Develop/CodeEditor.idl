@@ -1,7 +1,8 @@
+import "IAsyncClosable.idl";
 namespace Develop
 {
     [default_interface]
-    runtimeclass CodeEditor : Windows.UI.Xaml.Controls.UserControl, Windows.UI.Xaml.Data.INotifyPropertyChanged, Shared.IAsyncClosable
+    runtimeclass CodeEditor : Windows.UI.Xaml.Controls.UserControl, Windows.UI.Xaml.Data.INotifyPropertyChanged, IAsyncClosable
     {
         CodeEditor(Windows.Storage.StorageFile file);
         Windows.Storage.StorageFile WorkingFile { get; };

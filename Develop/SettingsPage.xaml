@@ -17,14 +17,18 @@
 	<Hub x:Uid="SettingsHub">
 		<HubSection x:Uid="Settings_General" DataContext="{x:Bind shared:AppSettings.Preferences}">
 			<DataTemplate x:DataType="shared:AppPreferences">
-				<StackPanel AutomationProperties.Name="{Binding Source={StaticResource GeneralHeaderId}, Mode=OneTime, Converter={StaticResource ResourceController}}" Spacing="4">
-					<ToggleSwitch x:Uid="DisableSoundEffects_Switch" IsOn="{x:Bind DisableSound, Mode=TwoWay}" />
-					<muxc:RadioButtons x:Uid="AppTheme_Radio" SelectedIndex="{x:Bind AppThemeIndex, Mode=TwoWay}">
-						<RadioButton x:Uid="ThemeLight" />
-						<RadioButton x:Uid="ThemeDark" />
-						<RadioButton x:Uid="ThemeDefault" />
-					</muxc:RadioButtons>
-				</StackPanel>
+				<ScrollViewer
+					HorizontalScrollBarVisibility="Disabled"
+					HorizontalScrollMode="Disabled"
+					VerticalScrollBarVisibility="Auto"
+					VerticalScrollMode="Auto">
+					<StackPanel
+						Margin="0,0,16,0"
+						AutomationProperties.Name="{Binding Source={StaticResource GeneralHeaderId}, Mode=OneTime, Converter={StaticResource ResourceController}}"
+						Spacing="4">
+						<ToggleSwitch x:Uid="DisableSoundEffects_Switch" IsOn="{x:Bind DisableSound, Mode=TwoWay}" />
+					</StackPanel>
+				</ScrollViewer>
 			</DataTemplate>
 		</HubSection>
 		<HubSection x:Uid="Settings_About" DataContext="{x:Bind AboutText}">

@@ -3,18 +3,13 @@
 #if __has_include("SettingsPage.g.cpp")
 #include "SettingsPage.g.cpp"
 #endif
-#include <winstring.h>
-#include <winrt/Windows.Data.Xml.Dom.h>
-#include <winrt/Windows.UI.Notifications.h>
 
 using namespace winrt;
 using namespace Windows::Storage;
-using namespace Windows::Data::Xml::Dom;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Automation;
 using namespace Windows::Foundation;
-using namespace Windows::UI::Notifications;
 using namespace Windows::ApplicationModel;
 using namespace Windows::ApplicationModel::Resources;
 
