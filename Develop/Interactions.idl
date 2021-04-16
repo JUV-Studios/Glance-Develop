@@ -1,9 +1,0 @@
-namespace Develop
-{
-    [bindable]
-    [default_interface]
-    static runtimeclass Interactions
-    {
-        static Windows.Foundation.IAsyncAction OpenFile();
-    }
-}

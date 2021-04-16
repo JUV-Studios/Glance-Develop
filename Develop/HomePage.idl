@@ -1,8 +1,0 @@
-namespace Develop
-{
-    [default_interface]
-    runtimeclass HomePage : Windows.UI.Xaml.Controls.Page
-    {
-        HomePage();
-    }
-}

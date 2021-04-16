@@ -101,19 +101,41 @@ namespace TextEditor.UI
 			FileLoaded = false;
 			IsRichText = file.FileType == ".rtf" || file.FileType == ".RTF";
 			AttachEvents();
+			if (Resources.MergedDictionaries.Count == 0)
+			{
+				if (EditorStylesString == string.Empty) EditorStylesString = await PathIO.ReadTextAsync("ms-appx:///TextEditor/Themes/Styles.xaml");
+				Resources.MergedDictionaries.Add(XamlReader.Load(EditorStylesString) as ResourceDictionary);
+			}
+
 			using var readStream = await file.OpenReadAsync();
 			if (!IsRichText)
 			{
 				TextDocument.UndoLimit = 0;
-				if (HistoryStack is FileHistoryStack stack) stack.ClearHistory();
-				else HistoryStack = new FileHistoryStack()
+				if (HistoryStack is FileHistoryStack stack)
 				{
-					TargetEditor = new(this)
-				};
+					stack.ClearHistory();
+				}
+				else
+				{
+					HistoryStack = new FileHistoryStack() 
+					{
+						TargetEditor = new(this)
+					};
+				}
+
+				// Apply plain text editor style
+				foreach (var style in from item in Resources.MergedDictionaries.First() where item.Value is Style select item)
+				{
+					if (style.Key.ToString() == "PlainTextEditorStyle")
+					{
+						Style = style.Value as Style;
+						break;
+					}
+				}
 
 				using var inputStream = readStream.GetInputStreamAt(0);
 				using var dataReader = new DataReader(inputStream);
-				uint bytesLoadedCount = await dataReader.LoadAsync((uint)readStream.Size);
+				uint bytesLoadedCount = await dataReader.LoadAsync(Convert.ToUInt32(readStream.Size));
 				byte[] buffer = new byte[readStream.Size];
 				dataReader.ReadBytes(buffer);
 				StringEncoding = Utils.TextEncodingDetect.DetectEncoding(buffer);
@@ -128,7 +150,6 @@ namespace TextEditor.UI
 					TargetEditor = new(this)
 				};
 			}
-			await LoadXamlStyles();
 			FileLoaded = true;
 		}
 
@@ -140,33 +161,8 @@ namespace TextEditor.UI
 				{
 					if (textPtr[i] == '\uFEFF')
 					{
-						textPtr[i] = "".First();
+						textPtr[i] = string.Empty.First();
 						break;
-					}
-				}
-			}
-		}
-
-		private async Task LoadXamlStyles()
-		{
-			if (Resources.MergedDictionaries.Count == 0)
-			{
-				if (EditorStylesString == string.Empty) EditorStylesString = await PathIO.ReadTextAsync("ms-appx:///TextEditor/Themes/Styles.xaml");
-				Resources.MergedDictionaries.Add(XamlReader.Load(EditorStylesString) as ResourceDictionary);
-			}
-
-			if (!IsRichText)
-			{
-				// Apply plain text editor style
-				foreach (var item in Resources.MergedDictionaries.First())
-				{
-					if (item.Value is Style style)
-					{
-						if (item.Key.ToString() == "PlainTextEditorStyle")
-						{
-							Style = style;
-							break;
-						}
 					}
 				}
 			}
@@ -301,7 +297,7 @@ namespace TextEditor.UI
 			if (IsRichText) (HistoryStack as RichEditHistoryWrapper).UpdateHistoryProperties();
 			else if (result && HistoryStack is FileHistoryStack stack)
 			{
-				(string, int) val = new(text, TextDocument.Selection.EndPosition);
+				FileHistoryData val = new(text, TextDocument.Selection.EndPosition);
 				stack.UndoPush(ref val);
 			}
 		}

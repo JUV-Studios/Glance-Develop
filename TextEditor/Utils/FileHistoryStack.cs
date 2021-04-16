@@ -59,11 +59,24 @@ namespace TextEditor.Utils
 		public bool TryUndoPeek(out string text) => throw new NotImplementedException();
 	}
 
+	internal readonly struct FileHistoryData
+	{
+		public FileHistoryData(string text, int selectionIndex)
+		{
+			Text = text;
+			SelectionIndex = selectionIndex;
+		}
+
+		public readonly int SelectionIndex;
+
+		public readonly string Text;
+	}
+
 	internal sealed class FileHistoryStack : IHistoryStack
 	{
-		private readonly Stack<(string, int)> UndoStack = new();
+		private readonly Stack<FileHistoryData> UndoStack = new();
 
-		private readonly Stack<(string, int)> RedoStack = new();
+		private readonly Stack<FileHistoryData> RedoStack = new();
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -73,13 +86,13 @@ namespace TextEditor.Utils
 
 		public bool CanRedo => RedoStack.Count > 0;
 
-		public void UndoPush(ref (string, int) value)
+		public void UndoPush(ref FileHistoryData value)
 		{
 			UndoStack.Push(value);
 			PropertyChanged?.Invoke(this, new(nameof(CanUndo)));
 		}
 
-		public void RedoPush(ref (string, int) value)
+		public void RedoPush(ref FileHistoryData value)
 		{
 			RedoStack.Push(value);
 			PropertyChanged?.Invoke(this, new(nameof(CanRedo)));
@@ -97,7 +110,7 @@ namespace TextEditor.Utils
 		{
 			if (CanUndo)
 			{
-				text = UndoStack.Peek().Item1;
+				text = UndoStack.Peek().Text;
 				return true;
 			}
 			else
@@ -111,7 +124,7 @@ namespace TextEditor.Utils
 		{
 			if (CanRedo)
 			{
-				text = RedoStack.Peek().Item1;
+				text = RedoStack.Peek().Text;
 				return true;
 			}
 			else
@@ -126,9 +139,9 @@ namespace TextEditor.Utils
 			if (!CanUndo) return;
 			var editor = TargetEditor.ResolveEditorReference();
 			var val = UndoImpl();
-			editor.Text = val.Item1;
+			editor.Text = val.Text;
 			editor.Focus(FocusState.Keyboard);
-			editor.TextDocument.Selection.StartPosition = val.Item2;
+			editor.TextDocument.Selection.StartPosition = val.SelectionIndex;
 		}
 
 		public void Redo()
@@ -136,12 +149,12 @@ namespace TextEditor.Utils
 			if (!CanRedo) return;
 			var editor = TargetEditor.ResolveEditorReference();
 			var val = RedoImpl();
-			editor.Text = val.Item1;
+			editor.Text = val.Text;
 			editor.Focus(FocusState.Keyboard);
-			editor.TextDocument.Selection.StartPosition = val.Item2;
+			editor.TextDocument.Selection.StartPosition = val.SelectionIndex;
 		}
 
-		private (string, int) UndoImpl()
+		private FileHistoryData UndoImpl()
 		{
 			RedoStack.Push(UndoStack.Pop());
 			var result = UndoStack.Pop();
@@ -150,7 +163,7 @@ namespace TextEditor.Utils
 			return result;
 		}
 
-		public (string, int) RedoImpl()
+		public FileHistoryData RedoImpl()
 		{
 			var result = RedoStack.Pop();
 			PropertyChanged?.Invoke(this, new(nameof(CanRedo)));

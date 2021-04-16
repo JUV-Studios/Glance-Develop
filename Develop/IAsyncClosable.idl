@@ -1,8 +1,0 @@
-namespace Develop
-{
-	interface IAsyncClosable requires Windows.Foundation.IClosable
-	{
-		Boolean StartClosing();
-		Windows.Foundation.IAsyncAction CloseAsync();
-	};
-}
