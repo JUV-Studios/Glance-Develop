@@ -1,4 +1,4 @@
-﻿// Copyright (c) Adnan Umer. All rights reserved. Follow me @aztnan
+// Copyright (c) Adnan Umer. All rights reserved. Follow me @aztnan
 // Email: aztnan@outlook.com
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this
@@ -17,7 +17,6 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-using ColorCode;
 using System.Collections.Generic;
 
 namespace TextEditor

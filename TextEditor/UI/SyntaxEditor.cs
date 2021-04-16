@@ -17,297 +17,394 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-using ColorCode.Styling;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using TextEditor.Lexer;
+using TextEditor.Utils;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
+using Windows.Security.Cryptography;
+using Windows.Storage;
+using Windows.Storage.Provider;
+using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Markup;
 
 namespace TextEditor.UI
 {
-    internal readonly struct FileHistoryData
-    {
-        internal FileHistoryData(string text, int selectionIndex)
-        {
-            Text = text;
-            SelectionIndex = selectionIndex;
-        }
+	public delegate void ContentChangedEventHandler(bool isReset);
 
-        public readonly string Text;
-        public readonly int SelectionIndex;
-    }
+	public enum FindArea
+	{
+		WholeDocument,
+		Selection
+	}
 
-    public struct SelectionInfo
-    {
-        public uint SelectionStart;
-        public uint SelectionEnd;
-    }
+	public struct FindOptions
+	{
+		public bool MatchCase;
+		public bool UseRegex;
+		public FindArea FindLocation;
+	}
 
-    public delegate void HistoryItemDone(bool lastElem, string text, int index);
+	public struct SelectionInfo
+	{
+		public int SelectionStart;
+		public int SelectionEnd;
+	}
 
-    public delegate bool AcceptTextChange(string text, RoutedEventArgs args);
+	public sealed class SyntaxEditor : RichEditBox, INotifyPropertyChanged
+	{
+		private static string EditorStylesString = string.Empty;
 
-    public sealed class SyntaxEditor : RichEditBox, INotifyPropertyChanged, IDisposable
-    {
-        public SyntaxEditor()
-        {
-            // DefaultStyleKey = typeof(SyntaxEditor);
-            TextDocument.DefaultTabStop = 8;
-        }
+		public SyntaxEditor()
+		{
+			TextDocument.DefaultTabStop = 4;
+		}
 
-        public void Initialize(bool isRichText)
-        {
-            // Set default settings
-            IsRichText = isRichText;
-            AttachEvents();
-            if (!isRichText)
-            {
-                UndoStack = new();
-                RedoStack = new();
-                IsSpellCheckEnabled = false;
-                TextWrapping = TextWrapping.NoWrap;
-                ClipboardCopyFormat = RichEditClipboardFormat.PlainText;
-                DisabledFormattingAccelerators = DisabledFormattingAccelerators.All;
-                TextDocument.UndoLimit = 0;
-            }
-        }
+		#region Text view
 
-        public event PropertyChangedEventHandler PropertyChanged;
+		private SelectionInfo _TextSelection = new();
 
-        private StyleDictionary TextStyles => ApplicationTheme.Light == ApplicationTheme.Dark ? StyleDictionary.DefaultDark : StyleDictionary.DefaultLight;
+		public SelectionInfo TextSelection => _TextSelection;
 
-        #region Text View
+		public bool IsRichText { get; private set; }
 
-        private SelectionInfo _TextSelection = new();
+		private bool _FileLoaded = false;
 
-        public SelectionInfo TextSelection => _TextSelection;
+		public bool FileLoaded
+		{
+			get => _FileLoaded;
+			set
+			{
+				if (_FileLoaded != value)
+				{
+					_FileLoaded = value;
+					PropertyChanged?.Invoke(this, new(nameof(FileLoaded)));
+				}
+			}
+		}
 
-        private bool _IsRichText = true;
+		public IAsyncAction LoadFileAsync(StorageFile file) => LoadFile(file).AsAsyncAction();
 
-        public bool IsRichText
-        {
-            get => _IsRichText;
-            private set => _IsRichText = value;
-        }
+		private async Task LoadFile(StorageFile file)
+		{
+			// Set default settings, attach event handlers and load the specified content file
+			FileLoaded = false;
+			IsRichText = file.FileType == ".rtf" || file.FileType == ".RTF";
+			AttachEvents();
+			if (Resources.MergedDictionaries.Count == 0)
+			{
+				if (EditorStylesString == string.Empty) EditorStylesString = await PathIO.ReadTextAsync("ms-appx:///TextEditor/Themes/Styles.xaml");
+				Resources.MergedDictionaries.Add(XamlReader.Load(EditorStylesString) as ResourceDictionary);
+			}
 
-        private async void HandleTextViewKeyDown(object sender, KeyRoutedEventArgs e)
-        {
-            if (e.Key == VirtualKey.Tab)
-            {
-                e.Handled = true;
-                TextDocument.Selection.TypeText("\t");
-            }
-            else if (e.Key == VirtualKey.Escape)
-            {
-                e.Handled = true;
-                await FocusManager.TryFocusAsync(FocusManager.FindNextFocusableElement(FocusNavigationDirection.Down), FocusState.Keyboard);
-            }
-        }
+			using var readStream = await file.OpenReadAsync();
+			if (!IsRichText)
+			{
+				TextDocument.UndoLimit = 0;
+				if (HistoryStack is FileHistoryStack stack)
+				{
+					stack.ClearHistory();
+				}
+				else
+				{
+					HistoryStack = new FileHistoryStack() 
+					{
+						TargetEditor = new(this)
+					};
+				}
 
-        private void Editor_SelectionChanged(object sender, RoutedEventArgs e)
-        {
-            _TextSelection.SelectionStart = Convert.ToUInt32(TextDocument.Selection.StartPosition);
-            _TextSelection.SelectionEnd = Convert.ToUInt32(TextDocument.Selection.EndPosition);
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelectionValid)));
-        }
+				// Apply plain text editor style
+				foreach (var style in from item in Resources.MergedDictionaries.First() where item.Value is Style select item)
+				{
+					if (style.Key.ToString() == "PlainTextEditorStyle")
+					{
+						Style = style.Value as Style;
+						break;
+					}
+				}
 
-        public bool IsSelectionValid => IsSelectionValidImpl(TextSelection.SelectionStart, TextSelection.SelectionEnd);
+				using var inputStream = readStream.GetInputStreamAt(0);
+				using var dataReader = new DataReader(inputStream);
+				uint bytesLoadedCount = await dataReader.LoadAsync(Convert.ToUInt32(readStream.Size));
+				byte[] buffer = new byte[readStream.Size];
+				dataReader.ReadBytes(buffer);
+				StringEncoding = Utils.TextEncodingDetect.DetectEncoding(buffer);
+				Text = CryptographicBuffer.ConvertBinaryToString(StringEncoding, buffer.AsBuffer());
+				OriginalText = Text.TrimEnd();
+			}
+			else
+			{
+				Document.LoadFromStream(TextSetOptions.FormatRtf, readStream);
+				if (HistoryStack is not RichEditHistoryWrapper) HistoryStack = new RichEditHistoryWrapper()
+				{
+					TargetEditor = new(this)
+				};
+			}
+			FileLoaded = true;
+		}
 
-        private bool IsSelectionValidImpl(uint start, uint end) => start != end && !string.IsNullOrWhiteSpace(TextDocument.GetRange(Convert.ToInt32(start), Convert.ToInt32(end)).Text);
+		private static unsafe void RemoveBom(string text)
+		{
+			fixed (char* textPtr = text)
+			{
+				for (int i = 0; i < text.Length; i++)
+				{
+					if (textPtr[i] == '\uFEFF')
+					{
+						textPtr[i] = string.Empty.First();
+						break;
+					}
+				}
+			}
+		}
 
-        public static string NormalizeLineEndings(string text)
-        {
-            return text.Replace("\r\n", "\r").Replace("\n\r", "\r").Replace("\n", "\r").Replace("\r", "\r\n");
-        }
+		public event PropertyChangedEventHandler PropertyChanged;
 
-        public string Text
-        {
-            get
-            {
-                TextDocument.GetText(TextGetOptions.UseCrlf, out string text);
-                return text;
-            }
-            set
-            {
-                if (Text != value) TextDocument.SetText(TextSetOptions.None, value);
-            }
-        }
+		public event ContentChangedEventHandler ContentChanged;
 
-        private static readonly string[] SplitValue = new string[] { "\r\n" };
+		private async void Editor_KeyDown(object sender, KeyRoutedEventArgs e)
+		{
+			switch (e.Key)
+			{
+				case VirtualKey.Tab:
+					e.Handled = true;
+					TextDocument.Selection.TypeText("\t");
+					break;
+				case VirtualKey.Escape:
+					e.Handled = true;
+					await FocusManager.TryFocusAsync(FocusManager.FindNextFocusableElement(FocusNavigationDirection.Down), FocusState.Keyboard);
+					break;
+				default: 
+					e.Handled = false;
+					break;
+			}
+		}
 
-        public int LinesCount => Text.TrimEnd().Split(SplitValue, StringSplitOptions.None).Length;
+		private void Editor_SelectionChanged(object sender, RoutedEventArgs e)
+		{
+			_TextSelection.SelectionStart = TextDocument.Selection.StartPosition;
+			_TextSelection.SelectionEnd = TextDocument.Selection.StartPosition;
+			PropertyChanged?.Invoke(this, new(nameof(SelectionText)));
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelectionValid)));
+		}
 
-        public bool AttachEvents()
-        {
-            TextChanged += Editor_TextChanged;
-            KeyDown += HandleTextViewKeyDown;
-            SelectionChanged += Editor_SelectionChanged;
-            return true;
-        }
+		public bool IsSelectionValid => _TextSelection.SelectionStart != _TextSelection.SelectionEnd && !string.IsNullOrWhiteSpace(SelectionText);
 
-        public AcceptTextChange TextChangeDelegate { get; set; }
+		public string SelectionText
+		{
+			get => TextDocument.GetRange(_TextSelection.SelectionStart, _TextSelection.SelectionEnd).Text;
+			set => TextDocument.GetRange(_TextSelection.SelectionStart, _TextSelection.SelectionEnd).Text = value;
+		}
 
-        private void Editor_TextChanged(object sender, RoutedEventArgs e)
-        {
-            var text = Text;
-            if ((TextChangeDelegate?.Invoke(text, e)).GetValueOrDefault(false) && !IsRichText)
-            {
-                UndoStack.Push(new(text, TextDocument.Selection.EndPosition));
-                UpdateHistoryProperties();
-            }
-        }
+		private BinaryStringEncoding _StringEncoding;
 
-        public bool DetachEvents()
-        {
-            SelectionChanged -= Editor_SelectionChanged;
-            TextChanged -= Editor_TextChanged;
-            KeyDown -= HandleTextViewKeyDown;
-            return true;
-        }
+		public BinaryStringEncoding StringEncoding
+		{
+			get => _StringEncoding;
+			set
+			{
+				if (_StringEncoding != value)
+				{
+					_StringEncoding = value;
+					PropertyChanged?.Invoke(this, new(nameof(StringEncoding)));
+				}
+			}
+		}
 
-        #endregion
+		public string OriginalText { get; private set; }
 
-        #region Highlighting
+		public string Text
+		{
+			get
+			{
+				TextDocument.GetText(IsRichText ? TextGetOptions.FormatRtf : TextGetOptions.UseCrlf, out string text);
+				return text;
+			}
+			set
+			{
+				
+				RemoveBom(value);
+				if ((HistoryStack.CanUndo || HistoryStack.CanRedo) & !IsRichText)
+				{
+					var range = TextDocument.GetRange(0, 0);
+					range.EndOf(TextRangeUnit.Story, true);
+					range.Text = value;
+				}
+				else TextDocument.SetText(IsRichText ? TextSetOptions.FormatRtf : TextSetOptions.None, value);
+			}
+		}
 
-        readonly CancellationTokenSource HighlightCancellation = new();
+		public IAsyncOperation<bool> WriteFileAsync(StorageFile file) => WriteFile(file).AsAsyncOperation();
 
-        bool HighlightLock = false;
+		private static readonly IBuffer EmptyBuffer = CryptographicBuffer.CreateFromByteArray(new byte[] { 0 });
 
-        public IAsyncOperation<bool> SyntaxHighlighting(IReadOnlyList<HighlightToken> tokens) => SyntaxHighlightingImpl(tokens, HighlightCancellation.Token).AsAsyncOperation();
+		private async Task<bool> WriteFile(StorageFile file)
+		{
+			bool result;
+			CachedFileManager.DeferUpdates(file);
+			if (IsRichText)
+			{
+				using var stream = await file.OpenAsync(FileAccessMode.ReadWrite);
+				TextDocument.SaveToStream(TextGetOptions.UseCrlf, stream);
+			}
+			else
+			{
+				var text = Text;
+				await FileIO.WriteBufferAsync(file, string.IsNullOrEmpty(text) ? EmptyBuffer : CryptographicBuffer.ConvertStringToBinary(Text, _StringEncoding));
+			}
 
-        private Task<bool> SyntaxHighlightingImpl(IReadOnlyList<HighlightToken> tokens, CancellationToken cancelToken)
-        {
-            if (tokens.Count <= 0 || HighlightLock) return Task.FromResult(false);
-            HighlightLock = true;
-            while (true)
-            {
-                if (cancelToken.IsCancellationRequested) break;
-                else
-                {
-                    HighlightToken token;
-                    for (int i = 0; i < tokens.Count; i++)
-                    {
-                        token = tokens[i];
-                        var range = TextDocument.GetRange(token.StartIndex, Convert.ToInt32(token.StartIndex + token.Length));
-                        if (range.CharacterFormat.ForegroundColor != token.Colour) range.CharacterFormat.ForegroundColor = token.Colour;
-                    }
-                }
-            }
+			var writeResult = await CachedFileManager.CompleteUpdatesAsync(file);
+			if (writeResult != FileUpdateStatus.Complete) result = false;
+			else result = true;
+			return result;
+		}
 
-            HighlightLock = false;
-            return Task.FromResult(true);
-        }
+		private static readonly string[] LineSplitValue = new string[] { Environment.NewLine };
 
-        #endregion
+		public int LinesCount => Text.TrimEnd().Split(LineSplitValue, StringSplitOptions.None).Length;
 
-        #region Interaction
+		private bool TextChangedHandler(string text, out bool isReset)
+		{
+			isReset = false;
+			var value = text.TrimEnd();
+			bool acceptChanges;
+			if (value == OriginalText)
+			{
+				if (HistoryStack.CanUndo || HistoryStack.CanRedo) HistoryStack.ClearHistory();
+				isReset = true;
+				acceptChanges = false;
+			}
+			else if (HistoryStack.TryUndoPeek(out string previousText)) acceptChanges = !(value == previousText);
+			else acceptChanges = true;
+			return acceptChanges;
+		}
 
-        public bool CanUndo => IsRichText ? Document.CanUndo() : UndoStack.Count > 0;
+		private void Editor_TextChanged(object sender, RoutedEventArgs e)
+		{
+			var text = Text;
+			bool result = TextChangedHandler(text, out bool isReset);
+			ContentChanged?.Invoke(isReset);
+			if (IsRichText) (HistoryStack as RichEditHistoryWrapper).UpdateHistoryProperties();
+			else if (result && HistoryStack is FileHistoryStack stack)
+			{
+				FileHistoryData val = new(text, TextDocument.Selection.EndPosition);
+				stack.UndoPush(ref val);
+			}
+		}
 
-        public bool CanRedo => IsRichText ? Document.CanRedo() : RedoStack.Count > 0;
+		private async void Editor_Paste(object sender, TextControlPasteEventArgs e)
+		{
+			e.Handled = true;
+			var content = Clipboard.GetContent();
+			if (content.Contains("Text"))
+			{
+				var text = await content.GetTextAsync();
+				TextDocument.Selection.TypeText(text);
+			}
+		}
 
-        public bool CanClearHistory => CanUndo || CanRedo;
+		public void AttachEvents()
+		{
+			TextChanged += Editor_TextChanged;
+			KeyDown += Editor_KeyDown;
+			SelectionChanged += Editor_SelectionChanged;
+			if (!IsRichText) Paste += Editor_Paste;
+		}
 
-        private Stack<FileHistoryData> UndoStack;
+		public void DetachEvents()
+		{
+			SelectionChanged -= Editor_SelectionChanged;
+			TextChanged -= Editor_TextChanged;
+			KeyDown -= Editor_KeyDown;
+			if (!IsRichText) Paste -= Editor_Paste;
+		}
 
-        private Stack<FileHistoryData> RedoStack;
+		#endregion
 
-        public HistoryItemDone HistoryDone { get; set; }
+		#region Text suggestions
 
-        public string PreviousText => !IsRichText ? UndoStack.Peek().Text : string.Empty;
+		public readonly IDictionary<string, TokenType> SuggestionsList = new Dictionary<string, TokenType>();
 
-        private void UpdateHistoryProperties()
-        {
-            PropertyChanged?.Invoke(this, new(nameof(CanUndo)));
-            PropertyChanged?.Invoke(this, new(nameof(CanRedo)));
-            PropertyChanged?.Invoke(this, new(nameof(CanClearHistory)));
-        }
+		public IEnumerable<KeyValuePair<string, TokenType>> FindSuggestions(string text)
+		{
+			return from suggestion in SuggestionsList where suggestion.Key.Contains(text) || text.Contains(suggestion.Key) select suggestion;
+		}
 
-        public void Undo()
-        {
-            if (!CanUndo) return;
-            if (IsRichText) Document.Undo();
-            else
-            {
-                FileHistoryData retVal;
-                // Remove current one first
-                RedoStack.Push(UndoStack.Pop());
-                // Return second one
-                if (UndoStack.Count == 0) retVal = new(string.Empty, -1);
-                else retVal = UndoStack.Pop();
-                UpdateHistoryProperties();
-                HistoryDone?.Invoke(retVal.SelectionIndex == -1, retVal.Text, retVal.SelectionIndex);
-            }
-        }
+		#endregion
 
-        public void Redo()
-        {
-            if (!CanRedo) return;
-            if (IsRichText) Document.Redo();
-            else
-            {
-                var retVal = RedoStack.Pop();
-                UpdateHistoryProperties();
-                HistoryDone?.Invoke(false, retVal.Text, retVal.SelectionIndex);
-            }
-        }
+		#region Highlighting
 
-        public void ClearHistory()
-        {
-            UndoStack.Clear();
-            RedoStack.Clear();
-            UpdateHistoryProperties();
-        }
+		private static bool HighlightLock = false;
 
-        public void SelectAll()
-        {
-            Focus(FocusState.Keyboard);
-            TextDocument.Selection.StartPosition = 0;
-            TextDocument.Selection.EndOf(TextRangeUnit.Story, true);
-        }
+		public bool SyntaxHighlighting(IReadOnlyList<HighlightToken> tokens)
+		{
+			if (tokens.Count <= 0 || HighlightLock) return false;
+			HighlightLock = true;
+			foreach (var token in tokens)
+			{
+				var range = TextDocument.GetRange(token.StartIndex, Convert.ToInt32(token.StartIndex + token.Length));
+				if (range.CharacterFormat.ForegroundColor != token.Colour) range.CharacterFormat.ForegroundColor = token.Colour;
+			}
 
-        public void ClearSelection() => TextDocument.Selection.EndPosition = TextDocument.Selection.StartPosition;
+			HighlightLock = false;
+			return true;
+		}
 
-        public void FindText(string text)
-        {
+		#endregion
 
-        }
+		#region Interaction
 
-        public void ScrollToLine(int line, bool extend)
-        {
-            Focus(FocusState.Keyboard);
-            TextDocument.Selection.HomeKey(TextRangeUnit.Story, false);
-            TextDocument.Selection.MoveStart(TextRangeUnit.Line, line - 1);
-            if (extend)
-            {
-                TextDocument.Selection.Expand(TextRangeUnit.Line);
-                TextDocument.Selection.EndPosition = TextDocument.Selection.EndPosition - 1;
-            }
-        }
+		private IHistoryStack _HistoryStack;
 
-        public void Dispose()
-        {
-            DetachEvents();
-            HighlightCancellation.Cancel();
-            HighlightCancellation.Dispose();
-            TextChangeDelegate = null;
-            HistoryDone = null;
-            UndoStack?.Clear();
-            RedoStack?.Clear();
-            UndoStack = null;
-            RedoStack = null;
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-        }
+		public IHistoryStack HistoryStack
+		{
+			get => _HistoryStack;
+			set
+			{
+				if (_HistoryStack != value)
+				{
+					_HistoryStack = value;
+					PropertyChanged?.Invoke(this, new(nameof(HistoryStack)));
+				}
+			}
+		}
 
-        #endregion
-    }
+		public void SelectAll()
+		{
+			Focus(FocusState.Keyboard);
+			TextDocument.Selection.StartPosition = 0;
+			TextDocument.Selection.EndOf(TextRangeUnit.Story, true);
+		}
+
+		public void ClearSelection() => TextDocument.Selection.EndPosition = TextDocument.Selection.StartPosition;
+
+		public string[] FindText(string text, FindOptions options)
+		{
+			return null;
+		}
+
+		public void ScrollToLine(int line, bool extend)
+		{
+			Focus(FocusState.Keyboard);
+			TextDocument.Selection.HomeKey(TextRangeUnit.Story, false);
+			TextDocument.Selection.MoveStart(TextRangeUnit.Line, line - 1);
+			if (extend)
+			{
+				TextDocument.Selection.Expand(TextRangeUnit.Line);
+				TextDocument.Selection.EndPosition = TextDocument.Selection.EndPosition - 1;
+			}
+		}
+
+		#endregion
+	}
 }

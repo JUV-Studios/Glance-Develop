@@ -17,7 +17,6 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-using ColorCode.Common;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
