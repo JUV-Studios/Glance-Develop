@@ -333,7 +333,7 @@ namespace TextEditor.UI
 
 		#region Text suggestions
 
-		public readonly IDictionary<string, TokenType> SuggestionsList = new Dictionary<string, TokenType>();
+		public IDictionary<string, TokenType> SuggestionsList { get; } = new Dictionary<string, TokenType>();
 
 		public IEnumerable<KeyValuePair<string, TokenType>> FindSuggestions(string text)
 		{
