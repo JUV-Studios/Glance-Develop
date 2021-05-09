@@ -17,47 +17,49 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using TextEditor.Utils;
 using System.Collections.Generic;
 
 namespace TextEditor
 {
-    /* public abstract class IndentationProvider
+    public interface IIndentationProvider
     {
-        public int TabWidth { get; set; } = 4;
+        public byte TabSize { get; set; }
 
-        protected string ExtractLineText(ref string text, int loc)
+        public IReadOnlyList<char> BlockStart { get; }
+
+        public IReadOnlyList<char> BlockEnd { get; }
+
+        public bool NeedIndentation(string text);
+
+        public ulong GuessIndentLevel(string text, long index);
+    }
+
+    public static class IndentationProvider
+    {
+        public static void ExtractLineText(string text, int loc, LineEnding lineEnding)
         {
-            int i = loc;
-            while (i >= 0 && text[i] != '\r') { i--; }
-
-            int j = loc;
-            while (j < text.Length && text[j] != '\r') { j++; }
-
-            var a = text.ToCharArray();
-
-            if (i == j)
-                return text.Substring(i + 1, j - i);
-            else
-                return text.Substring(i + 1, j - i - 1);
+            int i = loc, j = loc;
+            while (i >= 0 && text[i] != '\r') i--;
+            while (j < text.Length && text[j] != '\r') j++;
+            text = i == j ? text = text.Substring(i + 1, j - i) : text.Substring(i + 1, j - i - 1);
         }
 
-        protected int GetIndentLevel(string lineText)
+        public static ulong GetIndentLevel(this IIndentationProvider provider, string lineText)
         {
-            int indentLevel = 0;
-
+            ulong indentLevel = 0;
             foreach (var c in lineText)
             {
-                if (c == ' ')
-                    indentLevel++;
-                else
-                    break;
+                if (c == ' ') indentLevel++;
+                else break;
             }
 
-            return indentLevel / TabWidth * TabWidth;
+            var tabSize = provider.TabSize;
+            return indentLevel / tabSize * tabSize;
         }
 
-        readonly List<int> blockStart = new List<int> { '[', '{', '(', '\'', '"' };
-        readonly List<int> blockEnd = new List<int> { ']', '}', ')', '\'', '"' };
+        /* readonly List<int> blockStart = new List<int> { '[', '{', '(', '\'', '"' };
+        readonly List<int> blockEnd = new List<int> { ']', '}', ')', '\'', '"' }; */
 
         /* protected bool IsBracketOpen(ref string text)
         {
@@ -85,7 +87,6 @@ namespace TextEditor
 
             return stack.Count > 0;
         } 
-
-        public abstract int GuessIndentLevel(string text, int index);
     } */
+    }
 }

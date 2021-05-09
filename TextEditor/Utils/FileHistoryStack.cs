@@ -34,11 +34,16 @@ namespace TextEditor.Utils
 
 	internal sealed class RichEditHistoryWrapper : IHistoryStack
 	{
-		public WeakReference<SyntaxEditor> TargetEditor { get; init; }
+		public RichEditHistoryWrapper(SyntaxEditor editor)
+		{
+			Target = new(editor);
+		}
 
-		public bool CanUndo => TargetEditor.ResolveEditorReference().Document.CanUndo();
+		private readonly WeakReference<SyntaxEditor> Target;
 
-		public bool CanRedo => TargetEditor.ResolveEditorReference().Document.CanRedo();
+		public bool CanUndo => Target.ResolveEditorReference().Document.CanUndo();
+
+		public bool CanRedo => Target.ResolveEditorReference().Document.CanRedo();
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -48,11 +53,11 @@ namespace TextEditor.Utils
 			PropertyChanged?.Invoke(this, new(nameof(CanRedo)));
 		}
 
-		public void ClearHistory() => TargetEditor.ResolveEditorReference().TextDocument.ClearUndoRedoHistory();
+		public void ClearHistory() => Target.ResolveEditorReference().TextDocument.ClearUndoRedoHistory();
 
-		public void Undo() => TargetEditor.ResolveEditorReference().Document.Undo();
+		public void Undo() => Target.ResolveEditorReference().Document.Undo();
 
-		public void Redo() => TargetEditor.ResolveEditorReference().Document.Redo();
+		public void Redo() => Target.ResolveEditorReference().Document.Redo();
 
 		public bool TryRedoPeek(out string text) => throw new NotImplementedException();
 

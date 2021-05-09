@@ -63,7 +63,7 @@ namespace TextEditor.UI
 
 	public sealed class SyntaxEditor : RichEditBox, INotifyPropertyChanged
 	{
-		private static string EditorStylesString = string.Empty;
+		private static string EditorStylesString = null;
 
 		public SyntaxEditor()
 		{
@@ -77,6 +77,8 @@ namespace TextEditor.UI
 		public SelectionInfo TextSelection => _TextSelection;
 
 		public bool IsRichText { get; private set; }
+
+		public bool RemoveBom { get; set; }
 
 		private bool _FileLoaded = false;
 
@@ -103,7 +105,7 @@ namespace TextEditor.UI
 			AttachEvents();
 			if (Resources.MergedDictionaries.Count == 0)
 			{
-				if (EditorStylesString == string.Empty) EditorStylesString = await PathIO.ReadTextAsync("ms-appx:///TextEditor/Themes/Styles.xaml");
+				if (EditorStylesString == null) EditorStylesString = await PathIO.ReadTextAsync("ms-appx:///TextEditor/Themes/Styles.xaml");
 				Resources.MergedDictionaries.Add(XamlReader.Load(EditorStylesString) as ResourceDictionary);
 			}
 
@@ -124,14 +126,13 @@ namespace TextEditor.UI
 				}
 
 				// Apply plain text editor style
-				foreach (var style in from item in Resources.MergedDictionaries.First() where item.Value is Style select item)
-				{
-					if (style.Key.ToString() == "PlainTextEditorStyle")
-					{
-						Style = style.Value as Style;
-						break;
-					}
-				}
+				var styles = from item in Resources.MergedDictionaries.First()
+							 where item.Value is Style
+							 select item;
+
+				Style = (from style in styles
+					where style.Key.ToString() == "PlainTextEditorStyle"
+					select style.Value as Style).First();
 
 				using var inputStream = readStream.GetInputStreamAt(0);
 				using var dataReader = new DataReader(inputStream);
@@ -144,28 +145,15 @@ namespace TextEditor.UI
 			}
 			else
 			{
+				TextDocument.UndoLimit = int.MaxValue;
 				Document.LoadFromStream(TextSetOptions.FormatRtf, readStream);
-				if (HistoryStack is not RichEditHistoryWrapper) HistoryStack = new RichEditHistoryWrapper()
+				if (HistoryStack is not RichEditHistoryWrapper)
 				{
-					TargetEditor = new(this)
-				};
-			}
-			FileLoaded = true;
-		}
-
-		private static unsafe void RemoveBom(string text)
-		{
-			fixed (char* textPtr = text)
-			{
-				for (int i = 0; i < text.Length; i++)
-				{
-					if (textPtr[i] == '\uFEFF')
-					{
-						textPtr[i] = string.Empty.First();
-						break;
-					}
+					HistoryStack = new RichEditHistoryWrapper(this);
 				}
 			}
+
+			FileLoaded = true;
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -221,36 +209,57 @@ namespace TextEditor.UI
 			}
 		}
 
+		private LineEnding _DesiredLineEnding;
+
+		public LineEnding DesiredLineEnding
+		{
+			get => _DesiredLineEnding;
+			set
+			{
+				if (_DesiredLineEnding != value)
+				{
+					_DesiredLineEnding = value;
+					PropertyChanged?.Invoke(this, new(nameof(DesiredLineEnding)));
+				}
+			}
+		}
+
 		public string OriginalText { get; private set; }
 
 		public string Text
 		{
 			get
 			{
-				TextDocument.GetText(IsRichText ? TextGetOptions.FormatRtf : TextGetOptions.UseCrlf, out string text);
+				TextDocument.GetText(IsRichText ? TextGetOptions.FormatRtf : LineEndingHelper.GetRichRetriveOptions(_DesiredLineEnding), out string text);
 				return text;
 			}
 			set
 			{
-				
-				RemoveBom(value);
-				if ((HistoryStack.CanUndo || HistoryStack.CanRedo) & !IsRichText)
+				if ((HistoryStack.CanUndo || HistoryStack.CanRedo) && !IsRichText)
 				{
 					var range = TextDocument.GetRange(0, 0);
 					range.EndOf(TextRangeUnit.Story, true);
 					range.Text = value;
 				}
-				else TextDocument.SetText(IsRichText ? TextSetOptions.FormatRtf : TextSetOptions.None, value);
+				else
+				{
+					if (!IsRichText && RemoveBom)
+					{
+						// Remove BOM
+						StringHelper.ReplaceCharacter(value, '\uFEFF', string.Empty[0]);
+					}
+
+					TextDocument.SetText(IsRichText ? TextSetOptions.FormatRtf : TextSetOptions.None, value);
+				}
 			}
 		}
 
 		public IAsyncOperation<bool> WriteFileAsync(StorageFile file) => WriteFile(file).AsAsyncOperation();
 
-		private static readonly IBuffer EmptyBuffer = CryptographicBuffer.CreateFromByteArray(new byte[] { 0 });
+		private static readonly IBuffer EmptyBuffer = (new byte[] { 0 }).AsBuffer();
 
 		private async Task<bool> WriteFile(StorageFile file)
 		{
-			bool result;
 			CachedFileManager.DeferUpdates(file);
 			if (IsRichText)
 			{
@@ -264,9 +273,14 @@ namespace TextEditor.UI
 			}
 
 			var writeResult = await CachedFileManager.CompleteUpdatesAsync(file);
-			if (writeResult != FileUpdateStatus.Complete) result = false;
-			else result = true;
-			return result;
+			return writeResult == FileUpdateStatus.Complete;
+		}
+
+		private IAsyncAction PrintAsync() => Print().AsAsyncAction();
+
+		private Task Print()
+		{
+			throw new NotImplementedException();
 		}
 
 		private static readonly string[] LineSplitValue = new string[] { Environment.NewLine };
@@ -337,7 +351,9 @@ namespace TextEditor.UI
 
 		public IEnumerable<KeyValuePair<string, TokenType>> FindSuggestions(string text)
 		{
-			return from suggestion in SuggestionsList where suggestion.Key.Contains(text) || text.Contains(suggestion.Key) select suggestion;
+			return from suggestion in SuggestionsList 
+				   where suggestion.Key.Contains(text) || text.Contains(suggestion.Key) 
+				   select suggestion;
 		}
 
 		#endregion

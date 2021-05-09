@@ -147,6 +147,8 @@
     <Compile Include="SyntaxLanguage.cs" />
     <Compile Include="UI\SyntaxEditor.cs" />
     <Compile Include="Utils\FileHistoryStack.cs" />
+    <Compile Include="Utils\LineEnding.cs" />
+    <Compile Include="Utils\StringHelper.cs" />
     <Compile Include="Utils\TextEncodingDetect.cs" />
     <EmbeddedResource Include="Properties\TextEditorUWP.rd.xml" />
   </ItemGroup>

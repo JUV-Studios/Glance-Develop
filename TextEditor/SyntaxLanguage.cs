@@ -21,24 +21,16 @@ using System.Collections.Generic;
 
 namespace TextEditor
 {
-    /* public abstract class SyntaxLanguage : ILanguage
-    {
-        public bool IsPlainText => Id == ".txt";
+    public interface ISyntaxLanguage
+    {        
+        public string Id { get; }
+        
+        public string DisplayName { get; }
 
-        public IndentationProvider IndentationProvider { get; set; }
+        public IIndentationProvider IndentationProvider { get; }
 
-        public string Id { get; protected set; }
-
-        public string FirstLinePattern { get; protected set; }
-
-        public string Name { get; protected set; }
-
-        public IList<LanguageRule> Rules { get; protected set; }
-
-        public string CssClassName => string.Empty;
-
-        public bool HasAlias(string lang) => false;
-    } */
+        public IReadOnlyList<string> SupportedFileTypes { get; }
+    }
 }
 
 namespace System.Runtime.CompilerServices

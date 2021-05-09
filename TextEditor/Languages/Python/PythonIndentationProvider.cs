@@ -45,6 +45,7 @@ namespace TextEditor.Languages
             return indentLevel;
         } */
 
+
         /* public override int GuessIndentLevel(string text, int index)
         {
             var lineText = ExtractLineText(ref text, index - 2).TrimEnd('\r');

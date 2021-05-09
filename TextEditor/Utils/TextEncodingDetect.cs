@@ -14,8 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Modified by Jaiganesh Kumaran for Develop
-
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;

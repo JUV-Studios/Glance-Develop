@@ -16,8 +16,9 @@
 // FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
-using System.Collections.Generic;
+
 using System.Linq;
+using System.Collections.Generic;
 
 namespace TextEditor.Lexer
 {
@@ -40,7 +41,7 @@ namespace TextEditor.Lexer
                     match = rule.Pattern.Match(str);
                     if (match.Success)
                     {
-                        if (match.Length == 0) throw new InvalidOperationException("Regex Pattern matches string of length zero");
+                        if (match.Length == 0) throw new InvalidOperationException("Regex pattern matches string of length zero");
                         yield return new Token(i, match.Length, rule.Captures.First().Value);
                         i += match.Length;
                         builder.Remove(0, match.Length);
@@ -58,6 +59,6 @@ namespace TextEditor.Lexer
 
                 str = builder.ToString();
             }
-        }*/
+        } */
     }
 }
